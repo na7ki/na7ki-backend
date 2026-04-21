@@ -1,0 +1,45 @@
+package com.na7ki.backend.core.security;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+public class SecurityConfig {
+
+    private final JwtAuthFilterStub jwtAuthFilterStub;
+
+    @Autowired
+    public SecurityConfig(JwtAuthFilterStub jwtAuthFilterStub) {
+        this.jwtAuthFilterStub = jwtAuthFilterStub;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+
+        // to be populated when endpoints are created
+        // request matchers run as the final security filter, after the jwt and the default Spring filter, respectively
+//        http.authorizeHttpRequests(configurer ->
+//                configurer
+//                        .requestMatchers(HttpMethod.GET, "/api/employees").hasRole("EMPLOYEE")
+
+
+
+        //use JWT filter before the default Spring filter "UsernamePasswordAuthenticationFilter". Eventually, this entirely replaces this default filter
+        http.addFilterBefore(jwtAuthFilterStub, UsernamePasswordAuthenticationFilter.class);
+
+        //turn off session creation. Because we're using JWT
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        //disable csrf because we're using JWT not cookies. CSRF may only happen to cookies
+        http.csrf(AbstractHttpConfigurer::disable);
+
+        return http.build();
+    }
+
+}
