@@ -1,5 +1,6 @@
 package com.na7ki.backend.core.security;
 
+import com.na7ki.backend.core.security.jwt.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +25,12 @@ public class SecurityConfig {
 
         // to be populated when endpoints are created
         // request matchers run as the final security filter, after the jwt and the default Spring filter, respectively
-//        http.authorizeHttpRequests(configurer ->
-//                configurer
-//                        .requestMatchers(HttpMethod.GET, "/api/employees").hasRole("EMPLOYEE")
+        http.authorizeHttpRequests(auth ->
+                auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/api/test/**").hasAuthority("ADMIN")
+        );
 
 
 

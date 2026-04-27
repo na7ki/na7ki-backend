@@ -1,4 +1,4 @@
-package com.na7ki.backend.core.security;
+package com.na7ki.backend.core.security.jwt;
 
 import com.na7ki.backend.core.security.exception.BadAuthenticationHeaderException;
 import com.na7ki.backend.core.security.exception.InvalidJwtTokenException;
