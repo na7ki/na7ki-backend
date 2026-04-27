@@ -6,10 +6,8 @@ import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfigur
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 
 //exclude property to be removed when db connection info are assigned
-@SpringBootApplication(exclude = {
-		DataSourceAutoConfiguration.class,
-		HibernateJpaAutoConfiguration.class
-})
+@SpringBootApplication
+
 public class BackendApplication {
 
 	public static void main(String[] args) {
