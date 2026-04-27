@@ -12,11 +12,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthFilterStub jwtAuthFilterStub;
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Autowired
-    public SecurityConfig(JwtAuthFilterStub jwtAuthFilterStub) {
-        this.jwtAuthFilterStub = jwtAuthFilterStub;
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
@@ -31,7 +31,7 @@ public class SecurityConfig {
 
 
         //use JWT filter before the default Spring filter "UsernamePasswordAuthenticationFilter". Eventually, this entirely replaces this default filter
-        http.addFilterBefore(jwtAuthFilterStub, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         //turn off session creation. Because we're using JWT
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
