@@ -1,7 +1,7 @@
 package com.na7ki.backend.auth.entity;
 
-import com.na7ki.backend.auth.auxiliary.Address;
-import com.na7ki.backend.auth.auxiliary.Gender;
+import com.na7ki.backend.auth.entity.auxiliary.Address;
+import com.na7ki.backend.auth.entity.auxiliary.Gender;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -40,7 +40,7 @@ public abstract class User implements UserDetails {
     private Date dateOfBirth;
 
     @Column (nullable = false)
-    private int age;
+    private byte age;
 
     @ElementCollection
     @CollectionTable (name = "user-phone_numbers", joinColumns = @JoinColumn(name = "user_id"))

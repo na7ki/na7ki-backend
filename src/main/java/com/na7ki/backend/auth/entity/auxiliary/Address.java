@@ -1,4 +1,4 @@
-package com.na7ki.backend.auth.auxiliary;
+package com.na7ki.backend.auth.entity.auxiliary;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -8,7 +8,7 @@ public record Address(
     @Column(nullable = false, length = 30)
     String city,
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     String street,
 
     @Column(name = "appartment_no")
