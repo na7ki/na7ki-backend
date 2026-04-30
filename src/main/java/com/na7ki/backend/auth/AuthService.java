@@ -81,9 +81,9 @@ public class AuthService {
 
         return switch (role) {
             case "SPECIALIST" ->
-                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("SPECIALIST"), ((Patient) user).getPatientID());
+                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("SPECIALIST"), ((Specialist) user).getSpecialistID());
             case "PATIENT" ->
-                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("PATIENT"), ((Specialist) user).getSpecialistID());
+                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("PATIENT"), ((Patient) user).getPatientID());
             default ->
                     throw new UnknownRoleException("Unknown role: " + role);
         };

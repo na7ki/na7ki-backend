@@ -1,6 +1,5 @@
 package com.na7ki.backend.core.security.jwt;
 
-import com.na7ki.backend.core.security.exception.BadAuthenticationHeaderException;
 import com.na7ki.backend.core.security.exception.InvalidJwtTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new BadAuthenticationHeaderException("Auth header not found or not in JWT format");
+            filterChain.doFilter(request, response);
         }
 
         final String token = authHeader.substring(7);
