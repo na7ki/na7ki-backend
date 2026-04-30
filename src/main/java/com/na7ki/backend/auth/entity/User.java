@@ -10,7 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -44,7 +43,7 @@ public abstract class User implements UserDetails {
     private int age;
 
     @ElementCollection
-    @CollectionTable (name = "user-phone_numbers", joinColumns = @JoinColumn(name = "id"))
+    @CollectionTable (name = "user-phone_numbers", joinColumns = @JoinColumn(name = "user_id"))
     @Column (name = "phone_number", nullable = false, unique = true, length = 13)
     private List<String> phoneNumbers = new ArrayList<>();
 
@@ -54,7 +53,7 @@ public abstract class User implements UserDetails {
     @Embedded
     private Address address;
 
-    @Column (name = "display_image_path", nullable = false, length = 100)
+    @Column (name = "display-image_path", nullable = false, length = 100)
     private String displayImage_path;
 
     @Column(name = "email_verification_time")
