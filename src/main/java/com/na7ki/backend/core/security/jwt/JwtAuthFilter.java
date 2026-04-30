@@ -44,6 +44,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // authenticate only if request isn't already authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            //Design Decision. Optional DB hit
+            //Costs more, but ensures the user is still active and wasn't banned or deleted from the DB before the token hasn't expired yet
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.isTokenValid(token, userDetails)) {

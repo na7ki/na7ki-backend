@@ -4,10 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Table(name = "patient")
 @DiscriminatorValue("PATIENT")
+@Data
 public class Patient extends User {
 
     @Column(name="patient_id", nullable = false, unique=true, updatable=false, length=15)

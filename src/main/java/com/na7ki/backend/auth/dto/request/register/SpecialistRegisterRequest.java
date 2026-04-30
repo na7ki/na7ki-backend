@@ -3,9 +3,13 @@ package com.na7ki.backend.auth.dto.request.register;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class SpecialistRegisterRequest extends BaseRegisterRequest{
 
     @NotBlank(message = "Specialist must provide their educational degree details")

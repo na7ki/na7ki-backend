@@ -4,10 +4,14 @@ import com.na7ki.backend.auth.entity.auxiliary.Gender;
 import com.na7ki.backend.auth.dto.request.register.auxiliary.AddressRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 
+@Getter
+@Setter
 public class BaseRegisterRequest {
 
     @NotBlank(message = "Name is required")

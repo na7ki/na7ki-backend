@@ -56,6 +56,9 @@ public abstract class User implements UserDetails {
     @Column (name = "display-image_path", nullable = false, length = 100)
     private String displayImage_path;
 
+
+
+
     @Column(name = "email_verification_time")
     private Date emailVerificationTime;
 
@@ -69,6 +72,8 @@ public abstract class User implements UserDetails {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+
 
 
     @Override

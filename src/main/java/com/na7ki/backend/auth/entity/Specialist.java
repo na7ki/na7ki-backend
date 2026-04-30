@@ -1,12 +1,14 @@
 package com.na7ki.backend.auth.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
 @Table(name = "specialist")
 @DiscriminatorValue("SPECIALIST")
+@Data
 public class Specialist extends User {
 
     @Column(name="specialist_id", nullable = false, unique=true, updatable=false, length=15)
