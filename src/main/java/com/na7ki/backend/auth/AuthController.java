@@ -1,8 +1,6 @@
 package com.na7ki.backend.auth;
 
-import com.na7ki.backend.auth.dto.request.login.LoginRequest;
-import com.na7ki.backend.auth.dto.request.register.PatientRegisterRequest;
-import com.na7ki.backend.auth.dto.request.register.SpecialistRegisterRequest;
+import com.na7ki.backend.auth.dto.request.LoginRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
 import com.na7ki.backend.auth.exception.*;
 import jakarta.validation.Valid;

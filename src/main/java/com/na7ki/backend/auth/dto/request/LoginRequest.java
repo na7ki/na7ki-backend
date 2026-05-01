@@ -1,4 +1,4 @@
-package com.na7ki.backend.auth.dto.request.login;
+package com.na7ki.backend.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

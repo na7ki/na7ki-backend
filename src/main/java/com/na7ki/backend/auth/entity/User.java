@@ -1,7 +1,6 @@
 package com.na7ki.backend.auth.entity;
 
-import com.na7ki.backend.auth.entity.auxiliary.Address;
-import com.na7ki.backend.auth.entity.auxiliary.Gender;
+import com.na7ki.backend.auth.entity.auxililary.Gender;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,8 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +27,9 @@ public abstract class User implements UserDetails {
     @Column(nullable = false, length = 50)
     private String name;
 
+    @Column(nullable = false, unique = true, length = 50)
+    private String email;
+
     @Column(nullable = false, length = 68)
     private String password;
 
@@ -37,26 +37,16 @@ public abstract class User implements UserDetails {
     @Column (nullable = false, length = 6)
     private Gender gender;
 
-    @Column (name = "date_of_birth")
-    private LocalDate dateOfBirth;
+    @Column (nullable = false, unique = true, length = 13)
+    private String phoneNumber;
 
     @Column (nullable = false)
     private Byte age;
 
-    @ElementCollection
-    @CollectionTable (name = "user-phone_numbers", joinColumns = @JoinColumn(name = "user_id"))
-    @Column (name = "phone_number", nullable = false, unique = true, length = 13)
-    private List<String> phoneNumbers = new ArrayList<>();
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String email;
-
-    @Embedded
-    private Address address;
 
     @Column (name = "display-image_path", nullable = false, length = 100)
     private String displayImage_path;
-
 
 
 
@@ -77,6 +67,7 @@ public abstract class User implements UserDetails {
 
 
 
+
     @Override
     public String getUsername() {
         return this.email;
@@ -88,7 +79,6 @@ public abstract class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = this.getClass().getAnnotation(DiscriminatorValue.class).value();
-        return List.of(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority(this.getRole()));
     }
 }

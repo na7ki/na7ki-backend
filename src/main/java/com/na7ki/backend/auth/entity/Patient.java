@@ -1,5 +1,6 @@
 package com.na7ki.backend.auth.entity;
 
+import com.na7ki.backend.auth.entity.patientdetails.PatientMedicalDetails;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,12 +10,10 @@ import lombok.Data;
 @Data
 public class Patient extends User {
 
-//    private static long counter = 0;
-//
-//    @Column(name="patient_id", nullable = false, unique=true, updatable=false, length=15)
-//    private String patientID;
+    @Column(name="patient_id", nullable = false, unique=true, updatable=false, length=15)
+    private String patientID;
 
-    @Column(name = "medical_history", length = 2000)
-    private String medicalHistory;
+    @Embedded
+    private PatientMedicalDetails details;
 
 }

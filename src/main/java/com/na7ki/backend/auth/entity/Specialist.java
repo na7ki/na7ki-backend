@@ -3,6 +3,7 @@ package com.na7ki.backend.auth.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -11,13 +12,14 @@ import java.util.List;
 @Data
 public class Specialist extends User {
 
-//    private static long counter = 0;
-//
-//    @Column(name="specialist_id", nullable = false, unique=true, updatable=false, length=15)
-//    private String specialistID;
+    @Column(name="specialist_id", nullable = false, unique=true, updatable=false, length=15)
+    private String specialistID;
 
-    @Column (name = "educational_degree_details", nullable = false, length = 150)
-    private String educationalDegreeDetails;
+    @Column (name = "date_of_birth", nullable = false, updatable=false)
+    private LocalDate dateOfBirth;
+
+    @Column (nullable = false, length = 300)
+    private String address;
 
     @ElementCollection
     @CollectionTable (name = "specialist-personal_images", joinColumns = @JoinColumn(name = "user_id"))
