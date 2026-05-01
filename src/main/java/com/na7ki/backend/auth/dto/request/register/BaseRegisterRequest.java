@@ -28,7 +28,7 @@ public class BaseRegisterRequest {
     private Date dateOfBirth;
 
     @NotNull(message = "Age is required")
-    private byte age;
+    private Byte age;
 
     @NotNull
     @Size(min = 1, message = "At least one phone number is required")

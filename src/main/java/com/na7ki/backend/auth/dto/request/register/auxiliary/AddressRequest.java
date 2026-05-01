@@ -9,7 +9,7 @@ public record AddressRequest(
 
     String street,
 
-    short appartmentNo
+    Short apartmentNo
 
 ) {
 }

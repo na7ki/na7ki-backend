@@ -11,7 +11,7 @@ public record Address(
     @Column(length = 100)
     String street,
 
-    @Column(name = "appartment_no")
-    short apartmentNumber
+    @Column(name = "apartment_no")
+    Short apartmentNo
 ) {}
 

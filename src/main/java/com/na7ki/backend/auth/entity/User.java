@@ -41,7 +41,7 @@ public abstract class User implements UserDetails {
     private LocalDate dateOfBirth;
 
     @Column (nullable = false)
-    private byte age;
+    private Byte age;
 
     @ElementCollection
     @CollectionTable (name = "user-phone_numbers", joinColumns = @JoinColumn(name = "user_id"))
