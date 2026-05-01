@@ -8,8 +8,7 @@ public record AuthResponse(
 
     String jwt,
     String email,
-    List<String> roles,
-    String specificUserId
+    List<String> roles
 
 ) {
 }

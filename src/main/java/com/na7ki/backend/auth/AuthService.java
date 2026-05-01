@@ -35,13 +35,13 @@ public class AuthService {
     public AuthResponse registerSpecialist (SpecialistRegisterRequest request) {
         Specialist specialist = userMapper.toSpecialist(request);
         String jwt = registerUser(specialist, request.getPassword());
-        return new AuthResponse(jwt, specialist.getEmail(), Collections.singletonList("SPECIALIST"), specialist.getSpecialistID());
+        return new AuthResponse(jwt, specialist.getEmail(), Collections.singletonList("SPECIALIST"));
     }
 
     public AuthResponse registerPatient (PatientRegisterRequest request) {
         Patient patient = userMapper.toPatient(request);
         String jwt = registerUser(patient, request.getPassword());
-        return new AuthResponse(jwt, patient.getEmail(), Collections.singletonList("PATIENT"), patient.getPatientID());
+        return new AuthResponse(jwt, patient.getEmail(), Collections.singletonList("PATIENT"));
     }
 
     private String registerUser(User user, String password) {
@@ -79,9 +79,9 @@ public class AuthService {
 
         return switch (user.getRole()) {
             case "SPECIALIST" ->
-                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("SPECIALIST"), ((Specialist) user).getSpecialistID());
+                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("SPECIALIST"));
             case "PATIENT" ->
-                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("PATIENT"), ((Patient) user).getPatientID());
+                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("PATIENT"));
             default ->
                     throw new UnknownRoleException("Unknown role: " + user.getRole());
         };
