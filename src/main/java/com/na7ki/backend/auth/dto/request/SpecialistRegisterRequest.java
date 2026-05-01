@@ -1,14 +1,11 @@
 package com.na7ki.backend.auth.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.na7ki.backend.auth.entity.auxililary.Gender;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
 public record SpecialistRegisterRequest (
 
     @NotBlank(message = "Name is required")
@@ -30,12 +27,11 @@ public record SpecialistRegisterRequest (
     @Pattern(regexp = "^\\s*(\\+2)?01\\d{9}\\s*$", message = "Invalid phone number format")
     String phoneNumber,
 
+    @JsonFormat(pattern = "yyyy-M-d")
+    @NotNull (message = "date of birth is required")
     LocalDate dateOfBirth,
 
     @NotBlank (message = "address is required")
-    String address,
-
-    @NotBlank(message = "A display image must be chosen")
-    String displayImage_path
+    String address
 
 ) {}

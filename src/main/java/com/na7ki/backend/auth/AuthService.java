@@ -42,7 +42,7 @@ public class AuthService {
             throw new EmailNotUniqueException("This email is in use by another user");
         }
         if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new PhoneNumberNotUniqueException("One of the phone numbers provided is in use by another user");
+            throw new PhoneNumberNotUniqueException("This phone numbers is in use by another user");
         }
 
         Specialist specialist = userMapper.toSpecialist(request);
@@ -59,7 +59,7 @@ public class AuthService {
 
         specialist.setPassword(passwordEncoder.encode(request.password()));
         specialist.setAge((byte) Period.between(request.dateOfBirth(), LocalDate.now()).getYears());
-        specialist.setSpecialistID("SP" + userRepository.countByType(Specialist.class));
+        specialist.setSpecialistID("SP" + (userRepository.countByType(Specialist.class) + 1));
         specialist.setDisplayImage_path("NOT SET YET");
 
         List<String> paths = new ArrayList<>();

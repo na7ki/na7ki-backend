@@ -23,7 +23,7 @@ public class Specialist extends User {
 
     @ElementCollection
     @CollectionTable (name = "specialist-personal_images", joinColumns = @JoinColumn(name = "user_id"))
-    @Column (name = "personal_image_path", nullable = false, unique = true, length = 100)
+    @Column (name = "personal_image_path", nullable = false, length = 100)
     private List<String> personalImages_paths;
 
 }

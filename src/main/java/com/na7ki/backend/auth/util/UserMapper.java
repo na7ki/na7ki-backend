@@ -11,9 +11,9 @@ public interface UserMapper {
 
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "age", ignore = true)
-    @Mapping(target = "display-image_path", ignore = true)
-    @Mapping(target = "specialist_id", ignore = true)
-    @Mapping(target = "specialist-personal_images", ignore = true)
+    @Mapping(target = "displayImage_path", ignore = true)
+    @Mapping(target = "specialistID", ignore = true)
+    @Mapping(target = "personalImages_paths", ignore = true)
     Specialist toSpecialist (SpecialistRegisterRequest Request);
 
 }
