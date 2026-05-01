@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -37,7 +38,7 @@ public abstract class User implements UserDetails {
     private Gender gender;
 
     @Column (name = "date_of_birth")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column (nullable = false)
     private byte age;
@@ -79,6 +80,10 @@ public abstract class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    public String getRole() {
+        return this.getClass().getAnnotation(DiscriminatorValue.class).value();
     }
 
     @Override

@@ -77,15 +77,13 @@ public class AuthService {
 
         String jwt = jwtUtil.generateToken(user);
 
-        String role = user.getAuthorities().iterator().next().getAuthority();
-
-        return switch (role) {
+        return switch (user.getRole()) {
             case "SPECIALIST" ->
                     new AuthResponse(jwt, user.getEmail(), Collections.singletonList("SPECIALIST"), ((Specialist) user).getSpecialistID());
             case "PATIENT" ->
                     new AuthResponse(jwt, user.getEmail(), Collections.singletonList("PATIENT"), ((Patient) user).getPatientID());
             default ->
-                    throw new UnknownRoleException("Unknown role: " + role);
+                    throw new UnknownRoleException("Unknown role: " + user.getRole());
         };
     }
 }

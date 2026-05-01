@@ -11,6 +11,8 @@ import java.util.List;
 @Data
 public class Specialist extends User {
 
+    private static long counter = 0;
+
     @Column(name="specialist_id", nullable = false, unique=true, updatable=false, length=15)
     private String specialistID;
 
@@ -22,4 +24,12 @@ public class Specialist extends User {
     @Column (name = "personal_image_path", nullable = false, unique = true, length = 100)
     private List<String> personalImages_paths;
 
+
+
+
+
+    @PrePersist
+    private void prePersist() {
+        this.specialistID = "SP" + ++counter;
+    }
 }
