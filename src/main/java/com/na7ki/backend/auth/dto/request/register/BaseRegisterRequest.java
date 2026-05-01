@@ -2,6 +2,7 @@ package com.na7ki.backend.auth.dto.request.register;
 
 import com.na7ki.backend.auth.entity.auxiliary.Gender;
 import com.na7ki.backend.auth.dto.request.register.auxiliary.AddressRequest;
+import com.na7ki.backend.core.validation.duplication.NoDuplicates;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -32,6 +33,7 @@ public class BaseRegisterRequest {
 
     @NotNull
     @Size(min = 1, message = "At least one phone number is required")
+    @NoDuplicates(message = "Phone numbers must not contain duplicates")
     private List<
             @NotBlank
             @Pattern(regexp = "^\\s*(\\+2)?01\\d{9}\\s*$", message = "Invalid phone number format")
