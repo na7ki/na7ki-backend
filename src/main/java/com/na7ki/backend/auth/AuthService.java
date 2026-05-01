@@ -1,8 +1,8 @@
 package com.na7ki.backend.auth;
 
 import com.na7ki.backend.auth.dto.request.LoginRequest;
+import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
-import com.na7ki.backend.auth.entity.Patient;
 import com.na7ki.backend.auth.entity.Specialist;
 import com.na7ki.backend.auth.entity.User;
 import com.na7ki.backend.auth.exception.*;
@@ -16,8 +16,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,36 +36,35 @@ public class AuthService {
 
 
     public AuthResponse registerSpecialist (SpecialistRegisterRequest request) {
-        Specialist specialist = userMapper.toSpecialist(request);
-        String jwt = registerUser(specialist, request.getPassword());
-        return new AuthResponse(jwt, specialist.getEmail(), Collections.singletonList("SPECIALIST"));
-    }
-
-    public AuthResponse registerPatient (PatientRegisterRequest request) {
-        Patient patient = userMapper.toPatient(request);
-        String jwt = registerUser(patient, request.getPassword());
-        return new AuthResponse(jwt, patient.getEmail(), Collections.singletonList("PATIENT"));
-    }
-
-    private String registerUser(User user, String password) {
 
         //check uniqueness of some credentials
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new EmailNotUniqueException("This email is in use by another user");
         }
-        if (userRepository.existsByAnyPhoneNumber(user.getPhoneNumbers())) {
+        if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
             throw new PhoneNumberNotUniqueException("One of the phone numbers provided is in use by another user");
         }
-        if (Objects.equals(user.getRole(), "SPECIALIST") && specialistRepository.existsByAnyPersonalImage(((Specialist) user).getPersonalImages_paths())) {
-            throw new SpecialistPersonalImageReuseException("This personal image is in use by another Specialist. Identity theft warning");
-        }
 
-        //persist user
-        user.setPassword(passwordEncoder.encode(password));
-        userRepository.save(user);
+        Specialist specialist = userMapper.toSpecialist(request);
+        manageSpecialistFields(specialist, request);
 
-        //return jwt
-        return jwtUtil.generateToken(user);
+        specialistRepository.save(specialist);
+        String jwt = jwtUtil.generateToken(specialist);
+
+        return new AuthResponse(jwt, specialist.getEmail(), Collections.singletonList("SPECIALIST"));
+
+    }
+
+    private void manageSpecialistFields(Specialist specialist, SpecialistRegisterRequest request) {
+
+        specialist.setPassword(passwordEncoder.encode(request.password()));
+        specialist.setAge((byte) Period.between(request.dateOfBirth(), LocalDate.now()).getYears());
+        specialist.setSpecialistID("SP" + userRepository.countByType(Specialist.class));
+        specialist.setDisplayImage_path("NOT SET YET");
+
+        List<String> paths = new ArrayList<>();
+        paths.add("NOT SET YET");
+        specialist.setPersonalImages_paths(paths);
 
     }
 

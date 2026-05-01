@@ -1,6 +1,7 @@
 package com.na7ki.backend.auth;
 
 import com.na7ki.backend.auth.dto.request.LoginRequest;
+import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
 import com.na7ki.backend.auth.exception.*;
 import jakarta.validation.Valid;
@@ -18,14 +19,9 @@ public class AuthController {
 
 
 
-    @PostMapping("/register/specialist")
+    @PostMapping("/register-specialist")
     public ResponseEntity<AuthResponse> specialistRegister(@Valid @RequestBody SpecialistRegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerSpecialist(request));
-    }
-
-    @PostMapping("/register/patient")
-    public ResponseEntity<AuthResponse> patientRegister(@Valid @RequestBody PatientRegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerPatient(request));
     }
 
     @PostMapping("/login")
