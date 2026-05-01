@@ -7,10 +7,7 @@ import com.na7ki.backend.auth.dto.response.AuthResponse;
 import com.na7ki.backend.auth.entity.Patient;
 import com.na7ki.backend.auth.entity.Specialist;
 import com.na7ki.backend.auth.entity.User;
-import com.na7ki.backend.auth.exception.EmailNotUniqueException;
-import com.na7ki.backend.auth.exception.PhoneNumberNotUniqueException;
-import com.na7ki.backend.auth.exception.SpecialistPersonalImageReuseException;
-import com.na7ki.backend.auth.exception.UnknownRoleException;
+import com.na7ki.backend.auth.exception.*;
 import com.na7ki.backend.auth.repository.SpecialistRepository;
 import com.na7ki.backend.auth.repository.UserRepository;
 import com.na7ki.backend.auth.util.UserMapper;
@@ -73,15 +70,16 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
 
+        // check existence first, before authentication
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No account is associated with this email"));
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
                         request.password()
                 )
         );
-
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow();
 
         String jwt = jwtUtil.generateToken(user);
 

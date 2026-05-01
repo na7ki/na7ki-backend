@@ -4,10 +4,7 @@ import com.na7ki.backend.auth.dto.request.login.LoginRequest;
 import com.na7ki.backend.auth.dto.request.register.PatientRegisterRequest;
 import com.na7ki.backend.auth.dto.request.register.SpecialistRegisterRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
-import com.na7ki.backend.auth.exception.EmailNotUniqueException;
-import com.na7ki.backend.auth.exception.PhoneNumberNotUniqueException;
-import com.na7ki.backend.auth.exception.SpecialistPersonalImageReuseException;
-import com.na7ki.backend.auth.exception.UnknownRoleException;
+import com.na7ki.backend.auth.exception.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,6 +52,11 @@ public class AuthController {
     @ExceptionHandler(SpecialistPersonalImageReuseException.class)
     public ResponseEntity<String> handleSpecialistPersonalImageReuse(SpecialistPersonalImageReuseException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EmailNotAssociatedWithAnyAccountException.class)
+    public ResponseEntity<String> handleAccountNotFound(EmailNotAssociatedWithAnyAccountException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(UnknownRoleException.class)
