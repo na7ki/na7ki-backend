@@ -22,7 +22,8 @@ public class EmailService {
         message.setSubject("Verification code for password reset");
         message.setText(
                 "Hello, " + "\n\n" +
-                "Your verification code is: " + code
+                "Your verification code is: " + code + "\n\n" +
+                "If you haven't requested this code or tried loging in on our platform, please ignore this email"
         );
         mailSender.send(message);
     }

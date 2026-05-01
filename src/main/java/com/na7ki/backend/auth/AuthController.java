@@ -1,8 +1,13 @@
 package com.na7ki.backend.auth;
 
+import com.na7ki.backend.auth.dto.request.forgotpassword.ForgotPasswordRequest;
 import com.na7ki.backend.auth.dto.request.LoginRequest;
 import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
+import com.na7ki.backend.auth.dto.request.forgotpassword.ResetPasswordRequest;
+import com.na7ki.backend.auth.dto.request.forgotpassword.VerifyCodeRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
+import com.na7ki.backend.auth.dto.response.forgotpassword.ForgotPasswordResponse;
+import com.na7ki.backend.auth.dto.response.forgotpassword.VerifyCodeResponse;
 import com.na7ki.backend.auth.exception.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +32,26 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+
+
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ForgotPasswordResponse> requestResetPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.requestResetPassword(request));
+    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<VerifyCodeResponse> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.verifyCode(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok("Password reset successful");
     }
 
 

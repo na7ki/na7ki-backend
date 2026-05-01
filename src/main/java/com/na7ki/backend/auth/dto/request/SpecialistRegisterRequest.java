@@ -1,7 +1,7 @@
 package com.na7ki.backend.auth.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.na7ki.backend.auth.entity.auxililary.Gender;
+import com.na7ki.backend.domain.user.entity.auxililary.Gender;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
