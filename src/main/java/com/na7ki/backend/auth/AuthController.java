@@ -6,6 +6,7 @@ import com.na7ki.backend.auth.dto.request.register.SpecialistRegisterRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
 import com.na7ki.backend.auth.exception.EmailNotUniqueException;
 import com.na7ki.backend.auth.exception.PhoneNumberNotUniqueException;
+import com.na7ki.backend.auth.exception.SpecialistPersonalImageReuseException;
 import com.na7ki.backend.auth.exception.UnknownRoleException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,11 @@ public class AuthController {
 
     @ExceptionHandler(PhoneNumberNotUniqueException.class)
     public ResponseEntity<String> handlePhoneNoNotUnique(PhoneNumberNotUniqueException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SpecialistPersonalImageReuseException.class)
+    public ResponseEntity<String> handleSpecialistPersonalImageReuse(SpecialistPersonalImageReuseException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 

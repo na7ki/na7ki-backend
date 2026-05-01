@@ -1,4 +1,4 @@
-package com.na7ki.backend.auth;
+package com.na7ki.backend.auth.repository;
 
 import com.na7ki.backend.auth.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,5 +1,6 @@
 package com.na7ki.backend.auth;
 
+import com.na7ki.backend.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
