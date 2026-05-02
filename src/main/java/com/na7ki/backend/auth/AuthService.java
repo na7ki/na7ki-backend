@@ -14,12 +14,11 @@ import com.na7ki.backend.auth.verificationcode.VerificationCode;
 import com.na7ki.backend.auth.verificationcode.VerificationCodeService;
 import com.na7ki.backend.auth.verificationcode.exception.NoVerificationCodeForThisEmail;
 import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeForThisEmailAlreadyExistsException;
+import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.auth.exception.*;
-import com.na7ki.backend.domain.user.repository.SpecialistRepository;
-import com.na7ki.backend.domain.user.repository.UserRepository;
-import com.na7ki.backend.domain.user.UserMapper;
+import com.na7ki.backend.auth.util.UserMapper;
 import com.na7ki.backend.core.email.EmailService;
 import com.na7ki.backend.core.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +40,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final SpecialistRepository specialistRepository;
+    private final UserService userService;
     private final VerificationCodeService verificationCodeService;
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
@@ -51,21 +49,20 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
 
-
     public AuthResponse registerSpecialist (SpecialistRegisterRequest request) {
 
         //check uniqueness of some credentials
-        if (userRepository.existsByEmail(request.email())) {
+        if (!userService.isEmailUnique(request.email())) {
             throw new EmailNotUniqueException("This email is in use by another user");
         }
-        if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
+        if (!userService.isPhoneNumberUnique(request.phoneNumber())) {
             throw new PhoneNumberNotUniqueException("This phone numbers is in use by another user");
         }
 
         Specialist specialist = userMapper.toSpecialist(request);
         manageSpecialistFields(specialist, request);
 
-        specialistRepository.save(specialist);
+        userService.saveUser(specialist);
         String jwt = jwtUtil.generateToken(specialist);
 
         return new AuthResponse(jwt, specialist.getEmail(), Collections.singletonList("SPECIALIST"));
@@ -76,7 +73,7 @@ public class AuthService {
 
         specialist.setPassword(passwordEncoder.encode(request.password()));
         specialist.setAge((byte) Period.between(request.dateOfBirth(), LocalDate.now()).getYears());
-        specialist.setSpecialistID("SP" + (userRepository.countByType(Specialist.class) + 1));
+        specialist.setSpecialistID("SP" + userService.createSpecialistIdNumberPart());
         specialist.setDisplayImage_path("NOT SET YET");
 
         List<String> paths = new ArrayList<>();
@@ -88,8 +85,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
 
         // check existence first, before authentication
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No account is associated with this email"));
+        User user = userService.findByEmailOrThrow(request.email());
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -113,7 +109,7 @@ public class AuthService {
     @Transactional
     public ForgotPasswordResponse requestResetPassword (ForgotPasswordRequest request) {
 
-        Optional<User> potentialUser= userRepository.findByEmail(request.email());
+        Optional<User> potentialUser= userService.findByEmail(request.email());
         if (potentialUser.isPresent()) {
             VerificationCode potentialAssociatedCode = potentialUser.get().getVerificationCode();
             if (potentialAssociatedCode != null)
@@ -162,12 +158,9 @@ public class AuthService {
 
     @Transactional
     public void resetPassword (ResetPasswordRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No user is associated with this email"));
-
+        User user = userService.findByEmailOrThrow(request.email());
         user.setPassword(passwordEncoder.encode(request.newPassword()));
-
-        userRepository.save(user);
+        userService.saveUser(user);
     }
 
 }

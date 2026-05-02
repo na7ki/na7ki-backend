@@ -4,8 +4,8 @@ import com.na7ki.backend.auth.verificationcode.exception.NoVerificationCodeForTh
 import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeExpiredException;
 import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeMismatchException;
 import com.na7ki.backend.auth.verificationcode.helper.CodeGenerator;
+import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.User;
-import com.na7ki.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 public class VerificationCodeService {
 
     private final VerificationCodeRepository verificationCodeRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+
 
     private static final short EXPIRATION_DURATION_MINUTES = 2;
 
@@ -38,7 +39,7 @@ public class VerificationCodeService {
 
     public boolean verifyCode (String code, String associatedUserEmail) {
 
-        User associatedUser = userRepository.findByEmail(associatedUserEmail)
+        User associatedUser = userService.findByEmail(associatedUserEmail)
                 .orElseThrow(() -> new NoVerificationCodeForThisEmail("No verification code is associated with the provided email"));
 
         VerificationCode targetCode = associatedUser.getVerificationCode();
@@ -57,10 +58,8 @@ public class VerificationCodeService {
     }
 
     public VerificationCode getCodeOfUser (String potentialUserEmail) {
-        VerificationCode targetCode = verificationCodeRepository.findByUserEmail(potentialUserEmail)
+        return verificationCodeRepository.findByUserEmail(potentialUserEmail)
                 .orElseThrow(() -> new NoVerificationCodeForThisEmail("No verification code is associated with the provided email"));
-
-        return targetCode;
     }
 
     public void deleteCode (VerificationCode code) {

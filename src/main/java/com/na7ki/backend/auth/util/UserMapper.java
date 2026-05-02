@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user;
+package com.na7ki.backend.auth.util;
 
 import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.domain.user.entity.Specialist;
