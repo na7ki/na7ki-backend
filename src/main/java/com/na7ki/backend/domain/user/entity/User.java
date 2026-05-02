@@ -51,7 +51,7 @@ public abstract class User implements UserDetails {
 
 
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private VerificationCode verificationCode;
 
 

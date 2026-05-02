@@ -3,12 +3,17 @@ package com.na7ki.backend.auth;
 import com.na7ki.backend.auth.dto.request.forgotpassword.ForgotPasswordRequest;
 import com.na7ki.backend.auth.dto.request.LoginRequest;
 import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
+import com.na7ki.backend.auth.dto.request.forgotpassword.ResendCodeRequest;
 import com.na7ki.backend.auth.dto.request.forgotpassword.ResetPasswordRequest;
 import com.na7ki.backend.auth.dto.request.forgotpassword.VerifyCodeRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
 import com.na7ki.backend.auth.dto.response.forgotpassword.ForgotPasswordResponse;
+import com.na7ki.backend.auth.dto.response.forgotpassword.ResendCodeResponse;
 import com.na7ki.backend.auth.dto.response.forgotpassword.VerifyCodeResponse;
+import com.na7ki.backend.auth.verificationcode.VerificationCode;
 import com.na7ki.backend.auth.verificationcode.VerificationCodeService;
+import com.na7ki.backend.auth.verificationcode.exception.NoVerificationCodeForThisEmail;
+import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeForThisEmailAlreadyExistsException;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.auth.exception.*;
@@ -22,8 +27,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,20 +110,57 @@ public class AuthService {
         };
     }
 
+    @Transactional
     public ForgotPasswordResponse requestResetPassword (ForgotPasswordRequest request) {
 
-        Optional<User> user = userRepository.findByEmail(request.email());
-        if (user.isPresent()) {
-            String resetVerificationCode = verificationCodeService.createCode(user.get());
-            emailService.sendVerificationCode(request.email(), resetVerificationCode);
+        Optional<User> potentialUser= userRepository.findByEmail(request.email());
+        if (potentialUser.isPresent()) {
+            VerificationCode potentialAssociatedCode = potentialUser.get().getVerificationCode();
+            if (potentialAssociatedCode != null)
+            {
+                if (potentialAssociatedCode.getExpiresAt().isAfter(LocalDateTime.now())) {
+                    throw new VerificationCodeForThisEmailAlreadyExistsException("There is already a verification code for this email");
+                } else {
+                    verificationCodeService.deleteCode(potentialAssociatedCode);
+                }
+            }
+            String verificationCode = verificationCodeService.createCode(potentialUser.get());
+            emailService.sendVerificationCode(request.email(), verificationCode);
+            return new ForgotPasswordResponse(request.email(), true, "A verification code has been sent to this email");
+        } else {
+            return new ForgotPasswordResponse(request.email(), false, "A verification code has been sent to this email");
         }
-        return new ForgotPasswordResponse(request.email(), "A verification code has been sent to this email");
     }
 
+    @Transactional
     public VerifyCodeResponse verifyCode(VerifyCodeRequest request) {
         return new VerifyCodeResponse(request.email(), verificationCodeService.verifyCode(request.code(), request.email()));
     }
 
+    @Transactional
+    public ResendCodeResponse resendCode (ResendCodeRequest request) {
+        VerificationCode potentialAssociatedCode = null;
+        boolean isValid = true;
+        try {
+            potentialAssociatedCode = verificationCodeService.getCodeOfUser(request.email());
+        } catch (NoVerificationCodeForThisEmail e) {
+            isValid = false;
+        } finally {
+            if (potentialAssociatedCode != null && potentialAssociatedCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+                verificationCodeService.deleteCode(potentialAssociatedCode);
+                isValid = false;
+            }
+            if (!isValid) {
+                requestResetPassword(new ForgotPasswordRequest(request.email()));
+                return new ResendCodeResponse(request.email(), true, "A new code has been sent to your email");
+            }
+            else {
+                return new ResendCodeResponse(request.email(), false,"There's a code associated with this email. Please wait a few minutes before requesting another code");
+            }
+        }
+    }
+
+    @Transactional
     public void resetPassword (ResetPasswordRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No user is associated with this email"));

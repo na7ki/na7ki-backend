@@ -1,10 +1,10 @@
 package com.na7ki.backend.auth.dto.response.forgotpassword;
 
-public record ForgotPasswordResponse(
+public record ResendCodeResponse(
 
-        String providedEmail,
+        String email,
 
-        Boolean isSent,
+        Boolean isResent,
 
         String message
 

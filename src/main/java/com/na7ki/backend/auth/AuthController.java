@@ -3,10 +3,12 @@ package com.na7ki.backend.auth;
 import com.na7ki.backend.auth.dto.request.forgotpassword.ForgotPasswordRequest;
 import com.na7ki.backend.auth.dto.request.LoginRequest;
 import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
+import com.na7ki.backend.auth.dto.request.forgotpassword.ResendCodeRequest;
 import com.na7ki.backend.auth.dto.request.forgotpassword.ResetPasswordRequest;
 import com.na7ki.backend.auth.dto.request.forgotpassword.VerifyCodeRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
 import com.na7ki.backend.auth.dto.response.forgotpassword.ForgotPasswordResponse;
+import com.na7ki.backend.auth.dto.response.forgotpassword.ResendCodeResponse;
 import com.na7ki.backend.auth.dto.response.forgotpassword.VerifyCodeResponse;
 import com.na7ki.backend.auth.exception.*;
 import jakarta.validation.Valid;
@@ -48,10 +50,21 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(authService.verifyCode(request));
     }
 
+    @PostMapping("/resend-code")
+    public ResponseEntity<ResendCodeResponse> resendCode(@Valid @RequestBody ResendCodeRequest request) {
+        ResendCodeResponse response = authService.resendCode(request);
+        if (response.isResent())
+        {
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
+        }
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
-        return ResponseEntity.ok("Password reset successful");
+        return ResponseEntity.ok("Password reset successfully");
     }
 
 
