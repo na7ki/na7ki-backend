@@ -11,6 +11,10 @@ import com.na7ki.backend.auth.dto.response.forgotpassword.ForgotPasswordResponse
 import com.na7ki.backend.auth.dto.response.forgotpassword.ResendCodeResponse;
 import com.na7ki.backend.auth.dto.response.forgotpassword.VerifyCodeResponse;
 import com.na7ki.backend.auth.exception.*;
+import com.na7ki.backend.auth.verificationcode.exception.NoVerificationCodeForThisEmail;
+import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeExpiredException;
+import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeForThisEmailAlreadyExistsException;
+import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeMismatchException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -94,6 +98,30 @@ public class AuthController {
     @ExceptionHandler(UnknownRoleException.class)
     public ResponseEntity<String> handleUnknownRole(UnknownRoleException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+
+
+
+
+    @ExceptionHandler(NoVerificationCodeForThisEmail.class)
+    public ResponseEntity<String> handleNoVerificationCode(NoVerificationCodeForThisEmail ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(VerificationCodeExpiredException.class)
+    public ResponseEntity<String> handleVerificationCodeExpired(VerificationCodeExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.GONE).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(VerificationCodeForThisEmailAlreadyExistsException.class)
+    public ResponseEntity<String> handleVerificationCodeAlreadyExists(VerificationCodeForThisEmailAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(VerificationCodeMismatchException.class)
+    public ResponseEntity<String> handleVerificationCodeMismatch(VerificationCodeMismatchException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 
 }
