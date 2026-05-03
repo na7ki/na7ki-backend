@@ -1,0 +1,118 @@
+package com.arabiclearning.app.service;
+
+import com.arabiclearning.app.dto.SessionResultResponse;
+import com.arabiclearning.app.dto.SubmitSessionRequest;
+import com.arabiclearning.app.entity.*;
+import com.arabiclearning.app.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ExerciseService {
+
+    private final UserSessionRepository sessionRepo;
+    private final UserAnswerRepository answerRepo;
+    private final QuestionRepository questionRepo;
+    private final PackageRepository packageRepo;
+
+    // ── Submit a full session (all answers at once) ───────────────────────────
+    @Transactional
+    public SessionResultResponse submitSession(SubmitSessionRequest req) {
+
+        // 1. Load the package
+        LearningPackage pkg = packageRepo.findById(req.getPackageId())
+            .orElseThrow(() -> new RuntimeException("Package not found: " + req.getPackageId()));
+
+        // 2. Create and save session first (need ID for answers)
+        UserSession session = new UserSession();
+        session.setUserId(req.getUserId());
+        session.setLearningPackage(pkg);
+        session.setTotalQuestions(req.getAnswers().size());
+        UserSession savedSession = sessionRepo.save(session);
+
+        // 3. Process each answer
+        int score = 0;
+        List<Long> wrongIds = new ArrayList<>();
+        List<SessionResultResponse.QuestionResult> details = new ArrayList<>();
+
+        for (SubmitSessionRequest.AnswerItem item : req.getAnswers()) {
+
+            Question question = questionRepo.findById(item.getQuestionId())
+                .orElseThrow(() -> new RuntimeException("Question not found: " + item.getQuestionId()));
+
+            boolean correct = question.getCorrectAnswer()
+                .equalsIgnoreCase(item.getSelectedType());
+
+            if (correct) {
+                score++;
+            } else {
+                wrongIds.add(question.getId());
+            }
+
+            // Save the answer
+            UserAnswer answer = new UserAnswer();
+            answer.setSession(savedSession);
+            answer.setQuestion(question);
+            answer.setSelectedType(item.getSelectedType());
+            answer.setCorrect(correct);
+            answerRepo.save(answer);
+
+            // Build detail for response
+            details.add(new SessionResultResponse.QuestionResult(
+                question.getId(),
+                question.getQuestionText(),
+                question.getCorrectAnswer(),
+                item.getSelectedType(),
+                correct
+            ));
+        }
+
+        // 4. Update session with final score
+        savedSession.setScore(score);
+        sessionRepo.save(savedSession);
+
+        // 5. Calculate percentage
+        double percentage = req.getAnswers().isEmpty() ? 0 :
+            Math.round((score * 100.0 / req.getAnswers().size()) * 10.0) / 10.0;
+
+        // 6. Return full result
+        return new SessionResultResponse(
+            savedSession.getId(),
+            score,
+            req.getAnswers().size(),
+            percentage,
+            wrongIds,
+            details
+        );
+    }
+
+    // ── Get wrong questions across ALL sessions for a user in a package ───────
+    public List<Question> getWrongQuestions(Long userId, Long packageId) {
+        return answerRepo.findWrongQuestionsByUserAndPackage(userId, packageId);
+    }
+
+    // ── Get wrong questions from ONE specific session ─────────────────────────
+    public List<Question> getWrongQuestionsFromSession(Long sessionId) {
+        return answerRepo.findWrongQuestionsBySession(sessionId);
+    }
+
+    // ── Get all questions for a package ──────────────────────────────────────
+    public List<Question> getQuestions(Long packageId) {
+        return questionRepo.findByLearningPackageIdOrderByOrderIndex(packageId);
+    }
+
+    // ── Get session history for a user ────────────────────────────────────────
+    public List<UserSession> getUserHistory(Long userId) {
+        return sessionRepo.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    // ── Get session history for a user in a specific package ──────────────────
+    public List<UserSession> getUserPackageHistory(Long userId, Long packageId) {
+        return sessionRepo.findByUserIdAndLearningPackageIdOrderByCreatedAtDesc(userId, packageId);
+    }
+}
