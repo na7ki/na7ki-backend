@@ -1,0 +1,168 @@
+package com.na7ki.backend.exercise;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.na7ki.backend.Service.CloudinaryFolderUploadService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/images")
+@CrossOrigin(origins = "*")
+public class ImageController {
+
+    private final ImageRepository imageRepository;
+    private final Cloudinary cloudinary;
+    private final CloudinaryFolderUploadService folderService;
+
+    public ImageController(
+            ImageRepository imageRepository,
+            Cloudinary cloudinary,
+            CloudinaryFolderUploadService folderService
+    ) {
+        this.imageRepository = imageRepository;
+        this.cloudinary = cloudinary;
+        this.folderService = folderService;
+    }
+
+    // =========================
+    // 1. Upload single image
+    // =========================
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadImage(
+            @RequestParam("file") MultipartFile file
+    ) {
+
+        try {
+
+            Map uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "single_uploads"
+                    )
+            );
+
+            String imageUrl = (String) uploadResult.get("secure_url");
+
+            Image image = new Image();
+
+            image.setImageUrl(imageUrl);
+
+            image.setImageName(file.getOriginalFilename());
+
+            image.setFolderName("single_uploads");
+
+            imageRepository.save(image);
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "message", "Image uploaded successfully",
+                            "imageUrl", imageUrl
+                    )
+            );
+
+        } catch (Exception e) {
+
+            return ResponseEntity.badRequest().body(
+                    "Upload failed: " + e.getMessage()
+            );
+        }
+    }
+
+    // =========================
+    // 2. Get image by ID
+    // =========================
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getImage(
+            @PathVariable Long id
+    ) {
+
+        Image image = imageRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Image not found"));
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "id", image.getId(),
+                        "imageName", image.getImageName(),
+                        "folderName", image.getFolderName(),
+                        "imageUrl", image.getImageUrl()
+                )
+        );
+    }
+
+    // =========================
+    // 3. Upload folders
+    // =========================
+    @PostMapping("/upload-folder")
+    public ResponseEntity<?> uploadFolders() {
+
+        try {
+
+            folderService.uploadFolder(
+                    "C:/Users/dell/Downloads/singular/singular",
+                    "singular"
+            );
+
+            folderService.uploadFolder(
+                    "C:/Users/dell/Downloads/plural/plural",
+                    "plural"
+            );
+
+            return ResponseEntity.ok(
+                    "Folders uploaded successfully"
+            );
+
+        } catch (Exception e) {
+
+            return ResponseEntity.badRequest().body(
+                    "Folder upload failed: " + e.getMessage()
+            );
+        }
+    }
+
+    // =========================
+    // 4. Get all images
+    // =========================
+    @GetMapping
+    public ResponseEntity<?> getAllImages() {
+
+        return ResponseEntity.ok(
+                imageRepository.findAll()
+        );
+    }
+
+    // =========================
+    // 5. Get images grouped by folder
+    // =========================
+    @GetMapping("/folders")
+    public ResponseEntity<?> getImagesByFolder() {
+
+        List<Image> images = imageRepository.findAll();
+
+        Map<String, List<Map<String, Object>>> result =
+                images.stream()
+                        .collect(Collectors.groupingBy(
+
+                                Image::getFolderName,
+
+                                Collectors.mapping(
+
+                                        image -> Map.of(
+                                                "id", image.getId(),
+                                                "imageName", image.getImageName(),
+                                                "imageUrl", image.getImageUrl()
+                                        ),
+
+                                        Collectors.toList()
+                                )
+                        ));
+
+        return ResponseEntity.ok(result);
+    }
+}
