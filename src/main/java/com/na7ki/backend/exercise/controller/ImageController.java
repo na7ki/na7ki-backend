@@ -1,8 +1,10 @@
-package com.na7ki.backend.exercise;
+package com.na7ki.backend.exercise.controller;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.na7ki.backend.Service.CloudinaryFolderUploadService;
+import com.na7ki.backend.exercise.Entity.Image;
+import com.na7ki.backend.exercise.Repository.ImageRepository;
+import com.na7ki.backend.exercise.Service.CloudinaryFolderUploadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,12 +107,12 @@ public class ImageController {
         try {
 
             folderService.uploadFolder(
-                    "C:/Users/dell/Downloads/singular/singular",
+                    "/home/maiawad/FCAI/na7ki-backend/singular",
                     "singular"
             );
 
             folderService.uploadFolder(
-                    "C:/Users/dell/Downloads/plural/plural",
+                    "/home/maiawad/FCAI/na7ki-backend/plural",
                     "plural"
             );
 
