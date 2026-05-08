@@ -1,4 +1,4 @@
-package com.na7ki.backend.exercise;
+package com.na7ki.backend.exercise.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,6 +23,10 @@ public class UserAnswer {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "choice_id")
+    private Choice choice;
 
     private String selectedType;  // "SINGULAR" or "PLURAL"
     private boolean isCorrect;
