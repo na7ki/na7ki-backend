@@ -1,4 +1,4 @@
-package com.na7ki.backend.Config;
+package com.na7ki.backend.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

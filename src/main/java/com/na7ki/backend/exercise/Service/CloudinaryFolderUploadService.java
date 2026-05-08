@@ -1,0 +1,71 @@
+package com.na7ki.backend.exercise.Service;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.na7ki.backend.exercise.Entity.Image;
+import com.na7ki.backend.exercise.Repository.ImageRepository;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.util.Map;
+
+@Service
+public class CloudinaryFolderUploadService {
+
+    private final Cloudinary cloudinary;
+    private final ImageRepository imageRepository;
+
+    public CloudinaryFolderUploadService(
+            Cloudinary cloudinary,
+            ImageRepository imageRepository
+    ) {
+        this.cloudinary = cloudinary;
+        this.imageRepository = imageRepository;
+    }
+
+    public void uploadFolder(String folderPath, String folderName) {
+
+        File folder = new File(folderPath);
+
+        File[] files = folder.listFiles();
+
+        if (files == null) {
+            throw new RuntimeException("Folder is empty or not found");
+        }
+
+        for (File file : files) {
+
+            try {
+
+                // Upload to Cloudinary folder
+                Map uploadResult = cloudinary.uploader().upload(
+                        file,
+                        ObjectUtils.asMap(
+                                "folder", folderName
+                        )
+                );
+
+                String imageUrl = (String) uploadResult.get("secure_url");
+
+                // Save in database
+                Image image = new Image();
+
+                image.setImageUrl(imageUrl);
+
+                // Save local file name
+                image.setImageName(file.getName());
+
+                // Save folder name
+                image.setFolderName(folderName);
+
+                imageRepository.save(image);
+
+            } catch (Exception e) {
+
+                System.out.println(
+                        "Failed to upload: " + file.getName()
+                );
+            }
+        }
+    }
+}
