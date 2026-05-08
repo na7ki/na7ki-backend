@@ -15,6 +15,7 @@ Ensure you have the appropriate version of Java installed.
 3. Run the application using the Maven wrapper:
    ```bash
    ./mvnw spring-boot:run
+   ./mvnw clean spring-boot:run
    ```
 
 ### Windows
