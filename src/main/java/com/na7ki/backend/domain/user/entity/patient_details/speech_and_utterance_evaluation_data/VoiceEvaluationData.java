@@ -1,8 +1,8 @@
-package com.na7ki.backend.domain.user.entity.patientdetails.speechandutteranceevaluationdata;
+package com.na7ki.backend.domain.user.entity.patient_details.speech_and_utterance_evaluation_data;
 
-import com.na7ki.backend.domain.user.entity.patientdetails.speechandutteranceevaluationdata.auxiliary.Degree;
-import com.na7ki.backend.domain.user.entity.patientdetails.speechandutteranceevaluationdata.auxiliary.DysphoniaDegree;
-import com.na7ki.backend.domain.user.entity.patientdetails.speechandutteranceevaluationdata.auxiliary.VoiceQuality;
+import com.na7ki.backend.domain.user.entity.patient_details.speech_and_utterance_evaluation_data.auxiliary.Degree;
+import com.na7ki.backend.domain.user.entity.patient_details.speech_and_utterance_evaluation_data.auxiliary.DysphoniaDegree;
+import com.na7ki.backend.domain.user.entity.patient_details.speech_and_utterance_evaluation_data.auxiliary.VoiceQuality;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
