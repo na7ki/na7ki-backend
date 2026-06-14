@@ -15,6 +15,7 @@ import com.na7ki.backend.auth.verificationcode.exception.NoVerificationCodeForTh
 import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeExpiredException;
 import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeForThisEmailAlreadyExistsException;
 import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeMismatchException;
+import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

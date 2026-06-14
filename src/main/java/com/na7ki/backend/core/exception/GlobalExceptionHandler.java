@@ -1,5 +1,6 @@
 package com.na7ki.backend.core.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -35,6 +36,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<String> handleUsernameNotFound(UsernameNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No user with this email was found");
+    }
+
+    @ExceptionHandler(JsonMappingException.class)
+    public ResponseEntity<String> handleJsonMappingException(JsonMappingException e) {
+        return ResponseEntity.badRequest().body("Invalid profile data");
     }
 
     @ExceptionHandler({ExpiredJwtException.class, MalformedJwtException.class, SignatureException.class})
