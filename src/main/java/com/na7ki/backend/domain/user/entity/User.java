@@ -46,7 +46,7 @@ public abstract class User implements UserDetails {
 
 
 
-    @Column (name = "display-image_path", nullable = false, length = 100)
+    @Column (name = "display-image_path", length = 100)
     private String displayImage_path;
 
 

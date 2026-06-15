@@ -31,11 +31,11 @@ public class UserService {
 
 
     public boolean isEmailUnique(String email) {
-        return userRepository.existsByEmail(email);
+        return !userRepository.existsByEmail(email);
     }
 
     public boolean isPhoneNumberUnique(String phoneNumber) {
-        return userRepository.existsByPhoneNumber(phoneNumber);
+        return !userRepository.existsByPhoneNumber(phoneNumber);
     }
 
     public User findByEmailOrThrow (String email) {

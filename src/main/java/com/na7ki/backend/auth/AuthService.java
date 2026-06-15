@@ -74,11 +74,6 @@ public class AuthService {
         specialist.setPassword(passwordEncoder.encode(request.password()));
         specialist.setAge((byte) Period.between(request.dateOfBirth(), LocalDate.now()).getYears());
         specialist.setSpecialistID("SP" + userService.createSpecialistIdNumberPart());
-        specialist.setDisplayImage_path("NOT SET YET");
-
-        List<String> paths = new ArrayList<>();
-        paths.add("NOT SET YET");
-        specialist.setPersonalImages_paths(paths);
 
     }
 
