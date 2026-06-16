@@ -4,27 +4,34 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.na7ki.backend.domain.user.entity.auxililary.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
-public record UpdateProfileRequest (
+@Data
+public class UpdateProfileRequest {
 
-    String name,
+    private Optional<String> name = Optional.empty();
 
-    @Email(message = "Invalid email format")
-    String email,
-
-    @Pattern(regexp = "^\\s*(\\+2)?01\\d{9}\\s*$", message = "Invalid phone number format")
-    String phoneNumber,
+    private Optional<
+            @Email(message = "Invalid email format")
+            String> email = Optional.empty();
 
 
-    String address,
+    private Optional<
+            @Pattern(regexp = "^\\s*(\\+2)?01\\d{9}\\s*$", message = "Invalid phone number format")
+            String> phoneNumber = Optional.empty();
 
-    Gender gender,
+    private Optional<Gender> gender = Optional.empty();
+
+
+
+    private Optional<String> address = Optional.empty();
 
     @JsonFormat(pattern = "yyyy-M-d")
-    LocalDate dateOfBirth,
+    private Optional<LocalDate> dateOfBirth = Optional.empty();
 
-    String displayImage_path
+    private Optional<String> displayImage_path = Optional.empty();
 
-) {}
+}

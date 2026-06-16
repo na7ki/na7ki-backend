@@ -59,11 +59,14 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No user is associated with this email"));
 
-        try {
-            objectMapper.updateValue(user, request);
-        } catch (JsonMappingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid profile data");
-        }
+        request.getName().ifPresent(user::setName);
+        request.getEmail().ifPresent(user::setEmail);
+        request.getPhoneNumber().ifPresent(user::setPhoneNumber);
+        request.getGender().ifPresent(user::setGender);
+
+        request.getAddress().ifPresent(((Specialist)user)::setAddress);
+        request.getDateOfBirth().ifPresent(((Specialist)user)::setDateOfBirth);
+        request.getDisplayImage_path().ifPresent(((Specialist)user)::setDisplayImage_path);
 
         this.saveUser(user);
     }
