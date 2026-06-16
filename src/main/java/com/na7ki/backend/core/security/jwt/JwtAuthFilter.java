@@ -1,6 +1,8 @@
 package com.na7ki.backend.core.security.jwt;
 
 import com.na7ki.backend.core.security.exception.InvalidJwtTokenException;
+import com.na7ki.backend.domain.user.UserService;
+import com.na7ki.backend.domain.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,7 +22,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
 
 
@@ -40,21 +41,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         final String token = authHeader.substring(7);
-        final String username = jwtUtil.extractUsername(token);
+        final String userId = jwtUtil.extractUserId(token);
 
         // authenticate only if request isn't already authenticated
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             //Design Decision. Optional DB hit
             //Costs more, but ensures the user is still active and wasn't banned or deleted from the DB before the token hasn't expired yet
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            User userOfToken = userService.findByIdOrThrow(Long.valueOf(userId));
 
-            if (jwtUtil.isTokenValid(token, userDetails)) {
+            if (jwtUtil.isTokenValid(token, userOfToken)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails,
+                                userOfToken,
                                 null,
-                                userDetails.getAuthorities()
+                                userOfToken.getAuthorities()
                         );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

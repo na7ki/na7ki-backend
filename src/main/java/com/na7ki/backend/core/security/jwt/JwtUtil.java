@@ -1,5 +1,6 @@
 package com.na7ki.backend.core.security.jwt;
 
+import com.na7ki.backend.domain.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -24,10 +25,10 @@ public class JwtUtil {
 
 
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
         return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("roles", userDetails.getAuthorities().stream()
+                .subject(user.getId().toString())
+                .claim("roles", user.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .toList())
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -40,13 +41,13 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public String extractUsername(String token) {
+    public String extractUserId(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, User user) {
+        final String idFromToken = extractUserId(token);
+        return idFromToken.equals(user.getId().toString()) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

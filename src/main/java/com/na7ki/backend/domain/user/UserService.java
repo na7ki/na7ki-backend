@@ -1,7 +1,5 @@
 package com.na7ki.backend.domain.user;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.na7ki.backend.account_management.dto.UpdateProfileRequest;
 import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
 import com.na7ki.backend.auth.exception.UnknownRoleException;
@@ -12,9 +10,8 @@ import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -26,8 +23,6 @@ public class UserService {
     private final SpecialistRepository specialistRepository;
     private final PatientRepository patientRepository;
 
-    private final ObjectMapper objectMapper;
-
 
 
     public boolean isEmailUnique(String email) {
@@ -38,13 +33,18 @@ public class UserService {
         return !userRepository.existsByPhoneNumber(phoneNumber);
     }
 
+    public Optional<User> findByEmail (String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public User findByEmailOrThrow (String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No account is associated with this email"));
     }
 
-    public Optional<User> findByEmail (String email) {
-        return userRepository.findByEmail(email);
+    public User findByIdOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
     }
 
     public void saveUser(User user) {
@@ -59,11 +59,18 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No user is associated with this email"));
 
+        //changing the email will change the identifier of the user, so it must be handled carefully
+        if (request.getEmail().isPresent())
+        {
+            user.setEmail(request.getEmail().get());
+
+        }
+
         request.getName().ifPresent(user::setName);
-        request.getEmail().ifPresent(user::setEmail);
         request.getPhoneNumber().ifPresent(user::setPhoneNumber);
         request.getGender().ifPresent(user::setGender);
 
+        //Specialist fields
         request.getAddress().ifPresent(((Specialist)user)::setAddress);
         request.getDateOfBirth().ifPresent(((Specialist)user)::setDateOfBirth);
         request.getDisplayImage_path().ifPresent(((Specialist)user)::setDisplayImage_path);

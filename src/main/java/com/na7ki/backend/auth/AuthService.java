@@ -79,7 +79,6 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
 
-        // check existence first, before authentication
         User user = userService.findByEmailOrThrow(request.email());
 
         authenticationManager.authenticate(
