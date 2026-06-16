@@ -68,4 +68,9 @@ public class ExerciseController {
         UserSessionDetailDTO session = exerciseService.getLatestUserSession(userId);
         return ResponseEntity.ok(session);
     }
+    @GetMapping("/questions/{questionId}")
+    public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable Long questionId) {
+        QuestionDTO questionDTO = exerciseService.getQuestionById(questionId);
+        return ResponseEntity.ok(questionDTO);
+    }
 }

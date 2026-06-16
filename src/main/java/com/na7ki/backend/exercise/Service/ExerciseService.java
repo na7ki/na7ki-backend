@@ -42,6 +42,13 @@ public class ExerciseService {
                 .collect(Collectors.toList());
     }
 
+   // Get a specific question by its ID
+    public QuestionDTO getQuestionById(Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + questionId));
+        return convertQuestionToDTO(question);
+    }
+
     // Submit session and calculate score
     @Transactional
     public SessionResultDTO submitSession(SubmitSessionDTO request) {
