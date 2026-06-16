@@ -1,15 +1,15 @@
 package com.na7ki.backend.account_management;
 
 import com.na7ki.backend.account_management.dto.UpdateProfileRequest;
+import com.na7ki.backend.domain.user.entity.User;
+import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
+import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/account")
@@ -21,11 +21,23 @@ public class AccountManagementController {
     @PatchMapping("/profile")
     public ResponseEntity<Void> updateProfile (
             @RequestBody @Valid UpdateProfileRequest request,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal User user
     ) {
-        accountManagementService.updateProfile(userDetails.getUsername(), request);
+        accountManagementService.updateProfile(user, request);
         return ResponseEntity.noContent().build();
     }
 
 
+
+
+
+    @ExceptionHandler(EmailNotUniqueException.class)
+    public ResponseEntity<String> handleEmailNotUnique(EmailNotUniqueException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PhoneNumberNotUniqueException.class)
+    public ResponseEntity<String> handlePhoneNoNotUnique(PhoneNumberNotUniqueException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
 }

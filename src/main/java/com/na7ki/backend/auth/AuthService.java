@@ -17,10 +17,12 @@ import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeForThis
 import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
-import com.na7ki.backend.auth.exception.*;
 import com.na7ki.backend.auth.util.UserMapper;
 import com.na7ki.backend.core.email.EmailService;
 import com.na7ki.backend.core.security.jwt.JwtUtil;
+import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
+import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
+import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,9 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Service

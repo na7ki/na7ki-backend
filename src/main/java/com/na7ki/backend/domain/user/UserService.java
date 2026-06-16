@@ -1,8 +1,10 @@
 package com.na7ki.backend.domain.user;
 
 import com.na7ki.backend.account_management.dto.UpdateProfileRequest;
+import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
+import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
 import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
-import com.na7ki.backend.auth.exception.UnknownRoleException;
+import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
@@ -55,27 +57,37 @@ public class UserService {
         }
     }
 
-    public void updateUser (String email, UpdateProfileRequest request) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EmailNotAssociatedWithAnyAccountException("No user is associated with this email"));
+    public void updateUser (User targetUser, UpdateProfileRequest request) {
 
-        //changing the email will change the identifier of the user, so it must be handled carefully
         if (request.getEmail().isPresent())
         {
-            user.setEmail(request.getEmail().get());
-
+            if (isEmailUnique(request.getEmail().get()))
+            {
+                targetUser.setEmail(request.getEmail().get());
+            } else {
+                throw new EmailNotUniqueException("This email is used by another user");
+            }
         }
 
-        request.getName().ifPresent(user::setName);
-        request.getPhoneNumber().ifPresent(user::setPhoneNumber);
-        request.getGender().ifPresent(user::setGender);
+        if (request.getPhoneNumber().isPresent())
+        {
+            if (isPhoneNumberUnique(request.getPhoneNumber().get()))
+            {
+                targetUser.setPhoneNumber(request.getPhoneNumber().get());
+            } else {
+                throw new PhoneNumberNotUniqueException("This phone number is used by another user");
+            }
+        }
+
+        request.getName().ifPresent(targetUser::setName);
+        request.getGender().ifPresent(targetUser::setGender);
 
         //Specialist fields
-        request.getAddress().ifPresent(((Specialist)user)::setAddress);
-        request.getDateOfBirth().ifPresent(((Specialist)user)::setDateOfBirth);
-        request.getDisplayImage_path().ifPresent(((Specialist)user)::setDisplayImage_path);
+        request.getAddress().ifPresent(((Specialist)targetUser)::setAddress);
+        request.getDateOfBirth().ifPresent(((Specialist)targetUser)::setDateOfBirth);
+        request.getDisplayImage_path().ifPresent(((Specialist)targetUser)::setDisplayImage_path);
 
-        this.saveUser(user);
+        this.saveUser(targetUser);
     }
 
     public Long createSpecialistIdNumberPart() {
