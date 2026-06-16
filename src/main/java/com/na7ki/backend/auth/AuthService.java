@@ -14,6 +14,7 @@ import com.na7ki.backend.auth.verificationcode.VerificationCode;
 import com.na7ki.backend.auth.verificationcode.VerificationCodeService;
 import com.na7ki.backend.auth.verificationcode.exception.NoVerificationCodeForThisEmail;
 import com.na7ki.backend.auth.verificationcode.exception.VerificationCodeForThisEmailAlreadyExistsException;
+import com.na7ki.backend.common.util.DateUtils;
 import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
@@ -72,7 +73,7 @@ public class AuthService {
     private void manageSpecialistFields(Specialist specialist, SpecialistRegisterRequest request) {
 
         specialist.setPassword(passwordEncoder.encode(request.password()));
-        specialist.setAge((byte) Period.between(request.dateOfBirth(), LocalDate.now()).getYears());
+        specialist.setAge(DateUtils.calculateAge(request.dateOfBirth()));
         specialist.setSpecialistID("SP" + userService.createSpecialistIdNumberPart());
 
     }

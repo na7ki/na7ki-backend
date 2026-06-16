@@ -15,7 +15,7 @@ public class Specialist extends User {
     @Column(name="specialist_id", nullable = false, unique=true, updatable=false, length=15)
     private String specialistID;
 
-    @Column (name = "date_of_birth", nullable = false, updatable=false)
+    @Column (name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
     @Column (nullable = false, length = 300)

@@ -1,6 +1,7 @@
 package com.na7ki.backend.domain.user;
 
 import com.na7ki.backend.account_management.dto.UpdateProfileRequest;
+import com.na7ki.backend.common.util.DateUtils;
 import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
 import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
 import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
@@ -16,6 +17,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -59,35 +63,56 @@ public class UserService {
 
     public void updateUser (User targetUser, UpdateProfileRequest request) {
 
-        if (request.getEmail().isPresent())
-        {
-            if (isEmailUnique(request.getEmail().get()))
-            {
-                targetUser.setEmail(request.getEmail().get());
-            } else {
-                throw new EmailNotUniqueException("This email is used by another user");
-            }
-        }
+        updateUniqueFieldOrThrow(
+                request.getEmail(),
+                this::isEmailUnique,
+                targetUser::setEmail,
+                () -> new EmailNotUniqueException("This email is used by another user")
+        );
 
-        if (request.getPhoneNumber().isPresent())
-        {
-            if (isPhoneNumberUnique(request.getPhoneNumber().get()))
-            {
-                targetUser.setPhoneNumber(request.getPhoneNumber().get());
-            } else {
-                throw new PhoneNumberNotUniqueException("This phone number is used by another user");
-            }
-        }
+        updateUniqueFieldOrThrow(
+                request.getPhoneNumber(),
+                this::isPhoneNumberUnique,
+                targetUser::setPhoneNumber,
+                () -> new PhoneNumberNotUniqueException("This phone number is used by another user")
+        );
 
         request.getName().ifPresent(targetUser::setName);
+
         request.getGender().ifPresent(targetUser::setGender);
 
+        if (request.getDisplayImage_path().isPresent()) {
+            String path = request.getDisplayImage_path().get();
+            targetUser.setDisplayImage_path(path.isEmpty() ? null : path);
+        }
+
         //Specialist fields
+
         request.getAddress().ifPresent(((Specialist)targetUser)::setAddress);
-        request.getDateOfBirth().ifPresent(((Specialist)targetUser)::setDateOfBirth);
-        request.getDisplayImage_path().ifPresent(((Specialist)targetUser)::setDisplayImage_path);
+
+        request.getDateOfBirth().ifPresent(dateOfBirth -> {
+            Specialist specialist = (Specialist) targetUser;
+            specialist.setDateOfBirth(dateOfBirth);
+            specialist.setAge(DateUtils.calculateAge(dateOfBirth));
+        });
 
         this.saveUser(targetUser);
+    }
+
+    private <T> void updateUniqueFieldOrThrow(
+            Optional<T> newValue,
+            Predicate<T> isUnique,
+            Consumer<T> setter,
+            Supplier<? extends RuntimeException> exceptionSupplier) {
+
+        if (newValue.isPresent()) {
+            T value = newValue.get();
+            if (isUnique.test(value)) {
+                setter.accept(value);
+            } else {
+                throw exceptionSupplier.get();
+            }
+        }
     }
 
     public Long createSpecialistIdNumberPart() {

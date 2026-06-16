@@ -25,13 +25,13 @@ public class UpdateProfileRequest {
 
     private Optional<Gender> gender = Optional.empty();
 
+    private Optional<String> displayImage_path = Optional.empty();
+
 
 
     private Optional<String> address = Optional.empty();
 
     @JsonFormat(pattern = "yyyy-M-d")
     private Optional<LocalDate> dateOfBirth = Optional.empty();
-
-    private Optional<String> displayImage_path = Optional.empty();
 
 }
