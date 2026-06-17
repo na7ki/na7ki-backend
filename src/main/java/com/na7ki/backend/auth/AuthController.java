@@ -40,6 +40,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        // Stateless JWT — nothing to invalidate server-side.
+        // Client is responsible for deleting the stored token.
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 

@@ -53,6 +53,7 @@ public class SecurityConfig {
         // request matchers run as the final security filter, after the jwt and the default Spring filter, respectively
         http.authorizeHttpRequests(auth ->
                 auth
+                        .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
 //                        .requestMatchers(HttpMethod.GET, "/api/test/**").hasAuthority("ADMIN")
