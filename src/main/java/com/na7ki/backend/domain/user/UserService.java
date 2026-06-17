@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.user;
 
-import com.na7ki.backend.account_management.dto.UpdateProfileRequest;
+import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
 import com.na7ki.backend.common.util.DateUtils;
 import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
 import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;

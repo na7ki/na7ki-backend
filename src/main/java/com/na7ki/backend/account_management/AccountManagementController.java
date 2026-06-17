@@ -1,6 +1,7 @@
 package com.na7ki.backend.account_management;
 
-import com.na7ki.backend.account_management.dto.UpdateProfileRequest;
+import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
+import com.na7ki.backend.account_management.dto.response.GetUserProfileResponse;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
 import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
@@ -17,6 +18,15 @@ import org.springframework.web.bind.annotation.*;
 public class AccountManagementController {
 
     private final AccountManagementService accountManagementService;
+
+
+
+
+
+    @GetMapping("/profile")
+    public ResponseEntity<GetUserProfileResponse> getProfile(@AuthenticationPrincipal User user) {
+        return ResponseEntity.status(HttpStatus.OK).body(accountManagementService.getUserProfile(user));
+    }
 
     @PatchMapping("/profile")
     public ResponseEntity<Void> updateProfile (
