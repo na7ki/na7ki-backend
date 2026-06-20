@@ -52,28 +52,4 @@ public class PasswordController {
         return ResponseEntity.status(HttpStatus.OK).body(passwordResetService.resetPassword(request));
     }
 
-
-
-
-
-    @ExceptionHandler(NoVerificationCodeForThisEmail.class)
-    public ResponseEntity<String> handleNoVerificationCode(NoVerificationCodeForThisEmail ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(VerificationCodeForThisEmailAlreadyExistsException.class)
-    public ResponseEntity<String> handleVerificationCodeAlreadyExists(VerificationCodeForThisEmailAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(NonExistentUserResetsPasswordException.class)
-    public ResponseEntity<String> handleNonExistentUserResetsPasswordException(NonExistentUserResetsPasswordException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidVerificationCodeException.class)
-    public ResponseEntity<String> handleInvalidVerificationCodeException(InvalidVerificationCodeException ex) {
-        return ResponseEntity.status(HttpStatus.OK).body(ex.getMessage());
-    }
-
 }

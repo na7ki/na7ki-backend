@@ -36,28 +36,4 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-
-
-    @ExceptionHandler(EmailNotUniqueException.class)
-    public ResponseEntity<String> handleEmailNotUnique(EmailNotUniqueException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(PhoneNumberNotUniqueException.class)
-    public ResponseEntity<String> handlePhoneNoNotUnique(PhoneNumberNotUniqueException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(EmailNotAssociatedWithAnyAccountException.class)
-    public ResponseEntity<String> handleAccountNotFound(EmailNotAssociatedWithAnyAccountException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(UnknownRoleException.class)
-    public ResponseEntity<String> handleUnknownRole(UnknownRoleException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-    }
-
 }

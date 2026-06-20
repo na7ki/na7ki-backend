@@ -37,17 +37,4 @@ public class AccountManagementController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-
-
-    @ExceptionHandler(EmailNotUniqueException.class)
-    public ResponseEntity<String> handleEmailNotUnique(EmailNotUniqueException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(PhoneNumberNotUniqueException.class)
-    public ResponseEntity<String> handlePhoneNoNotUnique(PhoneNumberNotUniqueException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
 }
