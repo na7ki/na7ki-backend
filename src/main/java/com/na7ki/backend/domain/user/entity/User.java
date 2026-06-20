@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.user.entity;
 
-import com.na7ki.backend.auth.verificationcode.VerificationCode;
+import com.na7ki.backend.domain.user.verification_code.VerificationCode;
 import com.na7ki.backend.domain.user.entity.auxililary.Gender;
 import jakarta.persistence.*;
 import lombok.Data;

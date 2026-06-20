@@ -1,4 +1,4 @@
-package com.na7ki.backend.auth.verificationcode;
+package com.na7ki.backend.domain.user.verification_code;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

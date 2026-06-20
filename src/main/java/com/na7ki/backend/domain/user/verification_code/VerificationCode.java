@@ -1,4 +1,4 @@
-package com.na7ki.backend.auth.verificationcode;
+package com.na7ki.backend.domain.user.verification_code;
 
 import com.na7ki.backend.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -30,5 +30,13 @@ public class VerificationCode {
         @OneToOne
         @JoinColumn(name = "user_id", referencedColumnName = "id")
         private User user;
+
+
+
+
+
+        public boolean isExpired () {
+                return expiresAt.isBefore(LocalDateTime.now());
+        }
 
 }

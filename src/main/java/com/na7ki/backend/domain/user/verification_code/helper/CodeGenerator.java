@@ -1,4 +1,4 @@
-package com.na7ki.backend.auth.verificationcode.helper;
+package com.na7ki.backend.domain.user.verification_code.helper;
 
 import java.security.SecureRandom;
 

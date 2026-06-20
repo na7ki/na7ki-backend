@@ -14,6 +14,7 @@ import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final SpecialistRepository specialistRepository;
     private final PatientRepository patientRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
 
@@ -97,6 +99,10 @@ public class UserService {
         });
 
         this.saveUser(targetUser);
+    }
+    
+    public void updateUserPassword (User targetUser, String newPassword) {
+        targetUser.setPassword(passwordEncoder.encode(newPassword));
     }
 
     private <T> void updateUniqueFieldOrThrow(
