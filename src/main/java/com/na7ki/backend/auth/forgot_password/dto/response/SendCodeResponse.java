@@ -1,9 +1,9 @@
 package com.na7ki.backend.auth.forgot_password.dto.response;
 
-public record ResendCodeResponse(
+public record SendCodeResponse(
 
         String ProvidedEmail,
-        Boolean isResent,
+        Boolean isSent,
         String message
 
 ) {

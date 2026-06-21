@@ -98,11 +98,12 @@ public class UserService {
             specialist.setAge(DateUtils.calculateAge(dateOfBirth));
         });
 
-        this.saveUser(targetUser);
+        saveUser(targetUser);
     }
     
     public void updateUserPassword (User targetUser, String newPassword) {
         targetUser.setPassword(passwordEncoder.encode(newPassword));
+        saveUser(targetUser);
     }
 
     private <T> void updateUniqueFieldOrThrow(

@@ -1,11 +1,9 @@
 package com.na7ki.backend.auth.forgot_password;
 
-import com.na7ki.backend.auth.forgot_password.dto.response.ForgotPasswordResponse;
-import com.na7ki.backend.auth.forgot_password.dto.response.ResendCodeResponse;
+import com.na7ki.backend.auth.forgot_password.dto.response.SendCodeResponse;
 import com.na7ki.backend.auth.forgot_password.dto.response.ResetPasswordResponse;
 import com.na7ki.backend.auth.forgot_password.dto.response.VerifyCodeResponse;
-import com.na7ki.backend.auth.forgot_password.dto.request.ForgotPasswordRequest;
-import com.na7ki.backend.auth.forgot_password.dto.request.ResendCodeRequest;
+import com.na7ki.backend.auth.forgot_password.dto.request.SendCodeRequest;
 import com.na7ki.backend.auth.forgot_password.dto.request.ResetPasswordRequest;
 import com.na7ki.backend.auth.forgot_password.dto.request.VerifyCodeRequest;
 import jakarta.validation.Valid;
@@ -15,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/auth/forgot-password")
 @RequiredArgsConstructor
 public class ForgotPasswordController {
 
@@ -25,20 +23,14 @@ public class ForgotPasswordController {
 
 
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<ForgotPasswordResponse> requestResetPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(forgotPasswordService.requestResetPassword(request));
+    @PostMapping("/request-code")
+    public ResponseEntity<SendCodeResponse> requestResetPassword(@Valid @RequestBody SendCodeRequest request) {
+        return ResponseEntity.ok(forgotPasswordService.sendCode(request, true));
     }
 
     @PostMapping("/resend-code")
-    public ResponseEntity<ResendCodeResponse> resendCode(@Valid @RequestBody ResendCodeRequest request) {
-        ResendCodeResponse response = forgotPasswordService.resendCode(request);
-        if (response.isResent())
-        {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
-        }
+    public ResponseEntity<SendCodeResponse> resendCode(@Valid @RequestBody SendCodeRequest request) {
+        return ResponseEntity.ok(forgotPasswordService.sendCode(request, true));
     }
 
     @PostMapping("/verify-code")

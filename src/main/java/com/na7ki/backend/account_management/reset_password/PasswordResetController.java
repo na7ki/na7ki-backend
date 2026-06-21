@@ -11,21 +11,25 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/api/account/change-password")
 @RequiredArgsConstructor
 public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
 
+
+
+
+
     @PostMapping("/request-code")
-    public ResponseEntity<Void> requestCode(@AuthenticationPrincipal User user) {
-        passwordResetService.requestResetPassword(user);
+    public ResponseEntity<Void> requestResetPassword(@AuthenticationPrincipal User user) {
+        passwordResetService.sendCode(user, false);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/resend-code")
     public ResponseEntity<Void> resendCode(@AuthenticationPrincipal User user) {
-        passwordResetService.resendCode(user);
+        passwordResetService.sendCode(user, true);
         return ResponseEntity.noContent().build();
     }
 
@@ -36,7 +40,7 @@ public class PasswordResetController {
         return ResponseEntity.ok(passwordResetService.verifyCode(user, request));
     }
 
-    @PatchMapping
+    @PatchMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(
             @Valid @RequestBody ResetPasswordRequest request,
             @AuthenticationPrincipal User user) {
