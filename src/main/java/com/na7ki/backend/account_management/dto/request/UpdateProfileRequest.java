@@ -1,7 +1,7 @@
 package com.na7ki.backend.account_management.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.na7ki.backend.domain.user.entity.auxililary.Gender;
+import com.na7ki.backend.domain.user.entity.enums.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;

@@ -8,10 +8,10 @@ import com.na7ki.backend.auth.forgot_password.dto.response.ResetPasswordResponse
 import com.na7ki.backend.auth.forgot_password.dto.response.VerifyCodeResponse;
 import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.User;
-import com.na7ki.backend.domain.user.verification_code.dto.VerifyCodeResult;
+import com.na7ki.backend.domain.user.verification_code.model.VerifyCodeResult;
 import com.na7ki.backend.domain.user.verification_code.exception.NoVerificationCodeForThisEmail;
 import com.na7ki.backend.domain.user.verification_code.exception.NonExistentUserResetsPasswordException;
-import com.na7ki.backend.domain.user.verification_code.password_reset.PasswordResetCodeService;
+import com.na7ki.backend.domain.user.PasswordResetCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

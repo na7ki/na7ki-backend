@@ -1,9 +1,9 @@
 package com.na7ki.backend.core.exception;
 
-import com.na7ki.backend.domain.user.exception.other.EmailNotAssociatedWithAnyAccountException;
-import com.na7ki.backend.domain.user.exception.data_integrity.EmailNotUniqueException;
-import com.na7ki.backend.domain.user.exception.data_integrity.PhoneNumberNotUniqueException;
-import com.na7ki.backend.domain.user.exception.other.UnknownRoleException;
+import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
+import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
+import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
+import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

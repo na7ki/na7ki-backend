@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user.entity.auxililary;
+package com.na7ki.backend.domain.user.entity.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

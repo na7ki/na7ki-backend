@@ -1,6 +1,6 @@
 package com.na7ki.backend.account_management.dto.response;
 
-import com.na7ki.backend.domain.user.entity.auxililary.Gender;
+import com.na7ki.backend.domain.user.entity.enums.Gender;
 import lombok.Data;
 
 @Data

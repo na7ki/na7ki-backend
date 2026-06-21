@@ -1,8 +1,8 @@
-package com.na7ki.backend.account_management.reset_password.dto.response;
+package com.na7ki.backend.domain.user.verification_code.model;
 
 import com.na7ki.backend.domain.user.verification_code.enums.VerifyCodeStatus;
 
-public record VerifyCodeResponse(
+public record VerifyCodeResult(
         VerifyCodeStatus status,
         String message
 ) {

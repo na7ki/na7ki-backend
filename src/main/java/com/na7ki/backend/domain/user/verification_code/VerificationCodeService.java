@@ -1,17 +1,16 @@
 package com.na7ki.backend.domain.user.verification_code;
 
-import com.na7ki.backend.domain.user.verification_code.auxiliary.VerificationCodeStatus;
-import com.na7ki.backend.domain.user.verification_code.auxiliary.VerifyCodeStatus;
+import com.na7ki.backend.domain.user.verification_code.enums.VerificationCodeStatus;
+import com.na7ki.backend.domain.user.verification_code.enums.VerifyCodeStatus;
 import com.na7ki.backend.domain.user.verification_code.exception.NoVerificationCodeForThisEmail;
 import com.na7ki.backend.domain.user.verification_code.exception.VerificationCodeForThisEmailAlreadyExistsException;
-import com.na7ki.backend.domain.user.verification_code.helper.CodeGenerator;
+import com.na7ki.backend.domain.user.verification_code.util.CodeGenerator;
 import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

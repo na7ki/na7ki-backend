@@ -1,11 +1,10 @@
-package com.na7ki.backend.domain.user.verification_code.password_reset;
+package com.na7ki.backend.domain.user;
 
 import com.na7ki.backend.core.email.EmailService;
-import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
-import com.na7ki.backend.domain.user.verification_code.auxiliary.VerifyCodeStatus;
-import com.na7ki.backend.domain.user.verification_code.dto.VerifyCodeResult;
+import com.na7ki.backend.domain.user.verification_code.enums.VerifyCodeStatus;
+import com.na7ki.backend.domain.user.verification_code.model.VerifyCodeResult;
 import com.na7ki.backend.domain.user.verification_code.exception.InvalidVerificationCodeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

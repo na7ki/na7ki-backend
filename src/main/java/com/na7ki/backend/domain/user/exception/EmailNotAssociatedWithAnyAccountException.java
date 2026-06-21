@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user.exception.other;
+package com.na7ki.backend.domain.user.exception;
 
 public class EmailNotAssociatedWithAnyAccountException extends RuntimeException {
     public EmailNotAssociatedWithAnyAccountException(String message) {

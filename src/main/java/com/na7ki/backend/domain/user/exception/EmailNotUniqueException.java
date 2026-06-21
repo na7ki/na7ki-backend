@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user.exception.data_integrity;
+package com.na7ki.backend.domain.user.exception;
 
 public class EmailNotUniqueException extends RuntimeException {
     public EmailNotUniqueException(String message) {
