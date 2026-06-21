@@ -13,6 +13,7 @@ import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import com.na7ki.backend.domain.user.verification_code.auxiliary.VerifyCodeStatus;
 import com.na7ki.backend.domain.user.verification_code.exception.InvalidVerificationCodeException;
+import com.na7ki.backend.domain.user.verification_code.exception.NoVerificationCodeForThisEmail;
 import com.na7ki.backend.domain.user.verification_code.exception.NonExistentUserResetsPasswordException;
 import com.na7ki.backend.core.email.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class PasswordResetService {
+public class ForgotPasswordService {
 
     private final UserService userService;
     private final VerificationCodeService verificationCodeService;
@@ -50,20 +51,6 @@ public class PasswordResetService {
     }
 
     @Transactional
-    public VerifyCodeResponse verifyCode(VerifyCodeRequest request) {
-        VerifyCodeStatus status = verificationCodeService.verifyCode(request.getCode(), request.getEmail(), false);
-
-        String message = "uninitialized message";
-        switch (status) {
-            case VerifyCodeStatus.MATCH -> message = "The code has been verified successfully";
-            case VerifyCodeStatus.DOES_NOT_MATCH -> message = "The code you entered is incorrect. Try again";
-            case VerifyCodeStatus.EXPIRED -> message = "The code has expired, please request a new code";
-        }
-
-        return new VerifyCodeResponse(request.getEmail(), status, message);
-    }
-
-    @Transactional
     public ResendCodeResponse resendCode (ResendCodeRequest request) {
 
         Optional<User> potentialUser= userService.findByEmail(request.getEmail());
@@ -80,18 +67,37 @@ public class PasswordResetService {
     }
 
     @Transactional
+    public VerifyCodeResponse verifyCode(VerifyCodeRequest request) {
+
+        Optional<User> potentialUser= userService.findByEmail(request.getEmail());
+        if (potentialUser.isEmpty()) {
+            throw new NoVerificationCodeForThisEmail("No verification code for this email");
+        }
+        User user = potentialUser.get();
+
+        VerifyCodeStatus status = verificationCodeService.verifyCode(user, request.getCode(), false);
+
+        String message = "uninitialized message";
+        switch (status) {
+            case VerifyCodeStatus.MATCH -> message = "The code has been verified successfully";
+            case VerifyCodeStatus.DOES_NOT_MATCH -> message = "The code you entered is incorrect. Try again";
+            case VerifyCodeStatus.EXPIRED -> message = "The code has expired, please request a new code";
+        }
+
+        return new VerifyCodeResponse(request.getEmail(), status, message);
+    }
+
+    @Transactional
     public ResetPasswordResponse resetPassword (ResetPasswordRequest request) {
 
         Optional<User> potentialUser= userService.findByEmail(request.getEmail());
-
         if (potentialUser.isEmpty())
         {
             throw new NonExistentUserResetsPasswordException("A user not registered in the DB is trying to reset their password");
         }
-
         User user = potentialUser.get();
 
-        VerifyCodeStatus status = verificationCodeService.verifyCode(request.getCode(), request.getEmail(), true);
+        VerifyCodeStatus status = verificationCodeService.verifyCode(user, request.getCode(), true);
         if (status != VerifyCodeStatus.MATCH)
         {
             throw new InvalidVerificationCodeException("invalid or expired verification code");

@@ -68,16 +68,7 @@ public class VerificationCodeService {
         return createCode(user);
     }
 
-    public VerifyCodeStatus verifyCode (String code, String associatedUserEmail, boolean isResetPassword) {
-
-        Optional<User> potentialUser= userService.findByEmail(associatedUserEmail);
-
-        if (potentialUser.isEmpty()) {
-            throw new NoVerificationCodeForThisEmail("No verification code for this email");
-        }
-
-        User user = potentialUser.get();
-
+    public VerifyCodeStatus verifyCode (User user, String code, boolean isResetPassword) {
         switch (verificationCodeStatus(user))
         {
             case VerificationCodeStatus.NO_VERIFICATION_CODE:

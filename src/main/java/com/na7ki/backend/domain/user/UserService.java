@@ -2,10 +2,10 @@ package com.na7ki.backend.domain.user;
 
 import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
 import com.na7ki.backend.common.util.DateUtils;
-import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
-import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
-import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
-import com.na7ki.backend.domain.user.exception.UnknownRoleException;
+import com.na7ki.backend.domain.user.exception.data_integrity.EmailNotUniqueException;
+import com.na7ki.backend.domain.user.exception.data_integrity.PhoneNumberNotUniqueException;
+import com.na7ki.backend.domain.user.exception.other.EmailNotAssociatedWithAnyAccountException;
+import com.na7ki.backend.domain.user.exception.other.UnknownRoleException;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;

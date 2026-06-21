@@ -3,8 +3,6 @@ package com.na7ki.backend.account_management;
 import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
 import com.na7ki.backend.account_management.dto.response.GetUserProfileResponse;
 import com.na7ki.backend.domain.user.entity.User;
-import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
-import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

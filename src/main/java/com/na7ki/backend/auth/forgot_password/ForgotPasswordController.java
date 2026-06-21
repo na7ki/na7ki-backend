@@ -8,7 +8,6 @@ import com.na7ki.backend.auth.forgot_password.dto.request.ForgotPasswordRequest;
 import com.na7ki.backend.auth.forgot_password.dto.request.ResendCodeRequest;
 import com.na7ki.backend.auth.forgot_password.dto.request.ResetPasswordRequest;
 import com.na7ki.backend.auth.forgot_password.dto.request.VerifyCodeRequest;
-import com.na7ki.backend.domain.user.verification_code.exception.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,9 +17,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class PasswordController {
+public class ForgotPasswordController {
 
-    private final PasswordResetService passwordResetService;
+    private final ForgotPasswordService forgotPasswordService;
 
 
 
@@ -28,17 +27,12 @@ public class PasswordController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<ForgotPasswordResponse> requestResetPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(passwordResetService.requestResetPassword(request));
-    }
-
-    @PostMapping("/verify-code")
-    public ResponseEntity<VerifyCodeResponse> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(passwordResetService.verifyCode(request));
+        return ResponseEntity.status(HttpStatus.OK).body(forgotPasswordService.requestResetPassword(request));
     }
 
     @PostMapping("/resend-code")
     public ResponseEntity<ResendCodeResponse> resendCode(@Valid @RequestBody ResendCodeRequest request) {
-        ResendCodeResponse response = passwordResetService.resendCode(request);
+        ResendCodeResponse response = forgotPasswordService.resendCode(request);
         if (response.isResent())
         {
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -47,9 +41,14 @@ public class PasswordController {
         }
     }
 
+    @PostMapping("/verify-code")
+    public ResponseEntity<VerifyCodeResponse> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(forgotPasswordService.verifyCode(request));
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<ResetPasswordResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(passwordResetService.resetPassword(request));
+        return ResponseEntity.status(HttpStatus.OK).body(forgotPasswordService.resetPassword(request));
     }
 
 }
