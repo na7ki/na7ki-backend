@@ -24,7 +24,7 @@ public class VerificationCode {
         @Column(nullable = false, updatable = false, length = 4)
         private String fourDigitCode;
 
-        @Column(nullable = false, updatable = false)
+        @Column(nullable = false)
         private LocalDateTime expiresAt;
 
         @OneToOne

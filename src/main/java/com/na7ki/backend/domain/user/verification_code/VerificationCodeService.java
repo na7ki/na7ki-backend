@@ -5,7 +5,6 @@ import com.na7ki.backend.domain.user.verification_code.enums.VerifyCodeStatus;
 import com.na7ki.backend.domain.user.verification_code.exception.NoVerificationCodeForThisEmail;
 import com.na7ki.backend.domain.user.verification_code.exception.VerificationCodeForThisEmailAlreadyExistsException;
 import com.na7ki.backend.domain.user.verification_code.util.CodeGenerator;
-import com.na7ki.backend.domain.user.UserService;
 import com.na7ki.backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,10 +16,9 @@ import java.time.LocalDateTime;
 public class VerificationCodeService {
 
     private final VerificationCodeRepository verificationCodeRepository;
-    private final UserService userService;
-
 
     private static final short EXPIRATION_DURATION_MINUTES = 3;
+    private static final short EXPIRATION_DURATION_AFTER_VERIFICATION_MINUTES = 5;
 
 
 
@@ -67,22 +65,30 @@ public class VerificationCodeService {
         return createCode(user);
     }
 
-    public VerifyCodeStatus verifyCode (User user, String code, boolean isResetPassword) {
+    public VerifyCodeStatus verifyCode (User user, String code, boolean doDeleteOnMatch) {
         switch (verificationCodeStatus(user))
         {
             case VerificationCodeStatus.NO_VERIFICATION_CODE:
                 throw new NoVerificationCodeForThisEmail("No verification code for this email. Please request a code");
 
             case VerificationCodeStatus.EXPIRED:
+                //this call to deleteCode will only be persisted when the caller is verifyCode
+                //it won't be persisted when the caller is resetPassword, because it throws and exception, so the deletion transaction rolls back
+                //this means that expired codes won't get cleaned by resetPassword. The elegant way to handle this is to make an async job that runs every set time to delete expired codes. Do this if needed.
+                deleteCode(user.getVerificationCode());
                 return VerifyCodeStatus.EXPIRED;
 
             case VerificationCodeStatus.VALID:
                 boolean doesMatch = user.getVerificationCode().getFourDigitCode().equals(code);
                 if (doesMatch) {
-                    if (isResetPassword)
+                    if (doDeleteOnMatch)
                     {
                         deleteCode(user.getVerificationCode());
                     }
+                    //to allow the user some time between verifying the code and resetting the password
+                    user.getVerificationCode().setExpiresAt(LocalDateTime.now().plusMinutes(EXPIRATION_DURATION_AFTER_VERIFICATION_MINUTES));
+                    verificationCodeRepository.save(user.getVerificationCode());
+
                     return VerifyCodeStatus.MATCH;
                 }
                 else {

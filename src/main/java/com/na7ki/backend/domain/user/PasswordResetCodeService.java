@@ -29,8 +29,8 @@ public class PasswordResetCodeService {
     }
 
     @Transactional
-    public VerifyCodeResult verifyCode(User user, String submittedCode, boolean deleteOnMatch) {
-        VerifyCodeStatus status = verificationCodeService.verifyCode(user, submittedCode, deleteOnMatch);
+    public VerifyCodeResult verifyCode(User user, String submittedCode, boolean isResetPassword) {
+        VerifyCodeStatus status = verificationCodeService.verifyCode(user, submittedCode, isResetPassword);
 
         String message = switch (status) {
             case MATCH -> "The code has been verified successfully";
@@ -48,6 +48,7 @@ public class PasswordResetCodeService {
             throw new InvalidVerificationCodeException("Invalid or expired verification code");
         }
         userService.updateUserPassword(user, newPassword);
+        userService.saveUser(user);
     }
 
 }

@@ -43,8 +43,8 @@ public class AuthService {
         manageSpecialistFields(specialist, request);
 
         userService.saveUser(specialist);
-        String jwt = jwtUtil.generateToken(specialist);
 
+        String jwt = jwtUtil.generateToken(specialist);
         return new AuthResponse(jwt, specialist.getEmail(), Collections.singletonList("SPECIALIST"));
 
     }

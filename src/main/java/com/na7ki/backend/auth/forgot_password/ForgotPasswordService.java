@@ -45,7 +45,7 @@ public class ForgotPasswordService {
     public VerifyCodeResponse verifyCode(VerifyCodeRequest request) {
 
         User user = getUserOfProvidedEmail(request.getEmail(),
-                () -> new NoVerificationCodeForThisEmail("No verification code for this email"));
+                () -> new NoVerificationCodeForThisEmail("No verification code for this email. Please request a code"));
 
         VerifyCodeResult result = passwordResetCodeService.verifyCode(user, request.getCode(), false);
         return new VerifyCodeResponse(request.getEmail(), result.status(), result.message());

@@ -25,7 +25,7 @@ public class ForgotPasswordController {
 
     @PostMapping("/request-code")
     public ResponseEntity<SendCodeResponse> requestResetPassword(@Valid @RequestBody SendCodeRequest request) {
-        return ResponseEntity.ok(forgotPasswordService.sendCode(request, true));
+        return ResponseEntity.ok(forgotPasswordService.sendCode(request, false));
     }
 
     @PostMapping("/resend-code")
@@ -38,7 +38,7 @@ public class ForgotPasswordController {
         return ResponseEntity.status(HttpStatus.OK).body(forgotPasswordService.verifyCode(request));
     }
 
-    @PostMapping("/reset-password")
+    @PatchMapping("/reset-password")
     public ResponseEntity<ResetPasswordResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(forgotPasswordService.resetPassword(request));
     }

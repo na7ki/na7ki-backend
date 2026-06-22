@@ -103,7 +103,6 @@ public class UserService {
     
     public void updateUserPassword (User targetUser, String newPassword) {
         targetUser.setPassword(passwordEncoder.encode(newPassword));
-        saveUser(targetUser);
     }
 
     private <T> void updateUniqueFieldOrThrow(
