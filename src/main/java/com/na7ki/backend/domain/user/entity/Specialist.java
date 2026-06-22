@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,5 +25,19 @@ public class Specialist extends User {
     @CollectionTable (name = "specialist-personal_image", joinColumns = @JoinColumn(name = "user_id"))
     @Column (name = "personal_image_path", length = 100)
     private List<String> personalImages_paths;
+
+
+
+
+
+    @Override
+    public void anonymize(Long deletionUserId) {
+        super.anonymize(deletionUserId);
+
+        //delete all personally identifying data
+        this.setAddress("");
+        this.setDateOfBirth(LocalDate.of(1700, 1, 1));
+        this.setPersonalImages_paths(new ArrayList<>());
+    }
 
 }

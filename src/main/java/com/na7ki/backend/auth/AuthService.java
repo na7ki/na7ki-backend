@@ -52,7 +52,7 @@ public class AuthService {
     private void manageSpecialistFields(Specialist specialist, SpecialistRegisterRequest request) {
         userService.updateUserPassword(specialist, request.password());
         specialist.setAge(DateUtils.calculateAge(request.dateOfBirth()));
-        specialist.setSpecialistID("SP" + userService.createSpecialistIdNumberPart());
+        specialist.setSpecialistID("SP" + userService.getSpecialistIdNumberPart());
     }
 
     public AuthResponse login(LoginRequest request) {

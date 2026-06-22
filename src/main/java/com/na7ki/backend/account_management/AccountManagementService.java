@@ -27,4 +27,8 @@ public class AccountManagementService {
         userService.updateUser(targetUser, request);
     }
 
+    public void deleteAccount(User targetUser) {
+        userService.softDeleteUser(targetUser);
+    }
+
 }

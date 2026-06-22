@@ -35,4 +35,10 @@ public class AccountManagementController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/profile")
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal User user) {
+        accountManagementService.deleteAccount(user);
+        return ResponseEntity.noContent().build();
+    }
+
 }

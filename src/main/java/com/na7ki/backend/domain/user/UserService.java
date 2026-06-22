@@ -12,6 +12,8 @@ import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
+import com.na7ki.backend.domain.user.verification_code.VerificationCodeRepository;
+import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,10 +28,17 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final VerificationCodeService verificationCodeService;
+
     private final UserRepository userRepository;
     private final SpecialistRepository specialistRepository;
     private final PatientRepository patientRepository;
+
     private final PasswordEncoder passwordEncoder;
+
+    private final static String DELETED_USER_PASSWORD = "DELETED@NA7KI";
+
+
 
 
 
@@ -40,6 +49,10 @@ public class UserService {
     public boolean isPhoneNumberUnique(String phoneNumber) {
         return !userRepository.existsByPhoneNumber(phoneNumber);
     }
+
+
+
+
 
     public Optional<User> findByEmail (String email) {
         return userRepository.findByEmail(email);
@@ -54,6 +67,10 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
     }
+
+
+
+
 
     public void saveUser(User user) {
         switch (user) {
@@ -121,7 +138,34 @@ public class UserService {
         }
     }
 
-    public Long createSpecialistIdNumberPart() {
+    public void softDeleteUser (User user) {
+
+        user.anonymize(getDeletionUserId());
+
+        //updating the password to a non user-specified value would automatically invalidate all JWTs related to this user
+        updateUserPassword(user, DELETED_USER_PASSWORD);
+
+        //delete verification codes
+        handleRelatedEntitiesOnDeletion(user);
+
+        userRepository.save(user);
+
+    }
+
+    private void handleRelatedEntitiesOnDeletion(User user) {
+        verificationCodeService.deleteCode(user);
+    }
+
+
+
+
+
+    public Long getSpecialistIdNumberPart() {
         return userRepository.countByType(Specialist.class) + 1;
     }
+
+    private Long getDeletionUserId() {
+        return userRepository.countByIsDeletedTrue() + 1;
+    }
+
 }

@@ -56,7 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 User user = userService.findByIdOrThrow(userId);
 
-                if (!user.getIsActive()) {
+                if (user.getIsDeleted()) {
                     throw new AccountNotActiveException("Account is inactive");
                 }
 

@@ -76,7 +76,22 @@ public abstract class User implements UserDetails {
     private Date updatedAtDate;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    private Boolean isDeleted = false;
+
+
+
+
+
+    public void anonymize(Long deletionUserId) {
+        this.setIsDeleted(true);
+
+        //delete all personally identifying data
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        this.setName("deleted user");
+        this.setEmail("deleted_" + timestamp + "@na7ki.com");
+        this.setPhoneNumber("deleted_" + deletionUserId);
+        this.setDisplayImage_path(null);
+    }
 
 
 
