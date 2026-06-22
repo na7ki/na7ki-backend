@@ -38,11 +38,11 @@ public class VerificationCodeService {
         return resetVerificationCode;
     }
 
-    public void deleteCode (VerificationCode code) {
-        User user = code.getUser();
-        user.setVerificationCode(null);
-        code.setUser(null);
-        verificationCodeRepository.delete(code);
+    public void deleteCode (User associatedUser) {
+        VerificationCode associatedCode = associatedUser.getVerificationCode();
+        associatedUser.setVerificationCode(null);
+        associatedCode.setUser(null);
+        verificationCodeRepository.delete(associatedCode);
         verificationCodeRepository.flush();
     }
 
@@ -57,9 +57,9 @@ public class VerificationCodeService {
             if (!replaceExistingCode) {
                 throw new VerificationCodeForThisEmailAlreadyExistsException("There is already an active verification code for this email. Check your email to see your code or try again to get a new code.");
             }
-            deleteCode(user.getVerificationCode());
+            deleteCode(user);
         } else if (status == VerificationCodeStatus.EXPIRED) {
-            deleteCode(user.getVerificationCode());
+            deleteCode(user);
         }
 
         return createCode(user);
@@ -75,7 +75,7 @@ public class VerificationCodeService {
                 //this call to deleteCode will only be persisted when the caller is verifyCode
                 //it won't be persisted when the caller is resetPassword, because it throws and exception, so the deletion transaction rolls back
                 //this means that expired codes won't get cleaned by resetPassword. The elegant way to handle this is to make an async job that runs every set time to delete expired codes. Do this if needed.
-                deleteCode(user.getVerificationCode());
+                deleteCode(user);
                 return VerifyCodeStatus.EXPIRED;
 
             case VerificationCodeStatus.VALID:
@@ -83,12 +83,12 @@ public class VerificationCodeService {
                 if (doesMatch) {
                     if (doDeleteOnMatch)
                     {
-                        deleteCode(user.getVerificationCode());
+                        deleteCode(user);
+                    } else {
+                        //to allow the user some time between verifying the code and resetting the password
+                        user.getVerificationCode().setExpiresAt(LocalDateTime.now().plusMinutes(EXPIRATION_DURATION_AFTER_VERIFICATION_MINUTES));
+                        verificationCodeRepository.save(user.getVerificationCode());
                     }
-                    //to allow the user some time between verifying the code and resetting the password
-                    user.getVerificationCode().setExpiresAt(LocalDateTime.now().plusMinutes(EXPIRATION_DURATION_AFTER_VERIFICATION_MINUTES));
-                    verificationCodeRepository.save(user.getVerificationCode());
-
                     return VerifyCodeStatus.MATCH;
                 }
                 else {
