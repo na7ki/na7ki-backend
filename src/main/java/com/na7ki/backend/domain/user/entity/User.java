@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 @Data

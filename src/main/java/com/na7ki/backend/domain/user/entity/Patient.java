@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "patient")
 @DiscriminatorValue("PATIENT")
 @Data
 public class Patient extends User {

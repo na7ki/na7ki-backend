@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name = "specialist")
 @DiscriminatorValue("SPECIALIST")
 @Data
 public class Specialist extends User {
@@ -22,7 +21,7 @@ public class Specialist extends User {
     private String address;
 
     @ElementCollection
-    @CollectionTable (name = "specialist-personal_images", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable (name = "specialist-personal_image", joinColumns = @JoinColumn(name = "user_id"))
     @Column (name = "personal_image_path", length = 100)
     private List<String> personalImages_paths;
 
