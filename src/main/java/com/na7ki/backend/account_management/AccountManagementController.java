@@ -1,5 +1,6 @@
 package com.na7ki.backend.account_management;
 
+import com.na7ki.backend.account_management.contact_request.dto.ContactUsRequest;
 import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
 import com.na7ki.backend.account_management.dto.response.GetUserProfileResponse;
 import com.na7ki.backend.domain.user.entity.User;
@@ -32,6 +33,15 @@ public class AccountManagementController {
             @AuthenticationPrincipal User user
     ) {
         accountManagementService.updateProfile(user, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/help-and-support/contact-us")
+    public ResponseEntity<Void> contactUs (
+            @RequestBody @Valid ContactUsRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        accountManagementService.submitContactRequest(request, user);
         return ResponseEntity.noContent().build();
     }
 

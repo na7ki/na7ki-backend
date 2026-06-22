@@ -28,6 +28,7 @@ public class UpdateProfileRequest {
     private Optional<String> displayImage_path = Optional.empty();
 
 
+    //Specialist fields
 
     private Optional<String> address = Optional.empty();
 

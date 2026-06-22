@@ -1,5 +1,6 @@
 package com.na7ki.backend.domain.user.entity;
 
+import com.na7ki.backend.account_management.contact_request.ContactRequest;
 import com.na7ki.backend.domain.user.entity.enums.Gender;
 import com.na7ki.backend.domain.user.verification_code.VerificationCode;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +54,9 @@ public abstract class User implements UserDetails {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private VerificationCode verificationCode;
+
+    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContactRequest> contactRequests = new ArrayList<>();
 
 
 
