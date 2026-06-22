@@ -26,8 +26,8 @@ public class VerificationCode {
         @Column(nullable = false)
         private LocalDateTime expiresAt;
 
-        @OneToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id")
+        @OneToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
         private User user;
 
 
