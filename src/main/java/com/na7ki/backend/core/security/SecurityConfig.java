@@ -24,18 +24,16 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
 
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
 
@@ -53,6 +51,7 @@ public class SecurityConfig {
         // request matchers run as the final security filter, after the jwt and the default Spring filter, respectively
         http.authorizeHttpRequests(auth ->
                 auth
+                        .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
@@ -60,7 +59,6 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
-//                        .requestMatchers(HttpMethod.GET, "/api/test/**").hasAuthority("ADMIN")
         )
 
         //registers the custom authentication provider that takes into account the password encryptor and the custom User Details Service. Without it Spring uses its default, which isn't customized

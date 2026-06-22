@@ -14,6 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u WHERE TYPE(u) = :type")
     long countByType(@Param("type") Class<?> type);
 
+    long countByIsDeletedTrue();
+
     boolean existsByEmail(String email);
 
     boolean existsByPhoneNumber(String phoneNumber);
