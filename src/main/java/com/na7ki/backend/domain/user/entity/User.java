@@ -1,6 +1,7 @@
 package com.na7ki.backend.domain.user.entity;
 
-import com.na7ki.backend.account_management.contact_request.ContactRequest;
+import com.na7ki.backend.account_management.customer_inquiry.entity.BugReport;
+import com.na7ki.backend.account_management.customer_inquiry.entity.ContactRequest;
 import com.na7ki.backend.domain.user.entity.enums.Gender;
 import com.na7ki.backend.domain.user.verification_code.VerificationCode;
 import jakarta.persistence.*;
@@ -55,8 +56,11 @@ public abstract class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private VerificationCode verificationCode;
 
-    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "inquirer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContactRequest> contactRequests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "inquirer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BugReport> bugReports = new ArrayList<>();
 
 
 
