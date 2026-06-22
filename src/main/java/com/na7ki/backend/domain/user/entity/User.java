@@ -12,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -75,7 +77,7 @@ public abstract class User implements UserDetails {
     @Column(name = "last_modified_at", nullable = false)
     private Date updatedAtDate;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(nullable = false)
     private Boolean isDeleted = false;
 
 
@@ -86,7 +88,7 @@ public abstract class User implements UserDetails {
         this.setIsDeleted(true);
 
         //delete all personally identifying data
-        String timestamp = String.valueOf(System.currentTimeMillis());
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
         this.setName("deleted user");
         this.setEmail("deleted_" + timestamp + "@na7ki.com");
         this.setPhoneNumber("deleted_" + deletionUserId);

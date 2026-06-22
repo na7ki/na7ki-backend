@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
@@ -25,6 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
 
 
@@ -48,29 +50,34 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // but for every request, the context resets to null. authentication context data don't get preserved over requests (stateless)
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                // Design decision: DB hit on every request.
-                // Ensures the user still exists and is active, and keeps roles/permissions always fresh — at the cost of one indexed lookup per request
-                // Acceptable at current scale. Revisit with a cache if this becomes a bottleneck.
-                Claims claims = jwtUtil.extractClaims(token);
-                Long userId = Long.valueOf(claims.getSubject());
+                try {
+                    // Design decision: DB hit on every request.
+                    // Ensures the user still exists and is active, and keeps roles/permissions always fresh — at the cost of one indexed lookup per request
+                    // Acceptable at current scale. Revisit with a cache if this becomes a bottleneck.
+                    Claims claims = jwtUtil.extractClaims(token);
+                    Long userId = Long.valueOf(claims.getSubject());
 
-                User user = userService.findByIdOrThrow(userId);
+                    User user = userService.findByIdOrThrow(userId);
 
-                if (user.getIsDeleted()) {
-                    throw new AccountNotActiveException("Account is inactive");
+                    if (user.getIsDeleted()) {
+                        throw new AccountNotActiveException("Account is inactive");
+                    }
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    user,
+                                    null,
+                                    user.getAuthorities()
+                            );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                } catch (JwtException | NumberFormatException e) {
+                    throw new InvalidJwtTokenException("Invalid JWT token");
                 }
-
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                user,
-                                null,
-                                user.getAuthorities()
-                        );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-
-            } catch (JwtException | NumberFormatException e) {
-                throw new InvalidJwtTokenException("Invalid JWT token");
+            } catch (Exception e) {
+                handlerExceptionResolver.resolveException(request, response, null, e);
+                return;
             }
         }
 

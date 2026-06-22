@@ -54,7 +54,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
-//                        .requestMatchers(HttpMethod.GET, "/api/test/**").hasAuthority("ADMIN")
         )
 
         //registers the custom authentication provider that takes into account the password encryptor and the custom User Details Service. Without it Spring uses its default, which isn't customized

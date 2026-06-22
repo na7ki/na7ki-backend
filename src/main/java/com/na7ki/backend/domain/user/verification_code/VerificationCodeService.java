@@ -40,6 +40,10 @@ public class VerificationCodeService {
 
     public void deleteCode (User associatedUser) {
         VerificationCode associatedCode = associatedUser.getVerificationCode();
+        if (associatedCode == null)
+        {
+            return;
+        }
         associatedUser.setVerificationCode(null);
         associatedCode.setUser(null);
         verificationCodeRepository.delete(associatedCode);
