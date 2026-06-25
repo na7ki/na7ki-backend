@@ -8,4 +8,25 @@ INSERT INTO `choices` VALUES (1,'SINGULAR',1,1),(2,'PLURAL',5,1),(3,'PLURAL',5,2
 
 INSERT INTO `user_sessions` VALUES (1,'2026-05-09 01:09:39.336645',4,4,123,1),(2,'2026-05-09 01:09:56.821116',3,4,123,1),(3,'2026-05-09 01:13:08.828652',4,4,123,1),(4,'2026-06-16 21:34:36.840396',4,4,123,1);
 
-INSERT INTO `user_answers` VALUES (1,_binary ' ',NULL,1,1,1),(2,_binary ' ',NULL,2,1,3),(3,_binary ' ',NULL,3,1,5),(4,_binary ' ',NULL,4,1,7),(5,_binary '\0',NULL,1,2,2),(6,_binary ' ',NULL,2,2,3),(7,_binary ' ',NULL,3,2,5),(8,_binary ' ',NULL,4,2,7),(9,_binary ' ',NULL,1,3,1),(10,_binary ' ',NULL,2,3,3),(11,_binary ' ',NULL,3,3,5),(12,_binary ' ',NULL,4,3,7),(13,_binary ' ',NULL,1,4,1),(14,_binary ' ',NULL,2,4,3),(15,_binary ' ',NULL,3,4,5),(16,_binary ' ',NULL,4,4,7);
+INSERT INTO user_answers
+(id, is_correct, selected_type, question_id, session_id, choice_id)
+VALUES
+    (1, 1, NULL, 1, 1, 1),
+    (2, 1, NULL, 2, 1, 3),
+    (3, 1, NULL, 3, 1, 5),
+    (4, 1, NULL, 4, 1, 7),
+
+    (5, 0, NULL, 1, 2, 2),
+    (6, 1, NULL, 2, 2, 3),
+    (7, 1, NULL, 3, 2, 5),
+    (8, 1, NULL, 4, 2, 7),
+
+    (9, 1, NULL, 1, 3, 1),
+    (10, 1, NULL, 2, 3, 3),
+    (11, 1, NULL, 3, 3, 5),
+    (12, 1, NULL, 4, 3, 7),
+
+    (13, 1, NULL, 1, 4, 1),
+    (14, 1, NULL, 2, 4, 3),
+    (15, 1, NULL, 3, 4, 5),
+    (16, 1, NULL, 4, 4, 7);
