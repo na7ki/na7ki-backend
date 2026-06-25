@@ -7,6 +7,7 @@ import com.na7ki.backend.domain.user.verification_code.exception.VerificationCod
 import com.na7ki.backend.domain.user.verification_code.util.CodeGenerator;
 import com.na7ki.backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,10 @@ public class VerificationCodeService {
 
     private final VerificationCodeRepository verificationCodeRepository;
 
+    @Value("${vc.expiration.basic}")
     private static final short EXPIRATION_DURATION_MINUTES = 3;
+
+    @Value("${vc.expiration.additional}")
     private static final short EXPIRATION_DURATION_AFTER_VERIFICATION_MINUTES = 5;
 
 
