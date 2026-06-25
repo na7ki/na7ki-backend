@@ -1,6 +1,11 @@
 package com.na7ki.backend.core.security.jwt;
 
 import com.na7ki.backend.core.security.exception.InvalidJwtTokenException;
+import com.na7ki.backend.domain.user.UserService;
+import com.na7ki.backend.domain.user.entity.User;
+import com.na7ki.backend.domain.user.exception.AccountNotActiveException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,11 +13,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
@@ -21,7 +25,8 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
 
 
@@ -40,26 +45,39 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         final String token = authHeader.substring(7);
-        final String username = jwtUtil.extractUsername(token);
 
-        // authenticate only if request isn't already authenticated
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // prevents other authentication mechanisms from running at the same time per request
+        // but for every request, the context resets to null. authentication context data don't get preserved over requests (stateless)
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
+                try {
+                    // Design decision: DB hit on every request.
+                    // Ensures the user still exists and is active, and keeps roles/permissions always fresh — at the cost of one indexed lookup per request
+                    // Acceptable at current scale. Revisit with a cache if this becomes a bottleneck.
+                    Claims claims = jwtUtil.extractClaims(token);
+                    Long userId = Long.valueOf(claims.getSubject());
 
-            //Design Decision. Optional DB hit
-            //Costs more, but ensures the user is still active and wasn't banned or deleted from the DB before the token hasn't expired yet
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    User user = userService.findByIdOrThrow(userId);
 
-            if (jwtUtil.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            } else {
-                throw new InvalidJwtTokenException("Invalid JWT token");
+                    if (user.getIsDeleted()) {
+                        throw new AccountNotActiveException("Account is inactive");
+                    }
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    user,
+                                    null,
+                                    user.getAuthorities()
+                            );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                } catch (JwtException | NumberFormatException e) {
+                    throw new InvalidJwtTokenException("Invalid JWT token");
+                }
+            } catch (Exception e) {
+                handlerExceptionResolver.resolveException(request, response, null, e);
+                return;
             }
         }
 

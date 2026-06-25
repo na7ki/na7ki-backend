@@ -1,7 +1,9 @@
 package com.na7ki.backend.domain.user.entity;
 
-import com.na7ki.backend.auth.verificationcode.VerificationCode;
-import com.na7ki.backend.domain.user.entity.auxililary.Gender;
+import com.na7ki.backend.account_management.customer_inquiry.entity.BugReport;
+import com.na7ki.backend.account_management.customer_inquiry.entity.ContactRequest;
+import com.na7ki.backend.domain.user.entity.enums.Gender;
+import com.na7ki.backend.domain.user.verification_code.VerificationCode;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,12 +12,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 @Data
@@ -46,13 +50,19 @@ public abstract class User implements UserDetails {
 
 
 
-    @Column (name = "display-image_path", nullable = false, length = 100)
+    @Column (name = "display-image_path", length = 100)
     private String displayImage_path;
 
 
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private VerificationCode verificationCode;
+
+    @OneToMany(mappedBy = "inquirer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContactRequest> contactRequests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "inquirer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BugReport> bugReports = new ArrayList<>();
 
 
 
@@ -67,8 +77,23 @@ public abstract class User implements UserDetails {
     @Column(name = "last_modified_at", nullable = false)
     private Date updatedAtDate;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
+
+
+
+
+    public void anonymize(Long deletionUserId) {
+        this.setIsDeleted(true);
+
+        //delete all personally identifying data
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        this.setName("deleted user");
+        this.setEmail("deleted_" + timestamp + "@na7ki.com");
+        this.setPhoneNumber("deleted_" + deletionUserId);
+        this.setDisplayImage_path(null);
+    }
 
 
 

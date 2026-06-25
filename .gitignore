@@ -1,4 +1,14 @@
+### private configuration files ###
+.env
+application-local.properties
+
+### other ###
+venv
+singular
+plural
 HELP.md
+
+### build artifacts ###
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

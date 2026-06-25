@@ -1,0 +1,3 @@
+#============= MySQL DATABASE ==========================
+db.name= the name of your local db instance (Ex: na7ki)
+db.username= the username of your local db instance (Ex: na7ki_user)

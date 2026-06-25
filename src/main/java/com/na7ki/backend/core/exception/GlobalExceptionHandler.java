@@ -1,8 +1,11 @@
 package com.na7ki.backend.core.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -35,6 +39,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<String> handleUsernameNotFound(UsernameNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No user with this email was found");
+    }
+
+    @ExceptionHandler(JsonMappingException.class)
+    public ResponseEntity<String> handleJsonMappingException(JsonMappingException e) {
+        return ResponseEntity.badRequest().body("Invalid profile data");
     }
 
     @ExceptionHandler({ExpiredJwtException.class, MalformedJwtException.class, SignatureException.class})
