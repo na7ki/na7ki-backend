@@ -16,10 +16,10 @@ import java.util.Date;
 public class JwtUtil {
 
     @Value("${jwt.secret}")
-    private String secretKey;
+    private String SECRET_KEY;
 
     @Value("${jwt.expiration}")
-    private long expirationPeriod;
+    private long EXPIRATION_PERIOD;
 
 
 
@@ -30,13 +30,13 @@ public class JwtUtil {
                         .map(GrantedAuthority::getAuthority)
                         .toList())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expirationPeriod))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_PERIOD))
                 .signWith(getSigningKey())
                 .compact();
     }
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
     }
 
     // This method alone checks the signature integrity using the secret key AND the expiration time constraint
