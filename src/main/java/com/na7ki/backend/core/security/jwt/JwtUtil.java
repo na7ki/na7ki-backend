@@ -16,10 +16,10 @@ import java.util.Date;
 public class JwtUtil {
 
     @Value("${jwt.secret}")
-    private static String SECRET_KEY;
+    private String SECRET_KEY;
 
     @Value("${jwt.expiration}")
-    private static long EXPIRATION_PERIOD;
+    private long EXPIRATION_PERIOD;
 
 
 
