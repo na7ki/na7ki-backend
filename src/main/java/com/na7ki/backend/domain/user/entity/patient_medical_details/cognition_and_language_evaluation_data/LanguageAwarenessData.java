@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user.entity.patient_details.language_and_cognition_evaluation_data;
+package com.na7ki.backend.domain.user.entity.patient_medical_details.cognition_and_language_evaluation_data;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

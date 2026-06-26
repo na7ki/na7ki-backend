@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.user.entity;
 
-import com.na7ki.backend.domain.user.entity.patient_details.PatientMedicalDetails;
+import com.na7ki.backend.domain.user.entity.patient_medical_details.PatientMedicalDetails;
 import jakarta.persistence.*;
 import lombok.Data;
 

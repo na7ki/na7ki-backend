@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user.entity.patient_details.additional_info_data;
+package com.na7ki.backend.domain.user.entity.patient_medical_details.additional_info_data;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
