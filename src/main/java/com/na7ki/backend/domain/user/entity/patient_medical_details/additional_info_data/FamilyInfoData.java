@@ -4,7 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public record CaseFamilyInfoData(
+public record FamilyInfoData(
 
     @Column (nullable = false)
     Short noSiblings,

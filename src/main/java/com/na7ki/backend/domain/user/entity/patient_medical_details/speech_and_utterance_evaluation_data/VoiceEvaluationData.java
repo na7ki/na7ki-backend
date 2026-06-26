@@ -21,7 +21,7 @@ public record VoiceEvaluationData(
 
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)
-        VoiceQuality quality,
+        VoiceQuality voiceQuality,
 
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)

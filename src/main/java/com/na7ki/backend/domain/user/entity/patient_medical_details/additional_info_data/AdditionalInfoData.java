@@ -10,7 +10,7 @@ public record AdditionalInfoData(
     CaseInfoData caseInfoData,
 
     @Embedded
-    CaseFamilyInfoData caseFamilyInfoData,
+    FamilyInfoData familyInfoData,
 
     @Embedded
     EducationInfoData educationInfoData
