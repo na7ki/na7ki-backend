@@ -13,19 +13,19 @@ import jakarta.persistence.Enumerated;
 public record SpeechCharacteristicsData(
 
         @Enumerated(EnumType.STRING)
-        @Column(nullable = false, length = 20)
+        @Column(nullable = false, length = 20, updatable = false)
         SpeechRate speechRate,
 
         @Enumerated(EnumType.STRING)
-        @Column (nullable = false, length = 20)
+        @Column (nullable = false, length = 20, updatable = false)
         SpeechFluency speechFluency,
 
         @Enumerated(EnumType.STRING)
-        @Column (nullable = false, length = 20)
+        @Column (nullable = false, length = 20, updatable = false)
         SpeechResonance speechResonance,
 
         @Enumerated(EnumType.STRING)
-        @Column (nullable = false, length = 20)
+        @Column (nullable = false, length = 20, updatable = false)
         SpeechClarity speechClarity
 
 ) {

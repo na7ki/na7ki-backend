@@ -4,7 +4,7 @@ import com.na7ki.backend.auth.dto.request.LoginRequest;
 import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
 import com.na7ki.backend.common.util.DateUtils;
-import com.na7ki.backend.domain.user.UserService;
+import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.auth.util.UserMapper;

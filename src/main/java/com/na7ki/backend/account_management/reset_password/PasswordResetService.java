@@ -5,7 +5,7 @@ import com.na7ki.backend.account_management.reset_password.dto.request.VerifyCod
 import com.na7ki.backend.account_management.reset_password.dto.response.VerifyCodeResponse;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.verification_code.model.VerifyCodeResult;
-import com.na7ki.backend.domain.user.PasswordResetCodeService;
+import com.na7ki.backend.domain.user.service.PasswordResetCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

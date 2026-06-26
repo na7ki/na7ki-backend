@@ -12,19 +12,19 @@ import jakarta.persistence.Enumerated;
 public record VoiceEvaluationData(
 
         @Enumerated(EnumType.STRING)
-        @Column (nullable = false, length = 20)
+        @Column (nullable = false,  length = 20, updatable = false)
         Degree pitch,
 
         @Enumerated(EnumType.STRING)
-        @Column (nullable = false, length = 20)
+        @Column (nullable = false, length = 20, updatable = false)
         Degree intensity,
 
         @Enumerated(EnumType.STRING)
-        @Column (nullable = false, length = 20)
+        @Column (nullable = false, length = 20, updatable = false)
         VoiceQuality quality,
 
         @Enumerated(EnumType.STRING)
-        @Column (nullable = false, length = 20)
+        @Column (nullable = false, length = 20, updatable = false)
         DysphoniaDegree dysphoniaDegree
 
 ) {

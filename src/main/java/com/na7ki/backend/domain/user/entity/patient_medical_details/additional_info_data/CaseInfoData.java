@@ -2,13 +2,14 @@ package com.na7ki.backend.domain.user.entity.patient_medical_details.additional_
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
 @Embeddable
 public record CaseInfoData(
 
-    @Column (nullable = false)
+    @Column (nullable = false, updatable = false)
     LocalDate startDate,
 
     @Column (nullable = false)

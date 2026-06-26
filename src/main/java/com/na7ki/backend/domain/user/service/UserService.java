@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user;
+package com.na7ki.backend.domain.user.service;
 
 import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
 import com.na7ki.backend.common.util.DateUtils;
@@ -12,7 +12,6 @@ import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
-import com.na7ki.backend.domain.user.verification_code.VerificationCodeRepository;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

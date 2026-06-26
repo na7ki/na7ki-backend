@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user;
+package com.na7ki.backend.domain.user.service;
 
 import com.na7ki.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
