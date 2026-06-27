@@ -33,7 +33,7 @@ public class AuthService {
 
         Specialist createdSpecialist = userService.createSpecialist(specialistRegisterMapper.toCreateSpecialistData(request));
         String jwt = jwtUtil.generateToken(createdSpecialist);
-        return new AuthResponse(jwt, createdSpecialist.getEmail(), Collections.singletonList("SPECIALIST"));
+        return new AuthResponse(jwt, createdSpecialist.getEmail(), "SPECIALIST");
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -49,13 +49,6 @@ public class AuthService {
 
         String jwt = jwtUtil.generateToken(user);
 
-        return switch (user.getRole()) {
-            case "SPECIALIST" ->
-                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("SPECIALIST"));
-            case "PATIENT" ->
-                    new AuthResponse(jwt, user.getEmail(), Collections.singletonList("PATIENT"));
-            default ->
-                    throw new UnknownRoleException("Unknown role: " + user.getRole());
-        };
+        return new AuthResponse(jwt, user.getEmail(), user.getRole());
     }
 }
