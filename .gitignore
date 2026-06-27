@@ -43,3 +43,6 @@ build/
 .vscode/
 
 .env
+female/
+male/
+cognition_packages/

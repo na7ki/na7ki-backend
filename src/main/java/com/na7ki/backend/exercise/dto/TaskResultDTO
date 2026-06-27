@@ -1,0 +1,57 @@
+package com.na7ki.backend.exercise.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+import com.na7ki.backend.exercise.Dto.TaskResultRequest;
+import com.na7ki.backend.exercise.Dto.TaskResultResponse;
+import com.na7ki.backend.exercise.Entity.Cases;
+import com.na7ki.backend.exercise.Entity.TaskResult;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TaskResultMapper {
+
+    public TaskResult toEntity(Long caseId, TaskResultRequest req, Cases caseEntity) {
+        TaskResult entity = new TaskResult();
+        entity.setCaseEntity(caseEntity);
+        entity.setTaskId(req.getTaskId());
+        entity.setTaskName(req.getTaskName());
+        entity.setStartedAt(req.getStartedAt());
+        entity.setCompletedAt(req.getCompletedAt());
+        entity.setCompleted(Boolean.TRUE.equals(req.getCompleted()));
+        entity.setDurationSeconds(req.getDurationSeconds());
+        entity.setTotalRounds(req.getTotalRounds());
+        entity.setCorrectRounds(req.getCorrectRounds());
+        entity.setAccuracy(req.getAccuracy());
+        entity.setAttemptsCount(req.getAttemptsCount());
+        entity.setAvgReactionTimeMs(req.getAvgReactionTimeMs());
+        entity.setErrorBreakdown(req.getErrorBreakdown());
+        entity.setExtra(req.getExtra());
+        return entity;
+    }
+
+    public TaskResultResponse toResponse(TaskResult entity) {
+        return TaskResultResponse.builder()
+                .id(entity.getId())
+                .caseId(entity.getCaseEntity() != null ? entity.getCaseEntity().getId() : null)
+                .taskId(entity.getTaskId())
+                .taskName(entity.getTaskName())
+                .startedAt(entity.getStartedAt())
+                .completedAt(entity.getCompletedAt())
+                .completed(entity.isCompleted())
+                .durationSeconds(entity.getDurationSeconds())
+                .totalRounds(entity.getTotalRounds())
+                .correctRounds(entity.getCorrectRounds())
+                .accuracy(entity.getAccuracy())
+                .attemptsCount(entity.getAttemptsCount())
+                .avgReactionTimeMs(entity.getAvgReactionTimeMs())
+                .errorBreakdown(entity.getErrorBreakdown())
+                .extra(entity.getExtra())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+}
