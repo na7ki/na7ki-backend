@@ -13,6 +13,7 @@ import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.model.CreateSpecialistData;
 import com.na7ki.backend.domain.user.model.SpecialistFieldsManagementInput;
 import com.na7ki.backend.domain.user.model.UniqueFields;
+import com.na7ki.backend.domain.user.model.UpdateProfileData;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
@@ -110,42 +111,40 @@ public class UserService {
         }
     }
 
-    public void updateUser (User targetUser, UpdateProfileRequest request) {
+    public void updateUser (User targetUser, UpdateProfileData data) {
 
         updateUniqueFieldOrThrow(
-                request.getEmail(),
+                data.email(),
                 this::isEmailUnique,
                 targetUser::setEmail,
                 () -> new EmailNotUniqueException("This email is used by another user")
         );
 
         updateUniqueFieldOrThrow(
-                request.getPhoneNumber(),
+                data.phoneNumber(),
                 this::isPhoneNumberUnique,
                 targetUser::setPhoneNumber,
                 () -> new PhoneNumberNotUniqueException("This phone number is used by another user")
         );
 
-        request.getName().ifPresent(targetUser::setName);
+        data.name().ifPresent(targetUser::setName);
+        data.gender().ifPresent(targetUser::setGender);
+        data.displayImage_path().ifPresent(targetUser::setDisplayImage_path);
 
-        request.getGender().ifPresent(targetUser::setGender);
-
-        if (request.getDisplayImage_path().isPresent()) {
-            String path = request.getDisplayImage_path().get();
-            targetUser.setDisplayImage_path(path.isEmpty() ? null : path);
+        if (targetUser instanceof Specialist specialist) {
+            updateSpecialistFields (specialist, data);
         }
 
-        //Specialist fields
+        saveUser(targetUser);
+    }
 
-        request.getAddress().ifPresent(((Specialist)targetUser)::setAddress);
+    private void updateSpecialistFields (Specialist specialist, UpdateProfileData data) {
+        data.address().ifPresent(specialist::setAddress);
 
-        request.getDateOfBirth().ifPresent(dateOfBirth -> {
-            Specialist specialist = (Specialist) targetUser;
+        data.dateOfBirth().ifPresent(dateOfBirth -> {
             specialist.setDateOfBirth(dateOfBirth);
             specialist.setAge(DateUtils.calculateAge(dateOfBirth));
         });
-
-        saveUser(targetUser);
     }
     
     public void updateUserPassword (User targetUser, String newPassword) {

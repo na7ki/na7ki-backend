@@ -13,18 +13,18 @@ import org.springframework.stereotype.Service;
 public class AccountManagementService {
 
     private final UserService userService;
-    private final ProfileMapper profileMapper;
+    private final ProfileMapper mapper;
 
 
 
 
 
     public GetUserProfileResponse getUserProfile(User targetUser) {
-        return profileMapper.toResponse(targetUser);
+        return mapper.toResponse(targetUser);
     }
 
     public void updateProfile (User targetUser, UpdateProfileRequest request) {
-        userService.updateUser(targetUser, request);
+        userService.updateUser(targetUser, mapper.toUpdateProfileData(request));
     }
 
     public void deleteAccount(User targetUser) {
