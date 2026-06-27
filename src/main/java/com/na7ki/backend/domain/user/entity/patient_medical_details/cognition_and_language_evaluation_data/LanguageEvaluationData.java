@@ -19,15 +19,15 @@ public record LanguageEvaluationData(
 
         @NotNull(message = "receptiveness score is required")
         @Min(0)
-        @Max(50)
-        @Digits(integer= 2, fraction = 0)
+        @Max(100)
+        @Digits(integer= 3, fraction = 0)
         @Column(nullable = false, updatable = false)
         Short receptivenessScore,
 
         @NotNull(message = "internal language score is required")
         @Min(0)
-        @Max(75)
-        @Digits(integer= 2, fraction = 0)
+        @Max(100)
+        @Digits(integer= 3, fraction = 0)
         @Column(nullable = false, updatable = false)
         Short internalLanguageScore
 
