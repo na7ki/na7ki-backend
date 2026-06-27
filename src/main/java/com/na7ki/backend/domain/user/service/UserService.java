@@ -1,6 +1,7 @@
 package com.na7ki.backend.domain.user.service;
 
 import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
+import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.common.util.DateUtils;
 import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
 import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
@@ -9,9 +10,13 @@ import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
+import com.na7ki.backend.domain.user.model.CreateSpecialistData;
+import com.na7ki.backend.domain.user.model.SpecialistFieldsManagementInput;
+import com.na7ki.backend.domain.user.model.UniqueFields;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
+import com.na7ki.backend.domain.user.util.UserUtilityMapper;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,6 +34,8 @@ public class UserService {
 
     private final VerificationCodeService verificationCodeService;
 
+    private final UserUtilityMapper mapper;
+
     private final UserRepository userRepository;
     private final SpecialistRepository specialistRepository;
     private final PatientRepository patientRepository;
@@ -36,9 +43,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final static String DELETED_USER_PASSWORD = "DELETED@NA7KI";
-
-
-
 
 
     public boolean isEmailUnique(String email) {
@@ -70,6 +74,33 @@ public class UserService {
 
 
 
+
+    public Specialist createSpecialist (CreateSpecialistData data) {
+
+        checkUniqueFields(mapper.toUniqueFields(data));
+
+        Specialist createdSpecialist = mapper.toSpecialist(data);
+        manageSpecialistFields(createdSpecialist, mapper.toSpecialistFieldsManagementInput(data));
+
+        saveUser(createdSpecialist);
+
+        return createdSpecialist;
+    }
+
+    private void checkUniqueFields (UniqueFields uniqueFields) {
+        if (!isEmailUnique(uniqueFields.email())) {
+            throw new EmailNotUniqueException("This email is in use by another user");
+        }
+        if (!isPhoneNumberUnique(uniqueFields.phoneNumber())) {
+            throw new PhoneNumberNotUniqueException("This phone numbers is in use by another user");
+        }
+    }
+
+    private void manageSpecialistFields(Specialist specialist, SpecialistFieldsManagementInput inputFields) {
+        updateUserPassword(specialist, inputFields.password());
+        specialist.setAge(DateUtils.calculateAge(inputFields.dateOfBirth()));
+        specialist.setSpecialistID("SP" + getSpecialistIdNumberPart());
+    }
 
     public void saveUser(User user) {
         switch (user) {

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SpecialistActionsService {
-
     public AddPatientResponse addPatient (AddPatientRequest request) {
         return new AddPatientResponse("", "");
     }

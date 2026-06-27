@@ -3,11 +3,11 @@ package com.na7ki.backend.auth;
 import com.na7ki.backend.auth.dto.request.LoginRequest;
 import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
+import com.na7ki.backend.auth.util.SpecialistRegisterMapper;
 import com.na7ki.backend.common.util.DateUtils;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
-import com.na7ki.backend.auth.util.UserMapper;
 import com.na7ki.backend.core.security.jwt.JwtUtil;
 import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
 import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
@@ -24,35 +24,16 @@ import java.util.Collections;
 public class AuthService {
 
     private final UserService userService;
-    private final UserMapper userMapper;
+    private final SpecialistRegisterMapper specialistRegisterMapper;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
 
     public AuthResponse registerSpecialist (SpecialistRegisterRequest request) {
 
-        //check uniqueness of some credentials
-        if (!userService.isEmailUnique(request.email())) {
-            throw new EmailNotUniqueException("This email is in use by another user");
-        }
-        if (!userService.isPhoneNumberUnique(request.phoneNumber())) {
-            throw new PhoneNumberNotUniqueException("This phone numbers is in use by another user");
-        }
-
-        Specialist specialist = userMapper.toSpecialist(request);
-        manageSpecialistFields(specialist, request);
-
-        userService.saveUser(specialist);
-
-        String jwt = jwtUtil.generateToken(specialist);
-        return new AuthResponse(jwt, specialist.getEmail(), Collections.singletonList("SPECIALIST"));
-
-    }
-
-    private void manageSpecialistFields(Specialist specialist, SpecialistRegisterRequest request) {
-        userService.updateUserPassword(specialist, request.password());
-        specialist.setAge(DateUtils.calculateAge(request.dateOfBirth()));
-        specialist.setSpecialistID("SP" + userService.getSpecialistIdNumberPart());
+        Specialist createdSpecialist = userService.createSpecialist(specialistRegisterMapper.toCreateSpecialistData(request));
+        String jwt = jwtUtil.generateToken(createdSpecialist);
+        return new AuthResponse(jwt, createdSpecialist.getEmail(), Collections.singletonList("SPECIALIST"));
     }
 
     public AuthResponse login(LoginRequest request) {
