@@ -1,6 +1,8 @@
 package com.na7ki.backend.specialist_actions;
 
-import com.na7ki.backend.specialist_actions.dto.request.add_patient_request.AddPatientRequest;
+import com.na7ki.backend.domain.user.entity.Patient;
+import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
+import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,8 +10,16 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SpecialistActionsService {
-    public AddPatientResponse addPatient (AddPatientRequest request) {
-        return new AddPatientResponse("", "");
+
+    private final UserService userService;
+
+
+
+
+
+    public AddPatientResponse addPatient (CreatePatientData request) {
+        Patient createdPatient = userService.createPatient(request);
+        return new AddPatientResponse(createdPatient.getId(), createdPatient.getPatientID() , createdPatient.getPassword());
     }
 
 }

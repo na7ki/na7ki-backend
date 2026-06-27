@@ -2,18 +2,17 @@ package com.na7ki.backend.domain.user.entity.patient_medical_details.additional_
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public record AdditionalInfoData(
 
-    @Embedded
-    CaseInfoData caseInfoData,
+    @Embedded @NotNull(message = "case info is required")       @Valid CaseInfoData caseInfoData,
 
-    @Embedded
-    FamilyInfoData familyInfoData,
+    @Embedded @NotNull(message = "family info is required")     @Valid FamilyInfoData familyInfoData,
 
-    @Embedded
-    EducationInfoData educationInfoData
+    @Embedded @NotNull(message = "education info is required")  @Valid EducationInfoData educationInfoData
 
 ) {
 }

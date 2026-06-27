@@ -1,7 +1,5 @@
 package com.na7ki.backend.domain.user.service;
 
-import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
-import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.common.util.DateUtils;
 import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
 import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
@@ -10,18 +8,19 @@ import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
-import com.na7ki.backend.domain.user.model.CreateSpecialistData;
-import com.na7ki.backend.domain.user.model.SpecialistFieldsManagementInput;
+import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
+import com.na7ki.backend.domain.user.model.create_specialist.CreateSpecialistData;
+import com.na7ki.backend.domain.user.model.create_specialist.SpecialistFieldsManagementInput;
 import com.na7ki.backend.domain.user.model.UniqueFields;
 import com.na7ki.backend.domain.user.model.UpdateProfileData;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
-import com.na7ki.backend.domain.user.util.UserUtilityMapper;
+import com.na7ki.backend.domain.user.util.PasswordGenerator;
+import com.na7ki.backend.domain.user.util.UserMapper;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -35,13 +34,13 @@ public class UserService {
 
     private final VerificationCodeService verificationCodeService;
 
-    private final UserUtilityMapper mapper;
+    private final UserMapper mapper;
 
     private final UserRepository userRepository;
     private final SpecialistRepository specialistRepository;
     private final PatientRepository patientRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordGenerator passwordGenerator;
 
     private final static String DELETED_USER_PASSWORD = "DELETED@NA7KI";
 
@@ -76,16 +75,32 @@ public class UserService {
 
 
 
-    public Specialist createSpecialist (CreateSpecialistData data) {
+    public Specialist createSpecialist(CreateSpecialistData data) {
+        return createUser(
+                mapper.toUniqueFields(data),
+                () -> mapper.toSpecialist(data),
+                specialist -> manageSpecialistFields(specialist, mapper.toSpecialistFieldsManagementInput(data))
+        );
+    }
 
-        checkUniqueFields(mapper.toUniqueFields(data));
+    public Patient createPatient(CreatePatientData data) {
+        return createUser(
+                mapper.toUniqueFields(data),
+                () -> mapper.toPatient(data),
+                this::managePatientFields
+        );
+    }
 
-        Specialist createdSpecialist = mapper.toSpecialist(data);
-        manageSpecialistFields(createdSpecialist, mapper.toSpecialistFieldsManagementInput(data));
+    private <T extends User> T createUser(
+            UniqueFields uniqueFields,
+            Supplier<T> entityFactory,
+            Consumer<T> fieldManager) {
 
-        saveUser(createdSpecialist);
-
-        return createdSpecialist;
+        checkUniqueFields(uniqueFields);
+        T user = entityFactory.get();
+        fieldManager.accept(user);
+        saveUser(user);
+        return user;
     }
 
     private void checkUniqueFields (UniqueFields uniqueFields) {
@@ -101,6 +116,11 @@ public class UserService {
         updateUserPassword(specialist, inputFields.password());
         specialist.setAge(DateUtils.calculateAge(inputFields.dateOfBirth()));
         specialist.setSpecialistID("SP" + getSpecialistIdNumberPart());
+    }
+
+    private void managePatientFields(Patient patient) {
+        updateUserPassword(patient, passwordGenerator.generateRandomRawPassword());
+        patient.setPatientID("PT" + getPatientIdNumberPart());
     }
 
     public void saveUser(User user) {
@@ -148,7 +168,7 @@ public class UserService {
     }
     
     public void updateUserPassword (User targetUser, String newPassword) {
-        targetUser.setPassword(passwordEncoder.encode(newPassword));
+        targetUser.setPassword(passwordGenerator.encodePassword(newPassword));
     }
 
     private <T> void updateUniqueFieldOrThrow(
@@ -191,6 +211,10 @@ public class UserService {
 
     public Long getSpecialistIdNumberPart() {
         return userRepository.countByType(Specialist.class) + 1;
+    }
+
+    public Long getPatientIdNumberPart() {
+        return userRepository.countByType(Patient.class) + 1;
     }
 
     private Long getDeletionUserId() {

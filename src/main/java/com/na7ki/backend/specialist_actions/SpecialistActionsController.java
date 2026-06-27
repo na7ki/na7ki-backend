@@ -1,6 +1,6 @@
 package com.na7ki.backend.specialist_actions;
 
-import com.na7ki.backend.specialist_actions.dto.request.add_patient_request.AddPatientRequest;
+import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class SpecialistActionsController {
 
 
     @PostMapping
-    public ResponseEntity<AddPatientResponse> addPatient (AddPatientRequest request) {
+    public ResponseEntity<AddPatientResponse> addPatient (CreatePatientData request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(specialistActionsService.addPatient(request));
     }
 

@@ -1,9 +1,9 @@
-package com.na7ki.backend.specialist_actions.dto.request.add_patient_request.compositions;
+package com.na7ki.backend.domain.user.model.create_patient;
 
 import com.na7ki.backend.domain.user.entity.enums.Gender;
 import jakarta.validation.constraints.*;
 
-public record UserDetailsDto(
+public record UserDetailsData(
 
         @NotBlank(message = "Name is required")
         String name,

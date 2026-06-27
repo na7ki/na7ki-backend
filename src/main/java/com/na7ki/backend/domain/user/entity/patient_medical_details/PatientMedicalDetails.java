@@ -6,27 +6,26 @@ import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_i
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public record PatientMedicalDetails(
 
-    @Min(0)
-    @Max(200)
-    @Digits(integer= 3, fraction = 0)
+    @Min(value = 0, message = "IQ must be between 0 and 200")
+    @Max(value = 200, message = "IQ must be between 0 and 200")
+    @Digits(integer= 3, fraction = 0, message = "IQ is a whole number. It can't have fractions")
     @Column(nullable = false, updatable = false)
     Short iq,
 
-    @Embedded
-    AdditionalInfoData additionalInfoData,
+    @Embedded @NotNull(message = "Additional info is required") @Valid                          AdditionalInfoData additionalInfoData,
 
-    @Embedded
-    SpeechAndUtteranceEvaluationData speechAndUtteranceEvaluationData,
+    @Embedded @NotNull(message = "speech and utterance evaluation data are required") @Valid    SpeechAndUtteranceEvaluationData speechAndUtteranceEvaluationData,
 
-    @Embedded
-    CongnitionAndLanguageEvalutaionData congnitionAndLanguageEvalutaionData
+    @Embedded @NotNull(message = "cognition and language evaluation data are required") @Valid  CongnitionAndLanguageEvalutaionData congnitionAndLanguageEvalutaionData
 
 ) {
 }

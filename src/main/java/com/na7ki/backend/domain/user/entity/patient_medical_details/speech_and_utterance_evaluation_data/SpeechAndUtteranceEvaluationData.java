@@ -2,15 +2,15 @@ package com.na7ki.backend.domain.user.entity.patient_medical_details.speech_and_
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public record SpeechAndUtteranceEvaluationData(
 
-        @Embedded
-        VoiceEvaluationData voiceEvaluationData,
+        @Embedded @NotNull(message = "voice evaluation data is required") @Valid        VoiceEvaluationData voiceEvaluationData,
 
-        @Embedded
-        SpeechCharacteristicsData speechCharacteristicsData
+        @Embedded @NotNull(message = "speech characteristics data is required") @Valid  SpeechCharacteristicsData speechCharacteristicsData
 
 ) {
 }

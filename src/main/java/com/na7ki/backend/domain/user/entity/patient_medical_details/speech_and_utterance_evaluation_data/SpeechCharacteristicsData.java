@@ -8,22 +8,27 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public record SpeechCharacteristicsData(
 
+        @NotNull(message = "speech rate class score is required")
         @Enumerated(EnumType.STRING)
         @Column(nullable = false, length = 20, updatable = false)
         SpeechRate speechRate,
 
+        @NotNull(message = "speech fluency class is required")
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)
         SpeechFluency speechFluency,
 
+        @NotNull(message = "speech resonance class is required")
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)
         SpeechResonance speechResonance,
 
+        @NotNull(message = "speech clarity class is required")
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)
         SpeechClarity speechClarity

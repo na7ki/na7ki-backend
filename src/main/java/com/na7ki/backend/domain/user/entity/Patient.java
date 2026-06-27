@@ -13,6 +13,6 @@ public class Patient extends User {
     private String patientID;
 
     @Embedded
-    private PatientMedicalDetails details;
+    private PatientMedicalDetails medicalDetails;
 
 }

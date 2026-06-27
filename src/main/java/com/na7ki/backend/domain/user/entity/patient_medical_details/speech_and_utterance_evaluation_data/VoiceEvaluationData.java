@@ -7,22 +7,27 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public record VoiceEvaluationData(
 
+        @NotNull(message = "pitch degree is required")
         @Enumerated(EnumType.STRING)
         @Column (nullable = false,  length = 20, updatable = false)
         Degree pitch,
 
+        @NotNull(message = "intensity degree is required")
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)
         Degree intensity,
 
+        @NotNull(message = "voice quality degree is required")
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)
         VoiceQuality voiceQuality,
 
+        @NotNull(message = "dysphonia degree is required")
         @Enumerated(EnumType.STRING)
         @Column (nullable = false, length = 20, updatable = false)
         DysphoniaDegree dysphoniaDegree

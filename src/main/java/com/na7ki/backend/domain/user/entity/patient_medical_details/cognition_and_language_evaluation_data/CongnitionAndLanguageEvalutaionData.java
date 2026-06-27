@@ -2,15 +2,15 @@ package com.na7ki.backend.domain.user.entity.patient_medical_details.cognition_a
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public record CongnitionAndLanguageEvalutaionData(
 
-        @Embedded
-        LanguageEvaluationData languageEvaluationData,
+        @Embedded @NotNull(message = "language evaluation data is required") @Valid LanguageEvaluationData languageEvaluationData,
 
-        @Embedded
-        LanguageAwarenessData languageAwarenessData
+        @Embedded @NotNull(message = "language awareness data is required") @Valid  LanguageAwarenessData languageAwarenessData
 
 ) {
 }

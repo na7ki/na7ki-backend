@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user.model;
+package com.na7ki.backend.domain.user.model.create_specialist;
 
 import com.na7ki.backend.domain.user.entity.enums.Gender;
 
