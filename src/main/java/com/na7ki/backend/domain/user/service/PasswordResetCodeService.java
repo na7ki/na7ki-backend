@@ -1,6 +1,7 @@
 package com.na7ki.backend.domain.user.service;
 
 import com.na7ki.backend.core.email.EmailService;
+import com.na7ki.backend.core.email.model.VerificationCodeEmail;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import com.na7ki.backend.domain.user.verification_code.enums.VerifyCodeStatus;
@@ -25,7 +26,7 @@ public class PasswordResetCodeService {
     @Transactional
     public void sendCode(User user, boolean replaceExisting) {
         String code = verificationCodeService.requestCode(user, replaceExisting);
-        emailService.sendVerificationCode(user.getEmail(), code);
+        emailService.sendVerificationCode(user.getEmail(), new VerificationCodeEmail(code));
     }
 
     @Transactional

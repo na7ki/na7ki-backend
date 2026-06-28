@@ -49,13 +49,17 @@ public class SecurityConfig {
         // request matchers run as the final security filter, after the jwt and the default Spring filter, respectively
         http.authorizeHttpRequests(auth ->
                 auth
-                        .requestMatchers("/api/auth/logout").authenticated()
-                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
+
+                        .requestMatchers("/api/auth/logout").authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        .requestMatchers("/api/specialist/**").hasRole("SPECIALIST")
+
                         .anyRequest().authenticated()
         )
 

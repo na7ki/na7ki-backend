@@ -1,10 +1,14 @@
 package com.na7ki.backend.specialist_actions;
 
+import com.na7ki.backend.core.email.EmailService;
+import com.na7ki.backend.core.email.model.PatientPasswordEmail;
 import com.na7ki.backend.domain.user.entity.Patient;
+import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,14 +16,27 @@ import org.springframework.stereotype.Service;
 public class SpecialistActionsService {
 
     private final UserService userService;
+    private final EmailService emailService;
 
 
 
 
 
-    public AddPatientResponse addPatient (CreatePatientData request) {
-        Patient createdPatient = userService.createPatient(request);
-        return new AddPatientResponse(createdPatient.getId(), createdPatient.getPatientID() , createdPatient.getPassword());
+    public AddPatientResponse addPatient (CreatePatientData request, Specialist associatedSpecialist) {
+        Pair<Patient, String> patient_and_password = userService.createPatient(request);
+        Patient createdPatient = patient_and_password.getFirst();
+        String generatedRawPassword = patient_and_password.getSecond();
+
+        emailService.sendAddedPatientPassword(
+                createdPatient.getEmail(),
+                new PatientPasswordEmail(
+                        createdPatient.getName(),
+                        associatedSpecialist.getName(),
+                        generatedRawPassword
+                )
+        );
+
+        return new AddPatientResponse(createdPatient.getId(), createdPatient.getPatientID());
     }
 
 }

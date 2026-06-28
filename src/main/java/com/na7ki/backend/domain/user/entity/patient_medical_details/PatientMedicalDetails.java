@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotNull;
 @Embeddable
 public record PatientMedicalDetails(
 
+    @NotNull(message = "iq is required")
     @Min(value = 0, message = "IQ must be between 0 and 200")
     @Max(value = 200, message = "IQ must be between 0 and 200")
     @Digits(integer= 3, fraction = 0, message = "IQ is a whole number. It can't have fractions")

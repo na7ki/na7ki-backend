@@ -24,7 +24,7 @@ public record UserDetailsData(
         @Min(value = 0, message = "age must be between 0 and 20")
         @Max(value = 20, message = "age must be between 0 and 20")
         @Digits(integer = 2, fraction = 0, message = "age should not contain fractions")
-        Short age
+        Byte age
 
 ) {
 }

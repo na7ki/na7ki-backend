@@ -20,6 +20,7 @@ import com.na7ki.backend.domain.user.util.PasswordGenerator;
 import com.na7ki.backend.domain.user.util.UserMapper;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -83,12 +84,16 @@ public class UserService {
         );
     }
 
-    public Patient createPatient(CreatePatientData data) {
-        return createUser(
+    public Pair<Patient, String> createPatient(CreatePatientData data) {
+        String[] passwordHolder = new String[1]; // mutable container to capture value from lambda
+
+        Patient patient = createUser(
                 mapper.toUniqueFields(data),
                 () -> mapper.toPatient(data),
-                this::managePatientFields
+                p -> passwordHolder[0] = managePatientFields(p)
         );
+
+        return Pair.of(patient, passwordHolder[0]);
     }
 
     private <T extends User> T createUser(
@@ -118,17 +123,15 @@ public class UserService {
         specialist.setSpecialistID("SP" + getSpecialistIdNumberPart());
     }
 
-    private void managePatientFields(Patient patient) {
-        updateUserPassword(patient, passwordGenerator.generateRandomRawPassword());
+    private String managePatientFields(Patient patient) {
+        String generatedRawPassword = passwordGenerator.generateRandomRawPassword();
+        updateUserPassword(patient, generatedRawPassword);
         patient.setPatientID("PT" + getPatientIdNumberPart());
+        return generatedRawPassword;
     }
 
     public void saveUser(User user) {
-        switch (user) {
-            case Specialist specialist -> specialistRepository.save(specialist);
-            case Patient patient       -> patientRepository.save(patient);
-            default                    -> throw new UnknownRoleException("Unknown user type: " + user.getClass().getSimpleName());
-        }
+        userRepository.save(user);
     }
 
     public void updateUser (User targetUser, UpdateProfileData data) {

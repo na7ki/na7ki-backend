@@ -29,13 +29,13 @@ public interface UserMapper {
     //ignored because they are handled by the server
     @Mapping(target = "patientID", ignore = true)
     @Mapping(target = "password", ignore = true)
-    @Mapping(target = "age", ignore = true)
     @Mapping(target = "displayImage_path", ignore = true)
 
     @Mapping(target = "name",        source = "userDetailsData.name")
     @Mapping(target = "email",       source = "userDetailsData.email")
     @Mapping(target = "gender",      source = "userDetailsData.gender")
     @Mapping(target = "phoneNumber", source = "userDetailsData.phoneNumber")
+    @Mapping(target = "age",         source = "userDetailsData.age")
     Patient toPatient(CreatePatientData data);
 
     @Mapping(target = "email",       source = "userDetailsData.email")
