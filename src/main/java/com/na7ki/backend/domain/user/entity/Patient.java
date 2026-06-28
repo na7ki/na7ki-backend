@@ -4,15 +4,30 @@ import com.na7ki.backend.domain.user.entity.patient_medical_details.PatientMedic
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+
 @Entity
 @DiscriminatorValue("PATIENT")
 @Data
 public class Patient extends User {
 
-    @Column(name="patient_id", nullable = false, unique=true, updatable=false, length=15)
+    @Column(name="patient_id", nullable = false, unique=true, length=15)
     private String patientID;
 
     @Embedded
     private PatientMedicalDetails medicalDetails;
+
+
+
+
+
+    @Override
+    public void anonymize(Long deletionUserId) {
+        super.anonymize(deletionUserId);
+
+        //change specific id
+        this.setPatientID(this.getPatientID() + "_DL");
+    }
 
 }

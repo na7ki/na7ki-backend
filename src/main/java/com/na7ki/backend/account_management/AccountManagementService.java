@@ -1,6 +1,6 @@
 package com.na7ki.backend.account_management;
 
-import com.na7ki.backend.account_management.dto.request.UpdateProfileRequest;
+import com.na7ki.backend.account_management.dto.request.UpdateUserProfileRequest;
 import com.na7ki.backend.account_management.dto.response.GetUserProfileResponse;
 import com.na7ki.backend.account_management.util.ProfileMapper;
 import com.na7ki.backend.domain.user.service.UserService;
@@ -23,7 +23,7 @@ public class AccountManagementService {
         return mapper.toResponse(targetUser);
     }
 
-    public void updateProfile (User targetUser, UpdateProfileRequest request) {
+    public void updateProfile (User targetUser, UpdateUserProfileRequest request) {
         userService.updateUser(targetUser, mapper.toUpdateProfileData(request));
     }
 

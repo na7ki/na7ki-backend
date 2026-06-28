@@ -4,15 +4,17 @@ import com.na7ki.backend.common.util.DateUtils;
 import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
 import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
 import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
-import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
+import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.model.create_specialist.CreateSpecialistData;
 import com.na7ki.backend.domain.user.model.create_specialist.SpecialistFieldsManagementInput;
 import com.na7ki.backend.domain.user.model.UniqueFields;
-import com.na7ki.backend.domain.user.model.UpdateProfileData;
+import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatablePatientData;
+import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatableSpecialistData;
+import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatableUserData;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
@@ -134,40 +136,48 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void updateUser (User targetUser, UpdateProfileData data) {
+    public void updateUser (User targetUser, UpdatableUserData data) {
 
         updateUniqueFieldOrThrow(
-                data.email(),
+                data.getEmail(),
                 this::isEmailUnique,
                 targetUser::setEmail,
                 () -> new EmailNotUniqueException("This email is used by another user")
         );
 
         updateUniqueFieldOrThrow(
-                data.phoneNumber(),
+                data.getPhoneNumber(),
                 this::isPhoneNumberUnique,
                 targetUser::setPhoneNumber,
                 () -> new PhoneNumberNotUniqueException("This phone number is used by another user")
         );
 
-        data.name().ifPresent(targetUser::setName);
-        data.gender().ifPresent(targetUser::setGender);
-        data.displayImage_path().ifPresent(targetUser::setDisplayImage_path);
+        data.getName().ifPresent(targetUser::setName);
+        data.getGender().ifPresent(targetUser::setGender);
+        data.getDisplayImage_path().ifPresent(targetUser::setDisplayImage_path);
 
         if (targetUser instanceof Specialist specialist) {
-            updateSpecialistFields (specialist, data);
+            updateSpecialistFields (specialist, ((UpdatableSpecialistData) data));
+        } else if (targetUser instanceof Patient patient) {
+            updatePatientFields(patient, ((UpdatablePatientData) data));
+        } else {
+            throw new UnknownRoleException("Unknown role");
         }
 
         saveUser(targetUser);
     }
 
-    private void updateSpecialistFields (Specialist specialist, UpdateProfileData data) {
-        data.address().ifPresent(specialist::setAddress);
+    private void updateSpecialistFields (Specialist specialist, UpdatableSpecialistData data) {
+        data.getAddress().ifPresent(specialist::setAddress);
 
-        data.dateOfBirth().ifPresent(dateOfBirth -> {
+        data.getDateOfBirth().ifPresent(dateOfBirth -> {
             specialist.setDateOfBirth(dateOfBirth);
             specialist.setAge(DateUtils.calculateAge(dateOfBirth));
         });
+    }
+
+    private void updatePatientFields (Patient patient, UpdatablePatientData data) {
+        data.getAge().ifPresent(patient::setAge);
     }
     
     public void updateUserPassword (User targetUser, String newPassword) {

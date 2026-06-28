@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class Specialist extends User {
 
-    @Column(name="specialist_id", nullable = false, unique=true, updatable=false, length=15)
+    @Column(name="specialist_id", nullable = false, unique=true, length=15)
     private String specialistID;
 
     @Column (name = "date_of_birth", nullable = false)
@@ -38,6 +38,9 @@ public class Specialist extends User {
         this.setAddress("");
         this.setDateOfBirth(LocalDate.of(1700, 1, 1));
         this.setPersonalImages_paths(new ArrayList<>());
+
+        //change specific id
+        this.setSpecialistID(this.getSpecialistID() + "_DL");
     }
 
 }
