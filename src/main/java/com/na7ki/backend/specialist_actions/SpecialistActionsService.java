@@ -9,6 +9,7 @@ import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
 import com.na7ki.backend.specialist_actions.dto.response.get_patient.PatientDataResponse;
+import com.na7ki.backend.specialist_actions.exception.SpecialistRequestingNonAssociatedPatientDataException;
 import com.na7ki.backend.specialist_actions.util.PatientDataResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
@@ -43,15 +44,20 @@ public class SpecialistActionsService {
                 )
         );
 
-        return new AddPatientResponse(createdPatient.getId(), createdPatient.getPatientID());
+        return new AddPatientResponse(createdPatient.getUserId(), createdPatient.getPatientID());
     }
 
     public List<PatientSummaryData> getPatients (Specialist specialist) {
         return userService.getAssociatedPatients(specialist);
     }
 
-    public PatientDataResponse getPatient (String patientId) {
+    public PatientDataResponse getPatient (String patientId, Long supervisorUserId) {
         Patient retreivedPatient = userService.findByPatientId(patientId);
+
+        if (!retreivedPatient.getSupervisor().getUserId().equals(supervisorUserId)) {
+            throw new SpecialistRequestingNonAssociatedPatientDataException("A specialist is requesting the data of a patient that they aren't their supervisor");
+        }
+
         return mapper.toResponse(retreivedPatient);
     }
 

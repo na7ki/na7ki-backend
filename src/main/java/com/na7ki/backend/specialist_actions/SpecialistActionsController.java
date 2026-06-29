@@ -29,7 +29,7 @@ public class SpecialistActionsController {
 
 
 
-    @PostMapping("/add-patient")
+    @PostMapping("/patients")
     public ResponseEntity<AddPatientResponse> addPatient (
             @RequestBody @Valid CreatePatientData request,
             @AuthenticationPrincipal User specialist
@@ -38,17 +38,18 @@ public class SpecialistActionsController {
                 specialistActionsService.addPatient(request, ((Specialist) specialist)));
     }
 
-    @GetMapping("/get-patients")
+    @GetMapping("/patients")
     public ResponseEntity<List<PatientSummaryData>> getPatients (@AuthenticationPrincipal User specialist) {
         return ResponseEntity.status(HttpStatus.OK).body(specialistActionsService.getPatients(((Specialist) specialist)));
     }
 
-    @GetMapping("/get-patients/{patientId}")
+    @GetMapping("/patients/{patientId}")
     public ResponseEntity<PatientDataResponse> getPatient (
             @PathVariable
             @Pattern(regexp = "^PT\\d+$", message = "Invalid Patient ID format. Must be PT followed by one or more digits")
-            String patientId) {
-        return ResponseEntity.status(HttpStatus.OK).body(specialistActionsService.getPatient(patientId));
+            String patientId,
+            @AuthenticationPrincipal User specialist) {
+        return ResponseEntity.status(HttpStatus.OK).body(specialistActionsService.getPatient(patientId, ((Specialist) specialist).getUserId()));
     }
 
 }
