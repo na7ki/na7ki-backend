@@ -8,6 +8,8 @@ import com.na7ki.backend.domain.user.model.PatientSummaryData;
 import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
+import com.na7ki.backend.specialist_actions.dto.response.get_patient.PatientDataResponse;
+import com.na7ki.backend.specialist_actions.util.PatientDataResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ public class SpecialistActionsService {
 
     private final UserService userService;
     private final EmailService emailService;
+
+    private final PatientDataResponseMapper mapper;
 
 
 
@@ -44,6 +48,11 @@ public class SpecialistActionsService {
 
     public List<PatientSummaryData> getPatients (Specialist specialist) {
         return userService.getAssociatedPatients(specialist);
+    }
+
+    public PatientDataResponse getPatient (String patientId) {
+        Patient retreivedPatient = userService.findByPatientId(patientId);
+        return mapper.toResponse(retreivedPatient);
     }
 
 }

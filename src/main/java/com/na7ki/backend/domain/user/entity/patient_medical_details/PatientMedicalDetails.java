@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.user.entity.patient_medical_details;
 
-import com.na7ki.backend.domain.user.entity.patient_medical_details.cognition_and_language_evaluation_data.CongnitionAndLanguageEvalutaionData;
+import com.na7ki.backend.domain.user.entity.patient_medical_details.cognition_and_language_evaluation_data.CognitionAndLanguageEvaluationData;
 import com.na7ki.backend.domain.user.entity.patient_medical_details.speech_and_utterance_evaluation_data.SpeechAndUtteranceEvaluationData;
 import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_info_data.AdditionalInfoData;
 import jakarta.persistence.Column;
@@ -26,7 +26,7 @@ public record PatientMedicalDetails(
 
     @Embedded @NotNull(message = "speech and utterance evaluation data are required") @Valid    SpeechAndUtteranceEvaluationData speechAndUtteranceEvaluationData,
 
-    @Embedded @NotNull(message = "cognition and language evaluation data are required") @Valid  CongnitionAndLanguageEvalutaionData congnitionAndLanguageEvalutaionData
+    @Embedded @NotNull(message = "cognition and language evaluation data are required") @Valid CognitionAndLanguageEvaluationData cognitionAndLanguageEvaluationData
 
 ) {
 }

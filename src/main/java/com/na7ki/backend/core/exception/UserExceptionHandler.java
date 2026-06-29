@@ -1,9 +1,6 @@
 package com.na7ki.backend.core.exception;
 
-import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
-import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
-import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
-import com.na7ki.backend.domain.user.exception.UnknownRoleException;
+import com.na7ki.backend.domain.user.exception.*;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -33,6 +30,11 @@ public class UserExceptionHandler {
     @ExceptionHandler(UnknownRoleException.class)
     public ResponseEntity<String> handleUnknownRole(UnknownRoleException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SpecificIdNotAssociatedWithAnyUserException.class)
+    public ResponseEntity<String> handleSpecificIdNotAssociatedWithAnyUserException(SpecificIdNotAssociatedWithAnyUserException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
 }

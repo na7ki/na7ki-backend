@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 @Embeddable
-public record CongnitionAndLanguageEvalutaionData(
+public record CognitionAndLanguageEvaluationData(
 
         @Embedded @NotNull(message = "language evaluation data is required") @Valid LanguageEvaluationData languageEvaluationData,
 

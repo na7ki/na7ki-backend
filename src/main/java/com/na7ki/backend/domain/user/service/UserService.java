@@ -1,13 +1,10 @@
 package com.na7ki.backend.domain.user.service;
 
 import com.na7ki.backend.common.util.DateUtils;
-import com.na7ki.backend.domain.user.exception.EmailNotUniqueException;
-import com.na7ki.backend.domain.user.exception.PhoneNumberNotUniqueException;
-import com.na7ki.backend.domain.user.exception.EmailNotAssociatedWithAnyAccountException;
+import com.na7ki.backend.domain.user.exception.*;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
-import com.na7ki.backend.domain.user.exception.UnknownRoleException;
 import com.na7ki.backend.domain.user.model.PatientSummaryData;
 import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.model.create_specialist.CreateSpecialistData;
@@ -17,6 +14,7 @@ import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatablePatie
 import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatableSpecialistData;
 import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatableUserData;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
+import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
 import com.na7ki.backend.domain.user.util.PasswordGenerator;
 import com.na7ki.backend.domain.user.util.UserMapper;
@@ -41,6 +39,7 @@ public class UserService {
     private final UserMapper mapper;
 
     private final UserRepository userRepository;
+    private final SpecialistRepository specialistRepository;
     private final PatientRepository patientRepository;
 
     private final PasswordGenerator passwordGenerator;
@@ -71,7 +70,17 @@ public class UserService {
 
     public User findByIdOrThrow(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new IdNotAssociatedWithAnyUserException("User not found with id: " + id));
+    }
+
+    public Specialist findBySpecialistId (String specialistId) {
+        return specialistRepository.findBySpecialistID(specialistId)
+                .orElseThrow(() -> new SpecificIdNotAssociatedWithAnyUserException("No specialist has the id: " + specialistId));
+    }
+
+    public Patient findByPatientId (String PatientId) {
+        return patientRepository.findByPatientID(PatientId)
+                .orElseThrow(() -> new SpecificIdNotAssociatedWithAnyUserException("No patient has the id: " + PatientId));
     }
 
 
