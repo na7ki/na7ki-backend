@@ -12,7 +12,7 @@ import java.util.List;
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Query("""
-    SELECT new com.na7ki.backend.domain.user.model.PatientSummaryData(p.name, p.age)
+    SELECT new com.na7ki.backend.domain.user.model.PatientSummaryData(p.patientID, p.name, p.age)
     FROM Patient p
     WHERE p.supervisor = :specialist
     """)
