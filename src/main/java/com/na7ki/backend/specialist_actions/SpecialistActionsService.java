@@ -4,12 +4,15 @@ import com.na7ki.backend.core.email.EmailService;
 import com.na7ki.backend.core.email.model.PatientPasswordEmail;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
+import com.na7ki.backend.domain.user.model.PatientSummaryData;
 import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,10 @@ public class SpecialistActionsService {
         );
 
         return new AddPatientResponse(createdPatient.getId(), createdPatient.getPatientID());
+    }
+
+    public List<PatientSummaryData> getPatients (Specialist specialist) {
+        return userService.getAssociatedPatients(specialist);
     }
 
 }

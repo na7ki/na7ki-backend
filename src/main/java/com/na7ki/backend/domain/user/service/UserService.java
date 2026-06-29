@@ -8,6 +8,7 @@ import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.exception.UnknownRoleException;
+import com.na7ki.backend.domain.user.model.PatientSummaryData;
 import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.model.create_specialist.CreateSpecialistData;
 import com.na7ki.backend.domain.user.model.create_specialist.SpecialistFieldsManagementInput;
@@ -16,7 +17,6 @@ import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatablePatie
 import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatableSpecialistData;
 import com.na7ki.backend.domain.user.model.updatable_profile_data.UpdatableUserData;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
-import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
 import com.na7ki.backend.domain.user.util.PasswordGenerator;
 import com.na7ki.backend.domain.user.util.UserMapper;
@@ -26,6 +26,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -40,7 +41,6 @@ public class UserService {
     private final UserMapper mapper;
 
     private final UserRepository userRepository;
-    private final SpecialistRepository specialistRepository;
     private final PatientRepository patientRepository;
 
     private final PasswordGenerator passwordGenerator;
@@ -77,6 +77,10 @@ public class UserService {
 
 
 
+
+    public List<PatientSummaryData> getAssociatedPatients (Specialist specialist) {
+        return patientRepository.findPatientSummariesOfSpecialist(specialist);
+    }
 
     public Specialist createSpecialist(CreateSpecialistData data) {
         return createUser(
@@ -223,11 +227,11 @@ public class UserService {
 
 
 
-    public Long getSpecialistIdNumberPart() {
+    private Long getSpecialistIdNumberPart() {
         return userRepository.countByType(Specialist.class) + 1;
     }
 
-    public Long getPatientIdNumberPart() {
+    private Long getPatientIdNumberPart() {
         return userRepository.countByType(Patient.class) + 1;
     }
 

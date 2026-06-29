@@ -9,7 +9,4 @@ import java.util.List;
 
 public interface SpecialistRepository extends JpaRepository<Specialist, Long> {
 
-    @Query("SELECT COUNT(s) > 0 FROM Specialist s JOIN s.personalImages_paths p WHERE p IN :paths")
-    boolean existsByAnyPersonalImage(@Param("paths") List<String> paths);
-
 }
