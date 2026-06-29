@@ -86,13 +86,13 @@ public class UserService {
         );
     }
 
-    public Pair<Patient, String> createPatient(CreatePatientData data) {
+    public Pair<Patient, String> createPatient(CreatePatientData data, Specialist supervisor) {
         String[] passwordHolder = new String[1]; // mutable container to capture value from lambda
 
         Patient patient = createUser(
                 mapper.toUniqueFields(data),
                 () -> mapper.toPatient(data),
-                p -> passwordHolder[0] = managePatientFields(p)
+                p -> passwordHolder[0] = managePatientFields(p, supervisor)
         );
 
         return Pair.of(patient, passwordHolder[0]);
@@ -125,10 +125,11 @@ public class UserService {
         specialist.setSpecialistID("SP" + getSpecialistIdNumberPart());
     }
 
-    private String managePatientFields(Patient patient) {
+    private String managePatientFields(Patient patient, Specialist supervisor) {
         String generatedRawPassword = passwordGenerator.generateRandomRawPassword();
         updateUserPassword(patient, generatedRawPassword);
         patient.setPatientID("PT" + getPatientIdNumberPart());
+        patient.setSupervisor(supervisor);
         return generatedRawPassword;
     }
 

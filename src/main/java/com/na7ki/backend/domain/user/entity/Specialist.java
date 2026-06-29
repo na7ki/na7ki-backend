@@ -30,6 +30,13 @@ public class Specialist extends User {
 
 
 
+    @OneToMany(mappedBy = "supervisor", fetch = FetchType.LAZY)
+    private List<Patient> patients = new ArrayList<>();
+
+
+
+
+
     @Override
     public void anonymize(Long deletionUserId) {
         super.anonymize(deletionUserId);

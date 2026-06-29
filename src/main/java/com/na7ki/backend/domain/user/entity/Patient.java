@@ -22,6 +22,14 @@ public class Patient extends User {
 
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supervisor_id", nullable = false)
+    private Specialist supervisor;
+
+
+
+
+
     @Override
     public void anonymize(Long deletionUserId) {
         super.anonymize(deletionUserId);

@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        .requestMatchers("/api/specialist/**").hasRole("SPECIALIST")
+                        .requestMatchers("/api/specialist/**").hasAuthority("SPECIALIST")
 
                         .anyRequest().authenticated()
         )

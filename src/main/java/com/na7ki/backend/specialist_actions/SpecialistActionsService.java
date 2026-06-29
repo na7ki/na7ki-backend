@@ -23,7 +23,7 @@ public class SpecialistActionsService {
 
 
     public AddPatientResponse addPatient (CreatePatientData request, Specialist associatedSpecialist) {
-        Pair<Patient, String> patient_and_password = userService.createPatient(request);
+        Pair<Patient, String> patient_and_password = userService.createPatient(request, associatedSpecialist);
         Patient createdPatient = patient_and_password.getFirst();
         String generatedRawPassword = patient_and_password.getSecond();
 
