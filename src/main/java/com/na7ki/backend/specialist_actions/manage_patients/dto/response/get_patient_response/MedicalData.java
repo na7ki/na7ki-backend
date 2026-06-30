@@ -1,4 +1,4 @@
-package com.na7ki.backend.specialist_actions.dto.response.get_patient;
+package com.na7ki.backend.specialist_actions.manage_patients.dto.response.get_patient_response;
 
 import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_info_data.CaseInfoData;
 import com.na7ki.backend.domain.user.entity.patient_medical_details.cognition_and_language_evaluation_data.CognitionAndLanguageEvaluationData;

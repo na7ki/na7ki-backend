@@ -1,4 +1,4 @@
-package com.na7ki.backend.specialist_actions;
+package com.na7ki.backend.specialist_actions.manage_patients;
 
 import com.na7ki.backend.core.email.EmailService;
 import com.na7ki.backend.core.email.model.PatientPasswordEmail;
@@ -7,10 +7,10 @@ import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.model.PatientSummaryData;
 import com.na7ki.backend.domain.user.model.create_patient.CreatePatientData;
 import com.na7ki.backend.domain.user.service.UserService;
-import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
-import com.na7ki.backend.specialist_actions.dto.response.get_patient.PatientDataResponse;
-import com.na7ki.backend.specialist_actions.exception.SpecialistRequestingNonAssociatedPatientDataException;
-import com.na7ki.backend.specialist_actions.mapper.PatientDataResponseMapper;
+import com.na7ki.backend.specialist_actions.manage_patients.dto.response.AddPatientResponse;
+import com.na7ki.backend.specialist_actions.manage_patients.dto.response.get_patient_response.PatientDataResponse;
+import com.na7ki.backend.specialist_actions.manage_patients.exception.SpecialistRequestingNonAssociatedPatientDataException;
+import com.na7ki.backend.specialist_actions.manage_patients.util.PatientDataResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SpecialistActionsService {
+public class ManagePatientsService {
 
     private final UserService userService;
     private final EmailService emailService;

@@ -1,7 +1,6 @@
 package com.na7ki.backend.core.exception;
 
-import com.na7ki.backend.core.security.exception.InvalidJwtTokenException;
-import com.na7ki.backend.specialist_actions.exception.SpecialistRequestingNonAssociatedPatientDataException;
+import com.na7ki.backend.specialist_actions.manage_patients.exception.SpecialistRequestingNonAssociatedPatientDataException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

@@ -1,9 +1,9 @@
-package com.na7ki.backend.specialist_actions.mapper;
+package com.na7ki.backend.specialist_actions.manage_patients.util;
 
 import com.na7ki.backend.domain.user.entity.Patient;
-import com.na7ki.backend.specialist_actions.dto.response.get_patient.MedicalData;
-import com.na7ki.backend.specialist_actions.dto.response.get_patient.PatientDataResponse;
-import com.na7ki.backend.specialist_actions.dto.response.get_patient.UserData;
+import com.na7ki.backend.specialist_actions.manage_patients.dto.response.get_patient_response.MedicalData;
+import com.na7ki.backend.specialist_actions.manage_patients.dto.response.get_patient_response.PatientDataResponse;
+import com.na7ki.backend.specialist_actions.manage_patients.dto.response.get_patient_response.UserData;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

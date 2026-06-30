@@ -68,11 +68,11 @@ public class TaskResult {
     private Integer avgReactionTimeMs; // null allowed (e.g. trace_path always null)
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "error_breakdown", columnDefinition = "jsonb", nullable = false)
+    @Column(name = "error_breakdown", columnDefinition = "json", nullable = false)
     private Map<String, Integer> errorBreakdown;  // GIN-indexed for population-wide queries
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb", nullable = false)
+    @Column(columnDefinition = "json", nullable = false)
     private Map<String, Object> extra;            // shape varies by taskKey — sound_match.replayCount, trace_path.resetsUsed, color_sort.mistakes
 
     @Column(name = "created_at", nullable = false)
