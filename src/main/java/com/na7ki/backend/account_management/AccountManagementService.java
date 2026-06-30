@@ -2,7 +2,7 @@ package com.na7ki.backend.account_management;
 
 import com.na7ki.backend.account_management.dto.request.UpdateUserProfileRequest;
 import com.na7ki.backend.account_management.dto.response.GetUserProfileResponse;
-import com.na7ki.backend.account_management.util.ProfileMapper;
+import com.na7ki.backend.account_management.mapper.ProfileMapper;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;

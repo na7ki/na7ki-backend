@@ -1,4 +1,4 @@
-package com.na7ki.backend.account_management.util;
+package com.na7ki.backend.account_management.mapper;
 
 import com.na7ki.backend.account_management.dto.request.UpdatePatientProfileRequest;
 import com.na7ki.backend.account_management.dto.request.UpdateSpecialistProfileRequest;

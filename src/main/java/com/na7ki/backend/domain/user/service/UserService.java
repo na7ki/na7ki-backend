@@ -17,11 +17,10 @@ import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.domain.user.repository.UserRepository;
 import com.na7ki.backend.domain.user.util.PasswordGenerator;
-import com.na7ki.backend.domain.user.util.UserMapper;
+import com.na7ki.backend.domain.user.mapper.UserMapper;
 import com.na7ki.backend.domain.user.verification_code.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

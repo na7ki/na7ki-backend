@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.user.util;
+package com.na7ki.backend.domain.user.mapper;
 
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;

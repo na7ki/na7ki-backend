@@ -3,7 +3,7 @@ package com.na7ki.backend.auth;
 import com.na7ki.backend.auth.dto.request.LoginRequest;
 import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
 import com.na7ki.backend.auth.dto.response.AuthResponse;
-import com.na7ki.backend.auth.util.SpecialistRegisterMapper;
+import com.na7ki.backend.auth.mapper.SpecialistRegisterMapper;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;

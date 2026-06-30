@@ -10,7 +10,7 @@ import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.dto.response.AddPatientResponse;
 import com.na7ki.backend.specialist_actions.dto.response.get_patient.PatientDataResponse;
 import com.na7ki.backend.specialist_actions.exception.SpecialistRequestingNonAssociatedPatientDataException;
-import com.na7ki.backend.specialist_actions.util.PatientDataResponseMapper;
+import com.na7ki.backend.specialist_actions.mapper.PatientDataResponseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
