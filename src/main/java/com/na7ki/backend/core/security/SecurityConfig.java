@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
 
                         .requestMatchers("/api/specialist/**").hasAuthority("SPECIALIST")
+                        .requestMatchers("/api/exercises/items", "/api/exercises/items/**").hasAuthority("PATIENT")
 
                         .anyRequest().authenticated()
         )

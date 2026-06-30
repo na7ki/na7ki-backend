@@ -107,14 +107,62 @@ public class ImageController {
         try {
 
             folderService.uploadFolder(
-                    "/home/maiawad/FCAI/na7ki-backend/singular",
-                    "singular"
+                    "/home/maiawad/FCAI/na7ki-backend/cognition_packages/cover",
+                    "cover"
             );
 
-            folderService.uploadFolder(
-                    "/home/maiawad/FCAI/na7ki-backend/plural",
-                    "plural"
-            );
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/trace_path",
+                     "trace_path"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/color_sort",
+                     "color_sort"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/copy_animal",
+                     "copy_animal"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/emotions",
+                     "emotions"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/feed_bear",
+                     "feed_bear"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/match_alike",
+                     "match_alike"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/put_object",
+                     "put_object"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/sound_match",
+                     "sound_match"
+             );
+
+             folderService.uploadFolder(
+                     "/home/maiawad/FCAI/na7ki-backend/cognition_packages/where_is",
+                     "where_is"
+             );
+
+
+
+
+
+
+
+
 
             return ResponseEntity.ok(
                     "Folders uploaded successfully"
