@@ -29,14 +29,14 @@ public class TaskService {
     // 2. Retrieve a single task by ID
     public TaskResponse getTaskById(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new TaskNotFoundException("AssignmentTask not found with id: " + id));
         
         return mapToResponse(task);
     }
 
     public Task getRawTaskById(Long id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new TaskNotFoundException("AssignmentTask not found with id: " + id));
     }
 
     // Helper method to map Entity to DTO safely

@@ -1,4 +1,4 @@
-package com.na7ki.backend.specialist_actions.manage_tasks.dto.request;
+package com.na7ki.backend.task_management.dto.request;
 
 import jakarta.validation.constraints.Positive;
 

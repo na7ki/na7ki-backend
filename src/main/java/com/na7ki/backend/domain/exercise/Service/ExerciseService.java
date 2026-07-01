@@ -32,7 +32,7 @@ public class ExerciseService {
     // Get package by ID with questions
     public PackageDTO getPackageById(Long packageId) {
         Packages pkg = packagesRepository.findById(packageId)
-                .orElseThrow(() -> new PackageNotFoundException("Package not found with id: " + packageId));
+                .orElseThrow(() -> new PackageNotFoundException("AssignmentPackage not found with id: " + packageId));
         return convertPackageToDTO(pkg);
     }
 
@@ -47,13 +47,13 @@ public class ExerciseService {
    // Get a specific question by its ID
     public QuestionDTO getQuestionById(Long questionId) {
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
+                .orElseThrow(() -> new QuestionNotFoundException("AssignmentQuestion not found with id: " + questionId));
         return convertQuestionToDTO(question);
     }
 
     public Question getRawQuestionById(Long questionId) {
         return questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
+                .orElseThrow(() -> new QuestionNotFoundException("AssignmentQuestion not found with id: " + questionId));
     }
 
     // Submit session and calculate score
@@ -61,7 +61,7 @@ public class ExerciseService {
     public SessionResultDTO submitSession(SubmitSessionDTO request) {
         // Verify package exists
         Packages pkg = packagesRepository.findById(request.getPackageId())
-                .orElseThrow(() -> new RuntimeException("Package not found"));
+                .orElseThrow(() -> new RuntimeException("AssignmentPackage not found"));
 
         // Create user session
         UserSession session = new UserSession();
@@ -75,7 +75,7 @@ public class ExerciseService {
         List<QuestionResultDTO> results = request.getAnswers().stream()
                 .map(answer -> {
                     Question question = questionRepository.findById(answer.getQuestionId())
-                            .orElseThrow(() -> new RuntimeException("Question not found"));
+                            .orElseThrow(() -> new RuntimeException("AssignmentQuestion not found"));
                     Choice choice = choiceRepository.findById(answer.getChoiceId())
                             .orElseThrow(() -> new RuntimeException("Choice not found"));
 
@@ -165,7 +165,7 @@ public class ExerciseService {
     // Check single answer and return feedback (for immediate voice feedback)
     public AnswerFeedbackDTO checkAnswer(AnswerCheckDTO request) {
         Question question = questionRepository.findById(request.getQuestionId())
-                .orElseThrow(() -> new RuntimeException("Question not found"));
+                .orElseThrow(() -> new RuntimeException("AssignmentQuestion not found"));
         Choice choice = choiceRepository.findById(request.getChoiceId())
                 .orElseThrow(() -> new RuntimeException("Choice not found"));
 

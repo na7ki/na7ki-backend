@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 /**
- * Outbound shape for GET /api/cases/{caseId}/task-results.
+ * Outbound shape for GET /api/cases/{caseId}/assignmentTask-results.
  * Includes caseId (unlike the request DTO) since this reflects full stored state.
  */
 @Data

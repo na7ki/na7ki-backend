@@ -11,15 +11,15 @@ import java.util.List;
 
 /**
  * Implements §2 of the Cognition Package Backend Guide:
- *   POST /api/cases/{caseId}/task-results  — submit a session result
- *   GET  /api/cases/{caseId}/task-results  — fetch all results for a case
+ *   POST /api/cases/{caseId}/assignmentTask-results  — submit a session result
+ *   GET  /api/cases/{caseId}/assignmentTask-results  — fetch all results for a case
  *
  * Auth (Bearer token) is assumed to be enforced upstream via Spring Security
  * filter chain / requiresAuth on matching routes, consistent with how the
  * Flutter ApiClient marks these calls as requiresAuth: true.
  */
 @RestController
-@RequestMapping("/api/cases/{caseId}/task-results")
+@RequestMapping("/api/cases/{caseId}/assignmentTask-results")
 public class TaskResultController {
 
     private final TaskResultService taskResultService;

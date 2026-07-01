@@ -1,8 +1,8 @@
-package com.na7ki.backend.specialist_actions.manage_tasks.entity;
+package com.na7ki.backend.task_management.assignment.entity;
 
 import com.na7ki.backend.domain.exercise.Entity.Question;
 import com.na7ki.backend.domain.exercise.Entity.Task;
-import com.na7ki.backend.specialist_actions.manage_tasks.entity.enums.ExerciseType;
+import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
