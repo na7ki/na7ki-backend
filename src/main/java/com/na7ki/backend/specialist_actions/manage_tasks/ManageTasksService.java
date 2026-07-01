@@ -1,8 +1,8 @@
 package com.na7ki.backend.specialist_actions.manage_tasks;
 
-import com.na7ki.backend.exercise.Service.ExerciseService;
-import com.na7ki.backend.exercise.Service.TaskService;
-import com.na7ki.backend.exercise.dto.PackageDTO;
+import com.na7ki.backend.domain.exercise.Service.ExerciseService;
+import com.na7ki.backend.domain.exercise.Service.TaskService;
+import com.na7ki.backend.domain.exercise.dto.PackageDTO;
 import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_request.Package;
 import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_request.PackageOfQuestions;
 import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_request.PackageOfTasks;

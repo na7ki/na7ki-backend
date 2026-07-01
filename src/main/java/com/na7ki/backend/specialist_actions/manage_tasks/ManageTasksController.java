@@ -26,4 +26,6 @@ public class ManageTasksController {
         return ResponseEntity.status(HttpStatus.OK).body(manageTasksService.getAllExercises());
     }
 
+
+
 }
