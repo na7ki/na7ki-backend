@@ -274,6 +274,7 @@ DROP TABLE IF EXISTS `patient`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `patient` (
+  `iq` smallint NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `primary_diagnosis` varchar(300) NOT NULL,
@@ -286,23 +287,24 @@ CREATE TABLE `patient` (
   `body_parts_identification_score` smallint NOT NULL,
   `fruits_identification_score` smallint NOT NULL,
   `objects_identification_score` smallint NOT NULL,
-  `expressiveness` smallint NOT NULL,
-  `receptiveness` smallint NOT NULL,
+  `expressiveness_score` smallint NOT NULL,
+  `receptiveness_score` smallint NOT NULL,
   `internal_language_score` smallint NOT NULL,
   `pitch` enum('HIGH','LOW','NORMAL') NOT NULL,
   `intensity` enum('HIGH','LOW','NORMAL') NOT NULL,
-  `quality` enum('BREATHY','HOARSE','MUFFLED','PURE') NOT NULL,
+  `voice_quality` enum('BREATHY','HOARSE','MUFFLED','PURE') NOT NULL,
   `dysphonia_degree` enum('ONE','THREE','TWO','ZERO') NOT NULL,
-  `speech_speed` enum('FAST','NORMAL','SLOW') NOT NULL,
+  `speech_rate` enum('FAST','NORMAL','SLOW') NOT NULL,
   `speech_fluency` enum('INTERRUPTED','NORMAL','STUTTERED') NOT NULL,
-  `speech_vibration` enum('NASAL','NORMAL','ORAL') NOT NULL,
+  `speech_resonance` enum('NASAL','NORMAL','ORAL') NOT NULL,
   `speech_clarity` enum('HIGH','LOW','MEDIUM') NOT NULL,
   `patient_id` varchar(15) NOT NULL,
   `user_id` bigint NOT NULL,
+  `supervisor_id` bigint NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `UK5k7l7wk9ogyt1ag6vku4a4lwo` (`patient_id`),
   CONSTRAINT `FKbhxnsr0osyqj98qqcexec5edv` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
-  CONSTRAINT `FKf0or75ex3abs31ottuqg8s301` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+  CONSTRAINT `FKf0or75ex3abs31ottuqg8s301` FOREIGN KEY (`supervisor_id`) REFERENCES `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

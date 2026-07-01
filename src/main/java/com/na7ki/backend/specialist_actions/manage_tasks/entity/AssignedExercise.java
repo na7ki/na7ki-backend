@@ -4,8 +4,16 @@ import com.na7ki.backend.domain.exercise.Entity.Question;
 import com.na7ki.backend.domain.exercise.Entity.Task;
 import com.na7ki.backend.specialist_actions.manage_tasks.entity.enums.ExerciseType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AssignedExercise {
 
     @Id

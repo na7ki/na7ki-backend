@@ -1,4 +1,4 @@
-package com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_request;
+package com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_response;
 
 public record Task(
 

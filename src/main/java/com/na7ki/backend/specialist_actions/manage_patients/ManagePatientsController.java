@@ -41,13 +41,15 @@ public class ManagePatientsController {
         return ResponseEntity.status(HttpStatus.OK).body(managePatientsService.getPatients(((Specialist) specialist)));
     }
 
-    @GetMapping("/{patientId}")
+    @GetMapping("/{patientSpecificId}")
     public ResponseEntity<PatientDataResponse> getPatient (
             @PathVariable
             @Pattern(regexp = "^PT\\d+$", message = "Invalid Patient ID format. Must be PT followed by one or more digits")
-            String patientId,
-            @AuthenticationPrincipal User specialist) {
-        return ResponseEntity.status(HttpStatus.OK).body(managePatientsService.getPatient(patientId, ((Specialist) specialist).getUserId()));
+            String patientSpecificId,
+
+            @AuthenticationPrincipal User specialist
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(managePatientsService.getPatient(patientSpecificId, ((Specialist) specialist).getUserId()));
     }
 
 }

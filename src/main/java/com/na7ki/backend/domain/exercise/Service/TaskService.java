@@ -3,6 +3,7 @@ package com.na7ki.backend.domain.exercise.Service;
 import com.na7ki.backend.domain.exercise.dto.TaskResponse;
 import com.na7ki.backend.domain.exercise.Entity.Task;
 import com.na7ki.backend.domain.exercise.Repository.TaskRepository;
+import com.na7ki.backend.domain.exercise.exception.TaskNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,9 +29,14 @@ public class TaskService {
     // 2. Retrieve a single task by ID
     public TaskResponse getTaskById(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
         
         return mapToResponse(task);
+    }
+
+    public Task getRawTaskById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
     }
 
     // Helper method to map Entity to DTO safely

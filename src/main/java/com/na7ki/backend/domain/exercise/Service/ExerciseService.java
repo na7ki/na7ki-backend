@@ -3,6 +3,8 @@ package com.na7ki.backend.domain.exercise.Service;
 import com.na7ki.backend.domain.exercise.Entity.*;
 import com.na7ki.backend.domain.exercise.Repository.*;
 import com.na7ki.backend.domain.exercise.dto.*;
+import com.na7ki.backend.domain.exercise.exception.PackageNotFoundException;
+import com.na7ki.backend.domain.exercise.exception.QuestionNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,7 @@ public class ExerciseService {
     // Get package by ID with questions
     public PackageDTO getPackageById(Long packageId) {
         Packages pkg = packagesRepository.findById(packageId)
-                .orElseThrow(() -> new RuntimeException("Package not found"));
+                .orElseThrow(() -> new PackageNotFoundException("Package not found with id: " + packageId));
         return convertPackageToDTO(pkg);
     }
 
@@ -45,8 +47,13 @@ public class ExerciseService {
    // Get a specific question by its ID
     public QuestionDTO getQuestionById(Long questionId) {
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new RuntimeException("Question not found with id: " + questionId));
+                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
         return convertQuestionToDTO(question);
+    }
+
+    public Question getRawQuestionById(Long questionId) {
+        return questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
     }
 
     // Submit session and calculate score

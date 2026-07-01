@@ -3,9 +3,9 @@ package com.na7ki.backend.specialist_actions.manage_tasks.mapper;
 import com.na7ki.backend.domain.exercise.dto.PackageDTO;
 import com.na7ki.backend.domain.exercise.dto.QuestionDTO;
 import com.na7ki.backend.domain.exercise.dto.TaskResponse;
-import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_request.Package;
-import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_request.Question;
-import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_request.Task;
+import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_response.Package;
+import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_response.Question;
+import com.na7ki.backend.specialist_actions.manage_tasks.dto.response.exercises_list_response.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
