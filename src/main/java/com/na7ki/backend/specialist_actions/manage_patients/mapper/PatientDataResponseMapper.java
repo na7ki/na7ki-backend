@@ -1,4 +1,4 @@
-package com.na7ki.backend.specialist_actions.manage_patients.util;
+package com.na7ki.backend.specialist_actions.manage_patients.mapper;
 
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.specialist_actions.manage_patients.dto.response.get_patient_response.MedicalData;

@@ -1,6 +1,6 @@
 package com.na7ki.backend.exercise.controller;
 
-import com.na7ki.backend.exercise.DTO.TaskResponse;
+import com.na7ki.backend.exercise.dto.TaskResponse;
 import com.na7ki.backend.exercise.Service.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

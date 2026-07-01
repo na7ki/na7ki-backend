@@ -1,6 +1,6 @@
 package com.na7ki.backend.exercise.Service;
 
-import com.na7ki.backend.exercise.DTO.TaskResponse;
+import com.na7ki.backend.exercise.dto.TaskResponse;
 import com.na7ki.backend.exercise.Entity.Task;
 import com.na7ki.backend.exercise.Repository.TaskRepository;
 import org.springframework.stereotype.Service;
