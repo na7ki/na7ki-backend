@@ -1,0 +1,44 @@
+package com.na7ki.backend.exercise.Controller;
+
+import com.na7ki.backend.exercise.Dto.TaskResultRequest;
+import com.na7ki.backend.exercise.Dto.TaskResultResponse;
+import com.na7ki.backend.exercise.Service.TaskResultService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * Implements §2 of the Cognition Package Backend Guide:
+ *   POST /api/cases/{caseId}/assignmentTask-results  — submit a session result
+ *   GET  /api/cases/{caseId}/assignmentTask-results  — fetch all results for a case
+ *
+ * Auth (Bearer token) is assumed to be enforced upstream via Spring Security
+ * filter chain / requiresAuth on matching routes, consistent with how the
+ * Flutter ApiClient marks these calls as requiresAuth: true.
+ */
+@RestController
+@RequestMapping("/api/cases/{caseId}/assignmentTask-results")
+public class TaskResultController {
+
+    private final TaskResultService taskResultService;
+
+    public TaskResultController(TaskResultService taskResultService) {
+        this.taskResultService = taskResultService;
+    }
+
+    @PostMapping
+    public ResponseEntity<TaskResultResponse> submit(
+            @PathVariable Long caseId,
+            @RequestBody TaskResultRequest request
+    ) {
+        TaskResultResponse response = taskResultService.submit(caseId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TaskResultResponse>> getForCase(@PathVariable Long caseId) {
+        return ResponseEntity.ok(taskResultService.getForCase(caseId));
+    }
+}

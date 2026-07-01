@@ -25,7 +25,7 @@ public class JwtUtil {
 
     public String generateToken(User user) {
         return Jwts.builder()
-                .subject(user.getId().toString())
+                .subject(user.getUserId().toString())
                 .claim("roles", user.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .toList())

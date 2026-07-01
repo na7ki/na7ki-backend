@@ -9,6 +9,7 @@ import java.time.LocalDate;
 public record SpecialistRegisterRequest (
 
     @NotBlank(message = "Name is required")
+    @Size(min = 3, message = "name must be at least 3 characters")
     String name,
 
     @NotBlank(message = "Email is required")

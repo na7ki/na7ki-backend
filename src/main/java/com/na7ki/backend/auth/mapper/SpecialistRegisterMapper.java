@@ -1,0 +1,12 @@
+package com.na7ki.backend.auth.mapper;
+
+import com.na7ki.backend.auth.dto.request.SpecialistRegisterRequest;
+import com.na7ki.backend.domain.user.model.create_specialist.CreateSpecialistData;
+import org.mapstruct.Mapper;
+
+@Mapper(componentModel = "spring")
+public interface SpecialistRegisterMapper {
+
+    CreateSpecialistData toCreateSpecialistData(SpecialistRegisterRequest request);
+
+}

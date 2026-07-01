@@ -10,10 +10,10 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
-@MappedSuperclass // Or @Entity depending on your previous choice
+@MappedSuperclass
 @Getter
 @Setter
-@SuperBuilder // CRITICAL: Use SuperBuilder instead of Builder
+@SuperBuilder
 @NoArgsConstructor
 public abstract class CustomerInquiry {
 
@@ -25,7 +25,7 @@ public abstract class CustomerInquiry {
     private String inquiryContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inquirer_id", referencedColumnName = "id", nullable = false, updatable = false)
+    @JoinColumn(name = "inquirer_id", referencedColumnName = "userId", nullable = false, updatable = false)
     private User inquirer;
 
     @CreationTimestamp

@@ -81,7 +81,7 @@ async def evaluate_speech(
         # Convert to 16kHz WAV
         wav_path = convert_to_wav(raw_path)
 
-        # Audio quality gate
+        # Audio voiceQuality gate
         valid, reason = check_audio(wav_path)
         if not valid:
             logger.warning(f"Invalid audio from patient {patient_id}: {reason}")

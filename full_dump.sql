@@ -29,7 +29,7 @@ CREATE TABLE `bug_report` (
   `inquirer_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FKmy14d0l9ebs465s1oj4a31k41` (`inquirer_id`),
-  CONSTRAINT `FKmy14d0l9ebs465s1oj4a31k41` FOREIGN KEY (`inquirer_id`) REFERENCES `user` (`id`)
+  CONSTRAINT `FKmy14d0l9ebs465s1oj4a31k41` FOREIGN KEY (`inquirer_id`) REFERENCES `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -134,7 +134,7 @@ CREATE TABLE `contact_request` (
   `inquirer_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK6pyhy3ysupsgs3bdwn670pmwu` (`inquirer_id`),
-  CONSTRAINT `FK6pyhy3ysupsgs3bdwn670pmwu` FOREIGN KEY (`inquirer_id`) REFERENCES `user` (`id`)
+  CONSTRAINT `FK6pyhy3ysupsgs3bdwn670pmwu` FOREIGN KEY (`inquirer_id`) REFERENCES `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -274,6 +274,7 @@ DROP TABLE IF EXISTS `patient`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `patient` (
+  `iq` smallint NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `primary_diagnosis` varchar(300) NOT NULL,
@@ -286,23 +287,24 @@ CREATE TABLE `patient` (
   `body_parts_identification_score` smallint NOT NULL,
   `fruits_identification_score` smallint NOT NULL,
   `objects_identification_score` smallint NOT NULL,
-  `expressiveness` smallint NOT NULL,
-  `receptiveness` smallint NOT NULL,
+  `expressiveness_score` smallint NOT NULL,
+  `receptiveness_score` smallint NOT NULL,
   `internal_language_score` smallint NOT NULL,
   `pitch` enum('HIGH','LOW','NORMAL') NOT NULL,
   `intensity` enum('HIGH','LOW','NORMAL') NOT NULL,
-  `quality` enum('BREATHY','HOARSE','MUFFLED','PURE') NOT NULL,
+  `voice_quality` enum('BREATHY','HOARSE','MUFFLED','PURE') NOT NULL,
   `dysphonia_degree` enum('ONE','THREE','TWO','ZERO') NOT NULL,
-  `speech_speed` enum('FAST','NORMAL','SLOW') NOT NULL,
+  `speech_rate` enum('FAST','NORMAL','SLOW') NOT NULL,
   `speech_fluency` enum('INTERRUPTED','NORMAL','STUTTERED') NOT NULL,
-  `speech_vibration` enum('NASAL','NORMAL','ORAL') NOT NULL,
+  `speech_resonance` enum('NASAL','NORMAL','ORAL') NOT NULL,
   `speech_clarity` enum('HIGH','LOW','MEDIUM') NOT NULL,
   `patient_id` varchar(15) NOT NULL,
-  `id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
+  `user_id` bigint NOT NULL,
+  `supervisor_id` bigint NOT NULL,
+  PRIMARY KEY (`user_id`),
   UNIQUE KEY `UK5k7l7wk9ogyt1ag6vku4a4lwo` (`patient_id`),
-  CONSTRAINT `FKbhxnsr0osyqj98qqcexec5edv` FOREIGN KEY (`id`) REFERENCES `user` (`id`),
-  CONSTRAINT `FKf0or75ex3abs31ottuqg8s301` FOREIGN KEY (`id`) REFERENCES `users` (`id`)
+  CONSTRAINT `FKbhxnsr0osyqj98qqcexec5edv` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+  CONSTRAINT `FKf0or75ex3abs31ottuqg8s301` FOREIGN KEY (`supervisor_id`) REFERENCES `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -385,10 +387,10 @@ CREATE TABLE `specialist` (
   `address` varchar(300) NOT NULL,
   `date_of_birth` date NOT NULL,
   `specialist_id` varchar(15) NOT NULL,
-  `id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`user_id`),
   UNIQUE KEY `UK34mr056f0dytcik6sdsj6nye` (`specialist_id`),
-  CONSTRAINT `FKd35lt0t0kt5i2179gl5pkg5vj` FOREIGN KEY (`id`) REFERENCES `user` (`id`)
+  CONSTRAINT `FKd35lt0t0kt5i2179gl5pkg5vj` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -413,7 +415,7 @@ CREATE TABLE `specialist-personal_image` (
   `user_id` bigint NOT NULL,
   `personal_image_path` varchar(100) DEFAULT NULL,
   KEY `FKjwtbkhl05m8lsaaka85fhu42d` (`user_id`),
-  CONSTRAINT `FKjwtbkhl05m8lsaaka85fhu42d` FOREIGN KEY (`user_id`) REFERENCES `specialist` (`id`)
+  CONSTRAINT `FKjwtbkhl05m8lsaaka85fhu42d` FOREIGN KEY (`user_id`) REFERENCES `specialist` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -437,7 +439,7 @@ CREATE TABLE `specialist-personal_images` (
   `user_id` bigint NOT NULL,
   `personal_image_path` varchar(100) NOT NULL,
   KEY `FK5j0uketxs6vajt9g6y28wx3a5` (`user_id`),
-  CONSTRAINT `FK5j0uketxs6vajt9g6y28wx3a5` FOREIGN KEY (`user_id`) REFERENCES `specialist` (`id`)
+  CONSTRAINT `FK5j0uketxs6vajt9g6y28wx3a5` FOREIGN KEY (`user_id`) REFERENCES `specialist` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -495,7 +497,7 @@ DROP TABLE IF EXISTS `user`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user` (
   `role` varchar(31) NOT NULL,
-  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL AUTO_INCREMENT,
   `age` tinyint NOT NULL,
   `created_at` datetime(6) NOT NULL,
   `display-image_path` varchar(100) DEFAULT NULL,
@@ -507,7 +509,7 @@ CREATE TABLE `user` (
   `password` varchar(68) NOT NULL,
   `phone_number` varchar(13) NOT NULL,
   `last_modified_at` datetime(6) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`user_id`),
   UNIQUE KEY `UKob8kqyqqgmefl0aco34akdtpe` (`email`),
   UNIQUE KEY `UK4bgmpi98dylab6qdvf9xyaxu4` (`phone_number`),
   CONSTRAINT `user_chk_1` CHECK ((`role` in (_utf8mb4'PATIENT',_utf8mb4'SPECIALIST')))
@@ -597,7 +599,7 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `role` varchar(31) NOT NULL,
-  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL AUTO_INCREMENT,
   `age` tinyint NOT NULL,
   `created_at` datetime(6) NOT NULL,
   `display-image_path` varchar(100) NOT NULL,
@@ -609,7 +611,7 @@ CREATE TABLE `users` (
   `password` varchar(68) NOT NULL,
   `phone_number` varchar(13) NOT NULL,
   `last_modified_at` datetime(6) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`user_id`),
   UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`),
   UNIQUE KEY `UK9q63snka3mdh91as4io72espi` (`phone_number`),
   CONSTRAINT `users_chk_1` CHECK ((`role` in (_utf8mb4'PATIENT',_utf8mb4'SPECIALIST')))
@@ -639,7 +641,7 @@ CREATE TABLE `verification_code` (
   `user_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKn576esytmxxfkgon3ja83h5vp` (`user_id`),
-  CONSTRAINT `FKgy5dhio3a6c9me7s0x9v1y4d2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+  CONSTRAINT `FKgy5dhio3a6c9me7s0x9v1y4d2` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -666,7 +668,7 @@ CREATE TABLE `verification_codes` (
   `user_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKbf0ofef2q09iwv2jg00aygy4q` (`user_id`),
-  CONSTRAINT `FKa4qo6nts1xd94owirq5evcpda` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `FKa4qo6nts1xd94owirq5evcpda` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

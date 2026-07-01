@@ -1,7 +1,7 @@
 package com.na7ki.backend.core.security.jwt;
 
 import com.na7ki.backend.core.security.exception.InvalidJwtTokenException;
-import com.na7ki.backend.domain.user.UserService;
+import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.domain.user.exception.AccountNotActiveException;
 import io.jsonwebtoken.Claims;

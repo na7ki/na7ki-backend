@@ -32,7 +32,7 @@ public class PasswordManagementExceptionHandler {
 
     @ExceptionHandler(InvalidVerificationCodeException.class)
     public ResponseEntity<String> handleInvalidVerificationCodeException(InvalidVerificationCodeException ex) {
-        return ResponseEntity.status(HttpStatus.OK).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(ex.getMessage());
     }
 
 }

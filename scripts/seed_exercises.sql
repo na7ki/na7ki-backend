@@ -9,7 +9,7 @@ INSERT IGNORE INTO questions (id, package_id, question_text, correct_answer, ord
 (3, 1, 'أي من هذه مفرد؟', 'SINGULAR', 3),
 (4, 1, 'أي من هذه جمع؟', 'PLURAL', 4);
 
--- Insert choices for Question 1 (مفرد و جمع)
+-- Insert choices for AssignmentQuestion 1 (مفرد و جمع)
 -- Q1: اختر الصيغة المفردة
 INSERT IGNORE INTO choices (id, question_id, image_id, type) VALUES
 (1, 1, 1, 'SINGULAR'),   -- تفاحة (singular)

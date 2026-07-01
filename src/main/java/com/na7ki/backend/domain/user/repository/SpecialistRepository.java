@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SpecialistRepository extends JpaRepository<Specialist, Long> {
 
-    @Query("SELECT COUNT(s) > 0 FROM Specialist s JOIN s.personalImages_paths p WHERE p IN :paths")
-    boolean existsByAnyPersonalImage(@Param("paths") List<String> paths);
+    Optional<Specialist> findBySpecialistID(String specialistId);
 
 }

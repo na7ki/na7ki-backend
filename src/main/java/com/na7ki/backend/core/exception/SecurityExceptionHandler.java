@@ -15,7 +15,7 @@ public class SecurityExceptionHandler {
 
     @ExceptionHandler(InvalidJwtTokenException.class)
     public ResponseEntity<String> handleInvalidJwtTokenException(InvalidJwtTokenException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired on invalid token");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired or invalid token");
     }
 
     @ExceptionHandler(AccountNotActiveException.class)
