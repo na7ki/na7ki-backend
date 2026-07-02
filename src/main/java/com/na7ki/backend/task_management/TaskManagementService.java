@@ -79,28 +79,32 @@ public class TaskManagementService {
 
         List<AssignedExercise> assignedExercises = new ArrayList<>();
 
-        for(Long questionId : request.assignedQuestionsIds())
-        {
-            AssignedExercise assignedExercise = AssignedExercise.builder()
-                    .type(ExerciseType.QUESTION)
-                    .question(exerciseService.getRawQuestionById(questionId))
-                    .task(null)
-                    .assignment(assignment)
-                    .build();
+        if (request.assignedQuestionsIds() != null) {
+            for(Long questionId : request.assignedQuestionsIds())
+            {
+                AssignedExercise assignedExercise = AssignedExercise.builder()
+                        .type(ExerciseType.QUESTION)
+                        .question(exerciseService.getRawQuestionById(questionId))
+                        .task(null)
+                        .assignment(assignment)
+                        .build();
 
-            assignedExercises.add(assignedExercise);
+                assignedExercises.add(assignedExercise);
+            }
         }
 
-        for(Long taskId : request.assignedTasksIds())
-        {
-            AssignedExercise assignedExercise = AssignedExercise.builder()
-                    .type(ExerciseType.TASK)
-                    .question(null)
-                    .task(taskService.getRawTaskById(taskId))
-                    .assignment(assignment)
-                    .build();
+        if (request.assignedTasksIds() != null) {
+            for(Long taskId : request.assignedTasksIds())
+            {
+                AssignedExercise assignedExercise = AssignedExercise.builder()
+                        .type(ExerciseType.TASK)
+                        .question(null)
+                        .task(taskService.getRawTaskById(taskId))
+                        .assignment(assignment)
+                        .build();
 
-            assignedExercises.add(assignedExercise);
+                assignedExercises.add(assignedExercise);
+            }
         }
 
         assignment.setAssignedExercises(assignedExercises);
