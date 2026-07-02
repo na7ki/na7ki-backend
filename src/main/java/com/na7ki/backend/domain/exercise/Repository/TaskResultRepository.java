@@ -9,11 +9,8 @@ import java.util.Optional;
 
 public interface TaskResultRepository extends JpaRepository<TaskResult, Long> {
 
-    List<TaskResult> findByCaseEntity_IdOrderByStartedAtDesc(Long caseId);
+    List<TaskResult> findByPatientIdOrderByStartedAtDesc(Long patientId);
 
-    // Backs the idempotency check from §2.1 before relying solely on the DB
-    // unique constraint — lets us return the existing row instead of a 500
-    // when the app resubmits on reconnect.
-    Optional<TaskResult> findByCaseEntity_IdAndTaskIdAndStartedAt(
-            Long caseId, Integer taskId, OffsetDateTime startedAt);
+    Optional<TaskResult> findByPatientIdAndTaskIdAndStartedAt(
+            Long patientId, Integer taskId, OffsetDateTime startedAt);
 }
