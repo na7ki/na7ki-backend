@@ -114,9 +114,70 @@ CREATE TABLE `choices` (
 -- Dumping data for table `choices`
 --
 
+-- LOCK TABLES `choices` WRITE;
+-- /*!40000 ALTER TABLE `choices` DISABLE KEYS */;
+-- INSERT INTO `choices` VALUES (1,'SINGULAR',1,1),(2,'PLURAL',5,1),(3,'PLURAL',5,2),(4,'SINGULAR',1,2),(5,'SINGULAR',3,3),(6,'PLURAL',7,3),(7,'PLURAL',8,4),(8,'SINGULAR',4,4);
+-- /*!40000 ALTER TABLE `choices` ENABLE KEYS */;
+-- UNLOCK TABLES;
 LOCK TABLES `choices` WRITE;
 /*!40000 ALTER TABLE `choices` DISABLE KEYS */;
-INSERT INTO `choices` VALUES (1,'SINGULAR',1,1),(2,'PLURAL',5,1),(3,'PLURAL',5,2),(4,'SINGULAR',1,2),(5,'SINGULAR',3,3),(6,'PLURAL',7,3),(7,'PLURAL',8,4),(8,'SINGULAR',4,4);
+INSERT INTO `choices` VALUES
+(1,'SINGULAR',1,1),
+(2,'PLURAL',5,1),
+(3,'PLURAL',5,2),
+(4,'SINGULAR',1,2),
+(5,'SINGULAR',3,3),
+(6,'PLURAL',7,3),
+(7,'PLURAL',8,4),
+(8,'SINGULAR',4,4),
+
+(9,'MALE',19,5),
+(10,'FEMALE',13,5),
+
+(11,'FEMALE',13,6),
+(12,'MALE',19,6),
+
+(13,'MALE',22,7),
+(14,'FEMALE',14,7),
+
+(15,'FEMALE',14,8),
+(16,'MALE',22,8),
+
+(17,'MALE',24,9),
+(18,'FEMALE',11,9),
+
+(19,'FEMALE',11,10),
+(20,'MALE',24,10),
+
+(21,'MALE',20,11),
+(22,'FEMALE',15,11),
+
+(23,'FEMALE',15,12),
+(24,'MALE',20,12),
+
+(25,'MALE',17,13),
+(26,'FEMALE',9,13),
+
+(27,'FEMALE',9,14),
+(28,'MALE',17,14),
+
+(29,'MALE',21,15),
+(30,'FEMALE',16,15),
+
+(31,'FEMALE',16,16),
+(32,'MALE',21,16),
+
+(33,'MALE',18,17),
+(34,'FEMALE',10,17),
+
+(35,'FEMALE',10,18),
+(36,'MALE',18,18),
+
+(37,'MALE',23,19),
+(38,'FEMALE',12,19),
+
+(39,'FEMALE',12,20),
+(40,'MALE',23,20);
 /*!40000 ALTER TABLE `choices` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -340,12 +401,39 @@ CREATE TABLE `questions` (
 -- Dumping data for table `questions`
 --
 
+-- LOCK TABLES `questions` WRITE;
+-- /*!40000 ALTER TABLE `questions` DISABLE KEYS */;
+-- INSERT INTO `questions` VALUES (1,'SINGULAR',1,'اختر الصيغة المفردة',1),(2,'PLURAL',2,'اختر الصيغة الجمع',1),(3,'SINGULAR',3,'أي من هذه مفرد؟',1),(4,'PLURAL',4,'أي من هذه جمع؟',1);
+-- /*!40000 ALTER TABLE `questions` ENABLE KEYS */;
+-- UNLOCK TABLES;
+
+
 LOCK TABLES `questions` WRITE;
 /*!40000 ALTER TABLE `questions` DISABLE KEYS */;
-INSERT INTO `questions` VALUES (1,'SINGULAR',1,'اختر الصيغة المفردة',1),(2,'PLURAL',2,'اختر الصيغة الجمع',1),(3,'SINGULAR',3,'أي من هذه مفرد؟',1),(4,'PLURAL',4,'أي من هذه جمع؟',1);
+INSERT INTO `questions` VALUES
+(1,'SINGULAR',1,'اختر الصيغة المفردة',1),
+(2,'PLURAL',2,'اختر الصيغة الجمع',1),
+(3,'SINGULAR',3,'أي من هذه مفرد؟',1),
+(4,'PLURAL',4,'أي من هذه جمع؟',1),
+
+(5,'MALE',1,'اختر الاسم المذكر',2),
+(6,'FEMALE',2,'اختر الاسم المؤنث',2),
+(7,'MALE',3,'أي من هذه مذكر؟',2),
+(8,'FEMALE',4,'أي من هذه مؤنث؟',2),
+(9,'MALE',5,'اختر الاسم المذكر',2),
+(10,'FEMALE',6,'اختر الاسم المؤنث',2),
+(11,'MALE',7,'أي من هذه مذكر؟',2),
+(12,'FEMALE',8,'أي من هذه مؤنث؟',2),
+(13,'MALE',9,'اختر الاسم المذكر',2),
+(14,'FEMALE',10,'اختر الاسم المؤنث',2),
+(15,'MALE',11,'أي من هذه مذكر؟',2),
+(16,'FEMALE',12,'أي من هذه مؤنث؟',2),
+(17,'MALE',13,'اختر الاسم المذكر',2),
+(18,'FEMALE',14,'اختر الاسم المؤنث',2),
+(19,'MALE',15,'أي من هذه مذكر؟',2),
+(20,'FEMALE',16,'أي من هذه مؤنث؟',2);
 /*!40000 ALTER TABLE `questions` ENABLE KEYS */;
 UNLOCK TABLES;
-
 --
 -- Table structure for table `sounds`
 --
