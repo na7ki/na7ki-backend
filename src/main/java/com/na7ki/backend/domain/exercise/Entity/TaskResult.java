@@ -13,13 +13,13 @@ import java.util.Map;
 @Entity
 @Table(name = "task_results",
        indexes = {
-           @Index(name = "idx_task_results_case", columnList = "case_id"),
+           @Index(name = "idx_task_results_patient", columnList = "patient_id"),
            @Index(name = "idx_task_results_task", columnList = "task_id"),
-           @Index(name = "idx_task_results_started", columnList = "case_id, started_at")
+           @Index(name = "idx_task_results_started", columnList = "patient_id, started_at")
        },
        uniqueConstraints = {
            @UniqueConstraint(name = "uq_task_results_idempotency",
-                              columnNames = {"case_id", "task_id", "started_at"})
+                              columnNames = {"patient_id", "task_id", "started_at"})
        })
 @Data
 @NoArgsConstructor
@@ -30,12 +30,11 @@ public class TaskResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "case_id", nullable = false)
-    private Cases caseEntity;          // confirmed FK now — app never sends null caseId
+    @Column(name = "patient_id", nullable = false)
+    private Long patientId;
 
     @Column(name = "task_id", nullable = false)
-    private Integer taskId;            // NOT a FK — validated against known set (101-109) in service layer
+    private Integer taskId;
 
     @Column(name = "task_name", nullable = false)
     private String taskName;
@@ -59,21 +58,21 @@ public class TaskResult {
     private Integer correctRounds;
 
     @Column(precision = 5, scale = 4)
-    private BigDecimal accuracy;       // null only when totalRounds = 0
+    private BigDecimal accuracy;
 
     @Column(name = "attempts_count", nullable = false)
     private Integer attemptsCount;
 
     @Column(name = "avg_reaction_ms")
-    private Integer avgReactionTimeMs; // null allowed (e.g. trace_path always null)
+    private Integer avgReactionTimeMs;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "error_breakdown", columnDefinition = "json", nullable = false)
-    private Map<String, Integer> errorBreakdown;  // GIN-indexed for population-wide queries
+    private Map<String, Integer> errorBreakdown;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", nullable = false)
-    private Map<String, Object> extra;            // shape varies by taskKey — sound_match.replayCount, trace_path.resetsUsed, color_sort.mistakes
+    private Map<String, Object> extra;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;

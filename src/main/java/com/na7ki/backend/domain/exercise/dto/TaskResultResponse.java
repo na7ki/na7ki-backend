@@ -9,8 +9,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 /**
- * Outbound shape for GET /api/cases/{caseId}/assignmentTask-results.
- * Includes caseId (unlike the request DTO) since this reflects full stored state.
+ * Outbound shape for GET /api/patients/{patientId}/task-results.
  */
 @Data
 @Builder
@@ -19,7 +18,7 @@ import java.util.Map;
 public class TaskResultResponse {
 
     private Long id;
-    private Long caseId;
+    private Long patientId;
     private Integer taskId;
     private String taskName;
     private OffsetDateTime startedAt;

@@ -1,6 +1,5 @@
 package com.na7ki.backend.core.exception;
 
-import com.na7ki.backend.domain.exercise.exception.CaseNotFoundException;
 import com.na7ki.backend.domain.exercise.exception.PackageNotFoundException;
 import com.na7ki.backend.domain.exercise.exception.QuestionNotFoundException;
 import com.na7ki.backend.domain.exercise.exception.TaskNotFoundException;
@@ -17,11 +16,6 @@ import java.util.List;
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExerciseExceptionHandler {
-
-    @ExceptionHandler(CaseNotFoundException.class)
-    public ResponseEntity<String> handleCaseNotFoundException(CaseNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
 
     @ExceptionHandler(PackageNotFoundException.class)
     public ResponseEntity<String> handlePackageNotFoundException(PackageNotFoundException ex) {

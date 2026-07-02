@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.exercise.validation;
 
-import com.na7ki.backend.domain.exercise.Repository.CasesRepository;
+import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.exercise.dto.TaskResultRequest;
 import com.na7ki.backend.domain.exercise.exception.TaskResultValidationException;
 import org.springframework.stereotype.Component;
@@ -14,17 +14,17 @@ public class TaskResultValidator {
 
     private static final Set<Integer> VALID_TASK_IDS = Set.of(101, 102, 103, 104, 105, 106, 107, 108, 109);
 
-    private final CasesRepository casesRepository;
+    private final PatientRepository patientRepository;
 
-    public TaskResultValidator(CasesRepository casesRepository) {
-        this.casesRepository = casesRepository;
+    public TaskResultValidator(PatientRepository patientRepository) {
+        this.patientRepository = patientRepository;
     }
 
-    public void validate(Long caseId, TaskResultRequest req) {
+    public void validate(Long patientId, TaskResultRequest req) {
         List<String> errors = new ArrayList<>();
 
-        if (!casesRepository.existsById(caseId)) {
-            errors.add("Case not found: " + caseId);
+        if (!patientRepository.existsById(patientId)) {
+            errors.add("Patient not found: " + patientId);
         }
 
         if (req.getTaskId() == null) {

@@ -8,8 +8,8 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 /**
- * Inbound payload for POST /api/cases/{caseId}/assignmentTask-results.
- * caseId is intentionally NOT a field here — it comes from the URL path.
+ * Inbound payload for POST /api/patients/{patientId}/task-results.
+ * patientId is intentionally NOT a field here — it comes from the URL path.
  */
 @Data
 @NoArgsConstructor

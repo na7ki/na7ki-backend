@@ -1,6 +1,5 @@
 package com.na7ki.backend.domain.exercise.dto;
 
-import com.na7ki.backend.domain.exercise.Entity.Cases;
 import com.na7ki.backend.domain.exercise.Entity.TaskResult;
 import org.springframework.stereotype.Component;
 
@@ -9,9 +8,9 @@ import java.math.BigDecimal;
 @Component
 public class TaskResultMapper {
 
-    public TaskResult toEntity(Long caseId, TaskResultRequest req, Cases caseEntity) {
+    public TaskResult toEntity(Long patientId, TaskResultRequest req) {
         TaskResult entity = new TaskResult();
-        entity.setCaseEntity(caseEntity);
+        entity.setPatientId(patientId);
         entity.setTaskId(req.getTaskId());
         entity.setTaskName(req.getTaskName());
         entity.setStartedAt(req.getStartedAt());
@@ -31,7 +30,7 @@ public class TaskResultMapper {
     public TaskResultResponse toResponse(TaskResult entity) {
         return TaskResultResponse.builder()
                 .id(entity.getId())
-                .caseId(entity.getCaseEntity() != null ? entity.getCaseEntity().getId() : null)
+                .patientId(entity.getPatientId())
                 .taskId(entity.getTaskId())
                 .taskName(entity.getTaskName())
                 .startedAt(entity.getStartedAt())

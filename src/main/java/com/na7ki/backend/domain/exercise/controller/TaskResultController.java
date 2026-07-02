@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * POST /api/cases/{caseId}/assignmentTask-results  — submit a session result
- * GET  /api/cases/{caseId}/assignmentTask-results  — fetch all results for a case
+ * POST /api/patients/{patientId}/task-results  — submit a task result
+ * GET  /api/patients/{patientId}/task-results  — fetch all results for a patient
  *
  * Auth (Bearer token) is enforced upstream via Spring Security filter chain.
  */
 @RestController
-@RequestMapping("/api/cases/{caseId}/assignmentTask-results")
+@RequestMapping("/api/patients/{patientId}/task-results")
 public class TaskResultController {
 
     private final TaskResultService taskResultService;
@@ -27,15 +27,15 @@ public class TaskResultController {
 
     @PostMapping
     public ResponseEntity<TaskResultResponse> submit(
-            @PathVariable Long caseId,
+            @PathVariable Long patientId,
             @RequestBody TaskResultRequest request
     ) {
-        TaskResultResponse response = taskResultService.submit(caseId, request);
+        TaskResultResponse response = taskResultService.submit(patientId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResultResponse>> getForCase(@PathVariable Long caseId) {
-        return ResponseEntity.ok(taskResultService.getForCase(caseId));
+    public ResponseEntity<List<TaskResultResponse>> getForPatient(@PathVariable Long patientId) {
+        return ResponseEntity.ok(taskResultService.getForPatient(patientId));
     }
 }
