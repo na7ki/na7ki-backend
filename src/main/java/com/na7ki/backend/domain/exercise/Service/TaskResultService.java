@@ -1,14 +1,14 @@
-package com.na7ki.backend.exercise.Service;
+package com.na7ki.backend.domain.exercise.Service;
 
-import com.na7ki.backend.exercise.Dto.TaskResultRequest;
-import com.na7ki.backend.exercise.Dto.TaskResultResponse;
-import com.na7ki.backend.exercise.Entity.Cases;
-import com.na7ki.backend.exercise.Entity.TaskResult;
-import com.na7ki.backend.exercise.Exception.TaskResultValidationException;
-import com.na7ki.backend.exercise.Mapper.TaskResultMapper;
-import com.na7ki.backend.exercise.Repository.CasesRepository;
-import com.na7ki.backend.exercise.Repository.TaskResultRepository;
-import com.na7ki.backend.exercise.Validation.TaskResultValidator;
+import com.na7ki.backend.domain.exercise.Entity.Cases;
+import com.na7ki.backend.domain.exercise.Entity.TaskResult;
+import com.na7ki.backend.domain.exercise.Repository.CasesRepository;
+import com.na7ki.backend.domain.exercise.Repository.TaskResultRepository;
+import com.na7ki.backend.domain.exercise.dto.TaskResultMapper;
+import com.na7ki.backend.domain.exercise.dto.TaskResultRequest;
+import com.na7ki.backend.domain.exercise.dto.TaskResultResponse;
+import com.na7ki.backend.domain.exercise.exception.TaskResultValidationException;
+import com.na7ki.backend.domain.exercise.validation.TaskResultValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,12 +37,12 @@ public class TaskResultService {
 
     @Transactional
     public TaskResultResponse submit(Long caseId, TaskResultRequest req) {
-        // Run all §9 validation rules first — collects every failure into one 422.
+        // Run all validation rules first — collects every failure into one 422.
         validator.validate(caseId, req);
 
         // Idempotency: the app may resubmit the exact same (caseId, taskId, startedAt)
-        // on reconnect (§2.1 warning). Treat a duplicate as a no-op success rather
-        // than letting the DB unique constraint throw a 500.
+        // on reconnect. Treat a duplicate as a no-op success rather than letting
+        // the DB unique constraint throw a 500.
         var existing = taskResultRepository.findByCaseEntity_IdAndTaskIdAndStartedAt(
                 caseId, req.getTaskId(), req.getStartedAt());
         if (existing.isPresent()) {

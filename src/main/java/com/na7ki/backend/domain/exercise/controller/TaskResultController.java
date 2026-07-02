@@ -1,8 +1,8 @@
-package com.na7ki.backend.exercise.Controller;
+package com.na7ki.backend.domain.exercise.controller;
 
-import com.na7ki.backend.exercise.Dto.TaskResultRequest;
-import com.na7ki.backend.exercise.Dto.TaskResultResponse;
-import com.na7ki.backend.exercise.Service.TaskResultService;
+import com.na7ki.backend.domain.exercise.Service.TaskResultService;
+import com.na7ki.backend.domain.exercise.dto.TaskResultRequest;
+import com.na7ki.backend.domain.exercise.dto.TaskResultResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Implements §2 of the Cognition Package Backend Guide:
- *   POST /api/cases/{caseId}/assignmentTask-results  — submit a session result
- *   GET  /api/cases/{caseId}/assignmentTask-results  — fetch all results for a case
+ * POST /api/cases/{caseId}/assignmentTask-results  — submit a session result
+ * GET  /api/cases/{caseId}/assignmentTask-results  — fetch all results for a case
  *
- * Auth (Bearer token) is assumed to be enforced upstream via Spring Security
- * filter chain / requiresAuth on matching routes, consistent with how the
- * Flutter ApiClient marks these calls as requiresAuth: true.
+ * Auth (Bearer token) is enforced upstream via Spring Security filter chain.
  */
 @RestController
 @RequestMapping("/api/cases/{caseId}/assignmentTask-results")

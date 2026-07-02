@@ -60,6 +60,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/specialist/**").hasAuthority("SPECIALIST")
 
+                        .requestMatchers("/api/cases/**").hasAuthority("SPECIALIST")
+
                         .requestMatchers("/api/tasks/specialist/**").hasAuthority("SPECIALIST")
                         .requestMatchers("/api/tasks/patient/**").hasAuthority("PATIENT")
 

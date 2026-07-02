@@ -1,4 +1,4 @@
-package com.na7ki.backend.exercise.Dto;
+package com.na7ki.backend.domain.exercise.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

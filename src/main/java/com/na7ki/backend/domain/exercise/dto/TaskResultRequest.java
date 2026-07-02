@@ -1,4 +1,4 @@
-package com.na7ki.backend.exercise.Dto;
+package com.na7ki.backend.domain.exercise.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,6 @@ import java.util.Map;
 
 /**
  * Inbound payload for POST /api/cases/{caseId}/assignmentTask-results.
- * Mirrors §3 of the Cognition Package Backend Guide exactly.
  * caseId is intentionally NOT a field here — it comes from the URL path.
  */
 @Data

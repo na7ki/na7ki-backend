@@ -1,16 +1,10 @@
-package com.na7ki.backend.exercise.dto;
+package com.na7ki.backend.domain.exercise.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
-
-import com.na7ki.backend.exercise.Dto.TaskResultRequest;
-import com.na7ki.backend.exercise.Dto.TaskResultResponse;
-import com.na7ki.backend.exercise.Entity.Cases;
-import com.na7ki.backend.exercise.Entity.TaskResult;
+import com.na7ki.backend.domain.exercise.Entity.Cases;
+import com.na7ki.backend.domain.exercise.Entity.TaskResult;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 @Component
 public class TaskResultMapper {
@@ -26,7 +20,7 @@ public class TaskResultMapper {
         entity.setDurationSeconds(req.getDurationSeconds());
         entity.setTotalRounds(req.getTotalRounds());
         entity.setCorrectRounds(req.getCorrectRounds());
-        entity.setAccuracy(req.getAccuracy());
+        entity.setAccuracy(req.getAccuracy() != null ? BigDecimal.valueOf(req.getAccuracy()) : null);
         entity.setAttemptsCount(req.getAttemptsCount());
         entity.setAvgReactionTimeMs(req.getAvgReactionTimeMs());
         entity.setErrorBreakdown(req.getErrorBreakdown());
@@ -46,7 +40,7 @@ public class TaskResultMapper {
                 .durationSeconds(entity.getDurationSeconds())
                 .totalRounds(entity.getTotalRounds())
                 .correctRounds(entity.getCorrectRounds())
-                .accuracy(entity.getAccuracy())
+                .accuracy(entity.getAccuracy() != null ? entity.getAccuracy().doubleValue() : null)
                 .attemptsCount(entity.getAttemptsCount())
                 .avgReactionTimeMs(entity.getAvgReactionTimeMs())
                 .errorBreakdown(entity.getErrorBreakdown())
