@@ -96,18 +96,6 @@ public class TaskManagementService {
                     .build();
 
             assignedExercises.add(assignedExercise);
-        if (request.assignedQuestionsIds() != null) {
-            for(Long questionId : request.assignedQuestionsIds())
-            {
-                AssignedExercise assignedExercise = AssignedExercise.builder()
-                        .type(ExerciseType.QUESTION)
-                        .question(exerciseService.getRawQuestionById(questionId))
-                        .task(null)
-                        .assignment(assignment)
-                        .build();
-
-                assignedExercises.add(assignedExercise);
-            }
         }
     }
 
@@ -121,18 +109,6 @@ public class TaskManagementService {
                     .build();
 
             assignedExercises.add(assignedExercise);
-        if (request.assignedTasksIds() != null) {
-            for(Long taskId : request.assignedTasksIds())
-            {
-                AssignedExercise assignedExercise = AssignedExercise.builder()
-                        .type(ExerciseType.TASK)
-                        .question(null)
-                        .task(taskService.getRawTaskById(taskId))
-                        .assignment(assignment)
-                        .build();
-
-                assignedExercises.add(assignedExercise);
-            }
         }
     }
 
@@ -147,7 +123,7 @@ public class TaskManagementService {
     notifyPatientOfNewAssignment(associatedPatient, supervisor, assignment);
 }
 
-   private void notifyPatientOfNewAssignment(Patient patient, Specialist supervisor, Assignment assignment) {
+   private void notifyPatientOfNewAssignment (Patient patient, Specialist supervisor, Assignment assignment) {
 
     List<Map<String, Object>> assignedItems = new ArrayList<>();
 
