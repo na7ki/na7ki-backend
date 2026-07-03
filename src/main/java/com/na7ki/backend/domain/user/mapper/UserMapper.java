@@ -13,7 +13,7 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
 
     //ignored because they are handled by the server
-    @Mapping(target = "specialistID", ignore = true)
+    @Mapping(target = "specialistId", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "age", ignore = true)
     @Mapping(target = "displayImage_path", ignore = true)

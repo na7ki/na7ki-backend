@@ -73,7 +73,7 @@ public class UserService {
     }
 
     public Specialist findBySpecialistId (String specialistId) {
-        return specialistRepository.findBySpecialistID(specialistId)
+        return specialistRepository.findBySpecialistId(specialistId)
                 .orElseThrow(() -> new SpecificIdNotAssociatedWithAnyUserException("No specialist has the id: " + specialistId));
     }
 
@@ -89,6 +89,14 @@ public class UserService {
     public List<PatientSummaryData> getAssociatedPatients (Specialist specialist) {
         return patientRepository.findPatientSummariesOfSpecialist(specialist);
     }
+
+    public List<Specialist> getAllSpecialists () {
+        return specialistRepository.findAll();
+    }
+
+
+
+
 
     public Specialist createSpecialist(CreateSpecialistData data) {
         return createUser(
@@ -134,7 +142,7 @@ public class UserService {
     private void manageSpecialistFields(Specialist specialist, SpecialistFieldsManagementInput inputFields) {
         updateUserPassword(specialist, inputFields.password());
         specialist.setAge(DateUtils.calculateAge(inputFields.dateOfBirth()));
-        specialist.setSpecialistID("SP" + getSpecialistIdNumberPart());
+        specialist.setSpecialistId("SP" + getSpecialistIdNumberPart());
     }
 
     private String managePatientFields(Patient patient, Specialist supervisor) {
