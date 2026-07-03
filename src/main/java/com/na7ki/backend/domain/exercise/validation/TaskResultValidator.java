@@ -50,21 +50,15 @@ public class TaskResultValidator {
             errors.add("startedAt must be before completedAt");
         }
 
-        if (req.getDurationSeconds() == null) {
-            errors.add("durationSeconds is required");
-        } else if (req.getDurationSeconds() < 0) {
+        if (req.getDurationSeconds() != null && req.getDurationSeconds() < 0) {
             errors.add("durationSeconds must be >= 0");
         }
 
-        if (req.getTotalRounds() == null) {
-            errors.add("totalRounds is required");
-        } else if (req.getTotalRounds() < 0) {
+        if (req.getTotalRounds() != null && req.getTotalRounds() < 0) {
             errors.add("totalRounds must be >= 0");
         }
 
-        if (req.getCorrectRounds() == null) {
-            errors.add("correctRounds is required");
-        } else if (req.getCorrectRounds() < 0) {
+        if (req.getCorrectRounds() != null && req.getCorrectRounds() < 0) {
             errors.add("correctRounds must be >= 0");
         }
 
@@ -73,9 +67,7 @@ public class TaskResultValidator {
             errors.add("correctRounds cannot exceed totalRounds");
         }
 
-        if (req.getAttemptsCount() == null) {
-            errors.add("attemptsCount is required");
-        } else if (req.getAttemptsCount() < 0) {
+        if (req.getAttemptsCount() != null && req.getAttemptsCount() < 0) {
             errors.add("attemptsCount must be >= 0");
         }
 

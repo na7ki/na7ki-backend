@@ -13,4 +13,7 @@ public interface TaskResultRepository extends JpaRepository<TaskResult, Long> {
 
     Optional<TaskResult> findByPatientIdAndTaskIdAndStartedAt(
             Long patientId, Integer taskId, OffsetDateTime startedAt);
+
+    List<TaskResult> findByPatientIdAndStartedAtBetweenOrderByStartedAt(
+            Long patientId, OffsetDateTime from, OffsetDateTime to);
 }
