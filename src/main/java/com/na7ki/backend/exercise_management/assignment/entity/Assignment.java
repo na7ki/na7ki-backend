@@ -1,4 +1,4 @@
-package com.na7ki.backend.task_management.assignment.entity;
+package com.na7ki.backend.exercise_management.assignment.entity;
 
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;

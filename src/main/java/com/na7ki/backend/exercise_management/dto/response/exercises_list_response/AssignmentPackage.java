@@ -1,4 +1,4 @@
-package com.na7ki.backend.task_management.dto.response.exercises_list_response;
+package com.na7ki.backend.exercise_management.dto.response.exercises_list_response;
 
 import lombok.Data;
 

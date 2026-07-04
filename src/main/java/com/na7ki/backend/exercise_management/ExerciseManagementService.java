@@ -1,4 +1,4 @@
-package com.na7ki.backend.task_management;
+package com.na7ki.backend.exercise_management;
 
 import com.na7ki.backend.notification.NotificationService;
 
@@ -12,15 +12,15 @@ import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.manage_patients.exception.SpecialistRequestingNonAssociatedPatientDataException;
-import com.na7ki.backend.task_management.assignment.AssignmentRepository;
-import com.na7ki.backend.task_management.dto.request.AssignTaskRequest;
-import com.na7ki.backend.task_management.dto.response.exercises_list_response.AssignmentPackage;
-import com.na7ki.backend.task_management.dto.response.exercises_list_response.AssignmentPackageOfQuestions;
-import com.na7ki.backend.task_management.dto.response.exercises_list_response.AssignmentPackageOfTasks;
-import com.na7ki.backend.task_management.assignment.entity.AssignedExercise;
-import com.na7ki.backend.task_management.assignment.entity.Assignment;
-import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
-import com.na7ki.backend.task_management.mapper.ExercisesDataMapper;
+import com.na7ki.backend.exercise_management.assignment.AssignmentRepository;
+import com.na7ki.backend.exercise_management.dto.request.AssignExerciseRequest;
+import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackage;
+import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackageOfQuestions;
+import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackageOfTasks;
+import com.na7ki.backend.exercise_management.assignment.entity.AssignedExercise;
+import com.na7ki.backend.exercise_management.assignment.entity.Assignment;
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
+import com.na7ki.backend.exercise_management.mapper.ExercisesDataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class TaskManagementService {
+public class ExerciseManagementService {
 
     private final ExerciseService exerciseService;
     private final TaskService taskService;
@@ -70,7 +70,7 @@ public class TaskManagementService {
         }
     }
 
-    public void assignTask(Specialist supervisor, String patientSpecificId, AssignTaskRequest request) {
+    public void assignTask(Specialist supervisor, String patientSpecificId, AssignExerciseRequest request) {
 
     Patient associatedPatient = userService.findByPatientId(patientSpecificId);
 
