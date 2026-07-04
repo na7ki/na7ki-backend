@@ -1,7 +1,7 @@
 package com.na7ki.backend.specialist_actions.report;
 
 import com.na7ki.backend.domain.exercise.entity.TaskResult;
-import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

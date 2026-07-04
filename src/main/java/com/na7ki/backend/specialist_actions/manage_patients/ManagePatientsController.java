@@ -43,6 +43,7 @@ public class ManagePatientsController {
 
     @GetMapping("/{patientSpecificId}")
     public ResponseEntity<PatientDataResponse> getPatient (
+
             @PathVariable
             @Pattern(regexp = "^PT\\d+$", message = "Invalid Patient ID format. Must be PT followed by one or more digits")
             String patientSpecificId,

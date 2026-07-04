@@ -17,11 +17,6 @@ public record CaseInfoData(
     @Column (nullable = false, updatable = false)
     LocalDate startDate,
 
-    @NotNull(message = "date of end of treatment is required")
-    @JsonFormat(pattern = "yyyy-M-d")
-    @Column (nullable = false)
-    LocalDate endDate,
-
     @NotBlank(message = "primary diagnosis is required")
     @Size(max = 300, message = "can't accept more than 300 characters")
     @Column (nullable = false, length = 300)

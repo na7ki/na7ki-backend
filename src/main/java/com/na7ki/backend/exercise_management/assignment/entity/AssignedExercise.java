@@ -1,13 +1,15 @@
-package com.na7ki.backend.task_management.assignment.entity;
+package com.na7ki.backend.exercise_management.assignment.entity;
 
 import com.na7ki.backend.domain.exercise.entity.Question;
 import com.na7ki.backend.domain.exercise.entity.Task;
-import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Entity
 @Data
@@ -23,6 +25,13 @@ public class AssignedExercise {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExerciseType type; // QUESTION or TASK
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean isSolved = false;
+
+    @Column
+    private Date solutionTimestamp = null;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")

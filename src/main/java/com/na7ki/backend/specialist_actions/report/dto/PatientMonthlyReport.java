@@ -14,7 +14,6 @@ public class PatientMonthlyReport {
     private String patientSpecificId;
     private String diagnosis;
     private LocalDate treatmentStart;
-    private LocalDate treatmentEnd;
 
     private int totalSessions;
 

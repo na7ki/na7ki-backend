@@ -8,9 +8,10 @@ import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_info_data.CaseInfoData;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
+import com.na7ki.backend.exercise_management.assignment.AssignmentService;
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
+import com.na7ki.backend.exercise_management.assignment.repository.AssignmentRepository;
 import com.na7ki.backend.specialist_actions.report.dto.*;
-import com.na7ki.backend.task_management.assignment.AssignmentRepository;
-import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,10 @@ public class WeeklyReportService {
 
     private final SpecialistRepository specialistRepository;
     private final TaskResultRepository taskResultRepository;
-    private final AssignmentRepository assignmentRepository;
+
+    private final AssignmentService assignmentService;
     private final EmailService emailService;
+
     private final ReportStatsSupport stats;
 
     private static final DateTimeFormatter WEEK_DATE_FMT =
@@ -140,7 +143,7 @@ public class WeeklyReportService {
         Set<String> attemptedKeys = thisWeek.stream()
                 .map(r -> r.getExerciseType() + ":" + r.getTaskId())
                 .collect(Collectors.toSet());
-        List<String> skipped = assignmentRepository.findByPatient(patient).stream()
+        List<String> skipped = assignmentService.getAssignmentsByPatient(patient).stream()
                 .flatMap(a -> a.getAssignedExercises().stream())
                 .filter(ex -> (ex.getType() == ExerciseType.TASK && ex.getTask() != null)
                         || (ex.getType() == ExerciseType.QUESTION && ex.getQuestion() != null))
@@ -162,12 +165,12 @@ public class WeeklyReportService {
                 && patient.getMedicalDetails().additionalInfoData() != null
                 && patient.getMedicalDetails().additionalInfoData().caseInfoData() != null) {
             CaseInfoData ci = patient.getMedicalDetails().additionalInfoData().caseInfoData();
-            diagnosis = ci.primaryDiagnosis(); tStart = ci.startDate(); tEnd = ci.endDate();
+            diagnosis = ci.primaryDiagnosis(); tStart = ci.startDate();
         }
 
         return PatientWeeklyReport.builder()
                 .patientName(patient.getName()).patientSpecificId(patient.getPatientID())
-                .diagnosis(diagnosis).treatmentStart(tStart).treatmentEnd(tEnd)
+                .diagnosis(diagnosis).treatmentStart(tStart)
                 .totalSessions(thisWeek.size()).activeDays(activeDays)
                 .possibleActiveDays(possibleActiveDays).streak(streak)
                 .tasks(taskStatsList)

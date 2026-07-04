@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.exercise.dto;
 
-import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

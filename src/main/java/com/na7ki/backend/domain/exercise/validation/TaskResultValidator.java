@@ -5,7 +5,7 @@ import com.na7ki.backend.domain.exercise.Repository.TaskRepository;
 import com.na7ki.backend.domain.user.repository.PatientRepository;
 import com.na7ki.backend.domain.exercise.dto.TaskResultRequest;
 import com.na7ki.backend.domain.exercise.exception.TaskResultValidationException;
-import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
