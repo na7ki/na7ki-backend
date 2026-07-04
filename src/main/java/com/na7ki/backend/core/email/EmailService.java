@@ -1,6 +1,8 @@
 package com.na7ki.backend.core.email;
 
+import com.na7ki.backend.core.email.model.MonthlyReportEmail;
 import com.na7ki.backend.core.email.model.PatientPasswordEmail;
+import com.na7ki.backend.core.email.model.WeeklyReportEmail;
 import com.na7ki.backend.core.email.model.VerificationCodeEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,28 @@ public class EmailService {
                 "Remember, you can always change your password from the profile tab. For now you can use only the password above to login.\n" +
                 "We hope you enjoy our platform and we hope we assist your child in their amazing journey!" + "\n\n\n" +
                 "If you haven't asked a speech therapist to register you on Na7ki, or believe this email is irrelevant to you, please ignore it";
+
+        sendEmail(toEmail, subject, body);
+    }
+
+    public void sendWeeklyReport(String toEmail, WeeklyReportEmail input) {
+        final String subject = "Na7ki — Weekly Progress Report: " + input.weekLabel();
+        final String body =
+                "Dear Dr. " + input.specialistName() + ",\n\n" +
+                "Here is the weekly progress report for your patients for the week of " + input.weekLabel() + ":\n\n" +
+                input.reportBody() + "\n\n" +
+                "This report was generated automatically by Na7ki. Please do not reply to this email.";
+
+        sendEmail(toEmail, subject, body);
+    }
+
+    public void sendMonthlyReport(String toEmail, MonthlyReportEmail input) {
+        final String subject = "Na7ki — Monthly Progress Report: " + input.monthLabel();
+        final String body =
+                "Dear Dr. " + input.specialistName() + ",\n\n" +
+                "Here is the monthly progress report for your patients for " + input.monthLabel() + ":\n\n" +
+                input.reportBody() + "\n\n" +
+                "This report was generated automatically by Na7ki. Please do not reply to this email.";
 
         sendEmail(toEmail, subject, body);
     }

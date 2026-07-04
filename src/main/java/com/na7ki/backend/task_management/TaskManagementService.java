@@ -72,58 +72,54 @@ public class TaskManagementService {
 
     public void assignTask(Specialist supervisor, String patientSpecificId, AssignTaskRequest request) {
 
-    Patient associatedPatient = userService.findByPatientId(patientSpecificId);
+        Patient associatedPatient = userService.findByPatientId(patientSpecificId);
 
-    if (!associatedPatient.getSupervisor().getUserId().equals(supervisor.getUserId())) {
-        throw new SpecialistRequestingNonAssociatedPatientDataException(
-                "A specialist is assigning tasks to a patient that they aren't their supervisor");
-    }
-
-    Assignment assignment = Assignment.builder()
-            .supervisor(supervisor)
-            .patient(associatedPatient)
-            .build();
-
-    List<AssignedExercise> assignedExercises = new ArrayList<>();
-
-    if (request.assignedQuestionsIds() != null) {
-        for (Long questionId : request.assignedQuestionsIds()) {
-            AssignedExercise assignedExercise = AssignedExercise.builder()
-                    .type(ExerciseType.QUESTION)
-                    .question(exerciseService.getRawQuestionById(questionId))
-                    .task(null)
-                    .assignment(assignment)
-                    .build();
-
-            assignedExercises.add(assignedExercise);
+        if (!associatedPatient.getSupervisor().getUserId().equals(supervisor.getUserId())) {
+            throw new SpecialistRequestingNonAssociatedPatientDataException(
+                    "A specialist is assigning tasks to a patient that they aren't their supervisor");
         }
-    }
 
-    if (request.assignedTasksIds() != null) {
-        for (Long taskId : request.assignedTasksIds()) {
-            AssignedExercise assignedExercise = AssignedExercise.builder()
-                    .type(ExerciseType.TASK)
-                    .question(null)
-                    .task(taskService.getRawTaskById(taskId))
-                    .assignment(assignment)
-                    .build();
+        Assignment assignment = Assignment.builder()
+                .supervisor(supervisor)
+                .patient(associatedPatient)
+                .build();
 
-            assignedExercises.add(assignedExercise);
+        List<AssignedExercise> assignedExercises = new ArrayList<>();
+
+        if (request.assignedQuestionsIds() != null) {
+            for (Long questionId : request.assignedQuestionsIds()) {
+                AssignedExercise assignedExercise = AssignedExercise.builder()
+                        .type(ExerciseType.QUESTION)
+                        .question(exerciseService.getRawQuestionById(questionId))
+                        .task(null)
+                        .assignment(assignment)
+                        .build();
+                assignedExercises.add(assignedExercise);
+            }
         }
+
+        if (request.assignedTasksIds() != null) {
+            for (Long taskId : request.assignedTasksIds()) {
+                AssignedExercise assignedExercise = AssignedExercise.builder()
+                        .type(ExerciseType.TASK)
+                        .question(null)
+                        .task(taskService.getRawTaskById(taskId))
+                        .assignment(assignment)
+                        .build();
+                assignedExercises.add(assignedExercise);
+            }
+        }
+
+        if (assignedExercises.isEmpty()) {
+            throw new IllegalArgumentException("At least one task or question must be assigned.");
+        }
+
+        assignment.setAssignedExercises(assignedExercises);
+        assignmentRepository.save(assignment);
+        notifyPatientOfNewAssignment(associatedPatient, supervisor, assignment);
     }
 
-    if (assignedExercises.isEmpty()) {
-        throw new IllegalArgumentException("At least one task or question must be assigned.");
-    }
-
-    assignment.setAssignedExercises(assignedExercises);
-
-    assignmentRepository.save(assignment);
-
-    notifyPatientOfNewAssignment(associatedPatient, supervisor, assignment);
-}
-
-   private void notifyPatientOfNewAssignment (Patient patient, Specialist supervisor, Assignment assignment) {
+    private void notifyPatientOfNewAssignment(Patient patient, Specialist supervisor, Assignment assignment) {
 
     List<Map<String, Object>> assignedItems = new ArrayList<>();
 
