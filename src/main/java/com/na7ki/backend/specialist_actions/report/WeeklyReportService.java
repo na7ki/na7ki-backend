@@ -46,30 +46,49 @@ public class WeeklyReportService {
     private static final DateTimeFormatter WEEK_YEAR_FMT =
             DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH);
 
-    // Scheduled job
-    @Transactional(readOnly = true)
+    // Scheduled job. Not read-only — notifyReportReady writes a Notification row.
+    @Transactional
     public void sendWeeklyReports() {
         WeekWindow w = weekWindow();
         for (Specialist specialist : specialistRepository.findAll()) {
             try {
-                WeeklyReportResponse report = buildReport(specialist, w);
-                if (report.getPatients().isEmpty()) continue;
-
-                List<PatientWeeklyReport> flagged = report.getPatients().stream()
-                        .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
-                if (!flagged.isEmpty()) {
-                    emailService.sendWeeklyReport(
-                            specialist.getEmail(),
-                            new WeeklyReportEmail(specialist.getName(), report.getWeekLabel(), toEmailBody(flagged))
-                    );
-                    log.info("Weekly report sent to: {}", specialist.getEmail());
-                }
-
-                notificationService.notifyReportReady(specialist, "Weekly", report.getWeekLabel());
+                processWeeklyReport(specialist, w);
             } catch (Exception e) {
                 log.error("Failed to send weekly report to {}: {}", specialist.getEmail(), e.getMessage());
             }
         }
+    }
+
+    // Manual trigger for a single specialist (testing/ops — e.g. resending a missed report).
+    // Re-fetched by id since the principal attached by the JWT filter may be detached by the time this
+    // runs, and `patients` is a lazy collection. Not read-only — notifyReportReady writes a Notification row.
+    @Transactional
+    public void sendWeeklyReportForSpecialist(Specialist specialist) {
+        Specialist fresh = specialistRepository.findById(specialist.getUserId()).orElseThrow();
+        processWeeklyReport(fresh, weekWindow());
+    }
+
+    private void processWeeklyReport(Specialist specialist, WeekWindow w) {
+        WeeklyReportResponse report = buildReport(specialist, w);
+        if (report.getPatients().isEmpty()) return;
+
+        List<PatientWeeklyReport> flagged = report.getPatients().stream()
+                .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
+        if (!flagged.isEmpty()) {
+            // Isolated: an email failure (SMTP down, bad credentials, etc.) shouldn't also block the
+            // in-app notification below — they're independent delivery channels for the same event.
+            try {
+                emailService.sendWeeklyReport(
+                        specialist.getEmail(),
+                        new WeeklyReportEmail(specialist.getName(), report.getWeekLabel(), toEmailBody(flagged))
+                );
+                log.info("Weekly report sent to: {}", specialist.getEmail());
+            } catch (Exception e) {
+                log.error("Failed to email weekly report to {}: {}", specialist.getEmail(), e.getMessage());
+            }
+        }
+
+        notificationService.notifyReportReady(specialist, "Weekly", report.getWeekLabel());
     }
 
     // On-demand for authenticated specialist. Re-fetched by id since the principal attached by the

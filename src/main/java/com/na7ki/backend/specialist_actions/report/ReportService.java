@@ -36,32 +36,49 @@ public class ReportService {
 
     private final ReportStatsSupport stats;
 
-    // Scheduled job
-    @Transactional(readOnly = true)
+    // Scheduled job. Not read-only — notifyReportReady writes a Notification row.
+    @Transactional
     public void sendMonthlyReports() {
         MonthWindow w = monthWindow();
         for (Specialist specialist : specialistRepository.findAll()) {
             try {
-                MonthlyReportResponse report = buildReport(specialist, w);
-                if (report.getPatients().isEmpty()) continue;
-
-                List<PatientMonthlyReport> flagged = report.getPatients().stream()
-                        .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
-                if (!flagged.isEmpty()) {
-                    emailService.sendMonthlyReport(
-                            specialist.getEmail(),
-                            new MonthlyReportEmail(specialist.getName(), report.getMonthLabel(), toEmailBody(flagged))
-                    );
-                    log.info("Monthly report sent to: {}", specialist.getEmail());
-                }
-
-                notificationService.notifyReportReady(specialist, "Monthly", report.getMonthLabel());
-
-                log.info("Monthly report sent to: {}", specialist.getEmail());
+                processMonthlyReport(specialist, w);
             } catch (Exception e) {
                 log.error("Failed to send monthly report to {}: {}", specialist.getEmail(), e.getMessage());
             }
         }
+    }
+
+    // Manual trigger for a single specialist (testing/ops — e.g. resending a missed report).
+    // Re-fetched by id since the principal attached by the JWT filter may be detached by the time this
+    // runs, and `patients` is a lazy collection. Not read-only — notifyReportReady writes a Notification row.
+    @Transactional
+    public void sendMonthlyReportForSpecialist(Specialist specialist) {
+        Specialist fresh = specialistRepository.findById(specialist.getUserId()).orElseThrow();
+        processMonthlyReport(fresh, monthWindow());
+    }
+
+    private void processMonthlyReport(Specialist specialist, MonthWindow w) {
+        MonthlyReportResponse report = buildReport(specialist, w);
+        if (report.getPatients().isEmpty()) return;
+
+        List<PatientMonthlyReport> flagged = report.getPatients().stream()
+                .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
+        if (!flagged.isEmpty()) {
+            // Isolated: an email failure (SMTP down, bad credentials, etc.) shouldn't also block the
+            // in-app notification below — they're independent delivery channels for the same event.
+            try {
+                emailService.sendMonthlyReport(
+                        specialist.getEmail(),
+                        new MonthlyReportEmail(specialist.getName(), report.getMonthLabel(), toEmailBody(flagged))
+                );
+                log.info("Monthly report sent to: {}", specialist.getEmail());
+            } catch (Exception e) {
+                log.error("Failed to email monthly report to {}: {}", specialist.getEmail(), e.getMessage());
+            }
+        }
+
+        notificationService.notifyReportReady(specialist, "Monthly", report.getMonthLabel());
     }
 
     // On-demand for authenticated specialist. Re-fetched by id since the principal attached by the
