@@ -1,5 +1,6 @@
 package com.na7ki.backend.exercise_management;
 
+import com.na7ki.backend.exercise_management.exception.NothingChosenToBeAssignedException;
 import com.na7ki.backend.domain.exercise.entity.Packages;
 import com.na7ki.backend.domain.exercise.entity.Question;
 import com.na7ki.backend.domain.exercise.entity.Task;
@@ -72,92 +73,93 @@ public class ExerciseManagementService {
 
     public void assignExercise(Specialist supervisor, String patientSpecificId, AssignExerciseRequest request) {
 
-    Patient associatedPatient = userService.findByPatientId(patientSpecificId);
+        Patient associatedPatient = userService.findByPatientId(patientSpecificId);
 
-    if (!associatedPatient.getSupervisor().getUserId().equals(supervisor.getUserId())) {
-        throw new SpecialistRequestingNonAssociatedPatientDataException(
-                "A specialist is assigning tasks to a patient that they aren't their supervisor");
-    }
-
-    Assignment assignment = Assignment.builder()
-            .supervisor(supervisor)
-            .patient(associatedPatient)
-            .build();
-
-    List<AssignedExercise> assignedExercises = new ArrayList<>();
-
-    if (request.assignedQuestionsIds() != null) {
-        for (Long questionId : request.assignedQuestionsIds()) {
-            AssignedExercise assignedExercise = AssignedExercise.builder()
-                    .type(ExerciseType.QUESTION)
-                    .question(exerciseService.getRawQuestionById(questionId))
-                    .task(null)
-                    .assignment(assignment)
-                    .build();
-
-            assignedExercises.add(assignedExercise);
-        }
-    }
-
-    if (request.assignedTasksIds() != null) {
-        for (Long taskId : request.assignedTasksIds()) {
-            AssignedExercise assignedExercise = AssignedExercise.builder()
-                    .type(ExerciseType.TASK)
-                    .question(null)
-                    .task(taskService.getRawTaskById(taskId))
-                    .assignment(assignment)
-                    .build();
-
-            assignedExercises.add(assignedExercise);
-        }
-    }
-
-    if (assignedExercises.isEmpty()) {
-        throw new IllegalArgumentException("At least one task or question must be assigned.");
-    }
-
-    assignment.setAssignedExercises(assignedExercises);
-
-    assignmentRepository.save(assignment);
-
-    notifyPatientOfNewAssignment(associatedPatient, supervisor, assignment);
-}
-
-   private void notifyPatientOfNewAssignment(Patient patient, Specialist supervisor, Assignment assignment) {
-
-    List<Map<String, Object>> assignedItems = new ArrayList<>();
-
-    for (AssignedExercise exercise : assignment.getAssignedExercises()) {
-
-        Map<String, Object> item = new HashMap<>();
-
-        if (exercise.getType() == ExerciseType.TASK && exercise.getTask() != null) {
-
-            Task task = exercise.getTask();
-
-            item.put("type", "TASK");
-            item.put("id", task.getId());
-            item.put("title", task.getTitle());
-
-        } else if (exercise.getType() == ExerciseType.QUESTION && exercise.getQuestion() != null) {
-
-            Question question = exercise.getQuestion();
-
-            item.put("type", "QUESTION");
-            item.put("id", question.getId());
-            item.put("title", question.getQuestionText());
+        if (!associatedPatient.getSupervisor().getUserId().equals(supervisor.getUserId())) {
+            throw new SpecialistRequestingNonAssociatedPatientDataException(
+                    "A specialist is assigning tasks to a patient that they aren't their supervisor");
         }
 
-        assignedItems.add(item);
+        Assignment assignment = Assignment.builder()
+                .supervisor(supervisor)
+                .patient(associatedPatient)
+                .build();
+
+        List<AssignedExercise> assignedExercises = new ArrayList<>();
+
+        if (request.assignedQuestionsIds() != null) {
+            for (Long questionId : request.assignedQuestionsIds()) {
+                AssignedExercise assignedExercise = AssignedExercise.builder()
+                        .type(ExerciseType.QUESTION)
+                        .question(exerciseService.getRawQuestionById(questionId))
+                        .task(null)
+                        .assignment(assignment)
+                        .build();
+
+                assignedExercises.add(assignedExercise);
+            }
+        }
+
+        if (request.assignedTasksIds() != null) {
+            for (Long taskId : request.assignedTasksIds()) {
+                AssignedExercise assignedExercise = AssignedExercise.builder()
+                        .type(ExerciseType.TASK)
+                        .question(null)
+                        .task(taskService.getRawTaskById(taskId))
+                        .assignment(assignment)
+                        .build();
+
+                assignedExercises.add(assignedExercise);
+            }
+        }
+
+        if (assignedExercises.isEmpty()) {
+            throw new NothingChosenToBeAssignedException("At least one task or question must be assigned.");
+        }
+
+        assignment.setAssignedExercises(assignedExercises);
+
+        assignmentRepository.save(assignment);
+
+        notifyPatientOfNewAssignment(associatedPatient, supervisor, assignment);
     }
 
-    Map<String, Object> details = new HashMap<>();
-    details.put("assignmentId", assignment.getId());
-    details.put("itemCount", assignedItems.size());
-    details.put("items", assignedItems);
+    private void notifyPatientOfNewAssignment(Patient patient, Specialist supervisor, Assignment assignment) {
 
-    notificationService.notifyTaskAssigned(patient, supervisor, assignment.getId(), details);
-}
+        List<Map<String, Object>> assignedItems = new ArrayList<>();
+
+        for (AssignedExercise exercise : assignment.getAssignedExercises()) {
+
+            Map<String, Object> item = new HashMap<>();
+
+            if (exercise.getType() == ExerciseType.TASK && exercise.getTask() != null) {
+
+                Task task = exercise.getTask();
+
+                item.put("type", "TASK");
+                item.put("id", task.getId());
+                item.put("title", task.getTitle());
+
+            } else if (exercise.getType() == ExerciseType.QUESTION && exercise.getQuestion() != null) {
+
+                Question question = exercise.getQuestion();
+
+                item.put("type", "QUESTION");
+                item.put("id", question.getId());
+                item.put("title", question.getQuestionText());
+            }
+
+            assignedItems.add(item);
+        }
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("assignmentId", assignment.getId());
+        details.put("itemCount", assignedItems.size());
+        details.put("items", assignedItems);
+
+        notificationService.notifyTaskAssigned(patient, supervisor, assignment.getId(), details);
+    }
+
     public List<AssignmentPackage> getExercisesOfPatient (Patient patient) {
 
         List<Assignment> assignments = assignmentRepository.findByPatient(patient);
@@ -225,5 +227,4 @@ public class ExerciseManagementService {
 
         return exercisesOfPatient;
     }
-
 }

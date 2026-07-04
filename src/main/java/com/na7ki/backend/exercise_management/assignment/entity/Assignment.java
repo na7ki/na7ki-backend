@@ -9,8 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -26,7 +26,7 @@ public class Assignment {
 
     @CreationTimestamp
     @Column(name = "assigned_at", nullable = false, updatable = false)
-    private LocalDate assignmentTimestamp;
+    private Date assignmentTimestamp;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "specialist_id")

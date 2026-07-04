@@ -18,11 +18,13 @@ import java.util.List;
 public interface ExercisesDataMapper {
 
     @Mapping(source = "title", target = "name")
+    @Mapping(source = "coverImage.imageUrl", target = "coverImage_url")
     AssignmentPackage toAssignmentPackage(PackageDTO packageDTO);
 
     List<AssignmentPackage> toAssignmentPackageList(List<PackageDTO> packageDTOs);
 
     @Mapping(source = "title", target = "name")
+    @Mapping(source = "coverImage.imageUrl", target = "coverImage_url")
     AssignmentPackage toAssignmentPackage(Packages packages);
 
 
