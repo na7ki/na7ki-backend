@@ -1,5 +1,6 @@
 package com.na7ki.backend.exercise_management;
 
+import com.na7ki.backend.exercise_management.dto.response.patient_assigned_exercises_list_response.AssignedPackage;
 import com.na7ki.backend.exercise_management.exception.NothingChosenToBeAssignedException;
 import com.na7ki.backend.domain.exercise.entity.Packages;
 import com.na7ki.backend.domain.exercise.entity.Question;
@@ -15,9 +16,9 @@ import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.manage_patients.exception.SpecialistRequestingNonAssociatedPatientDataException;
 import com.na7ki.backend.exercise_management.assignment.AssignmentRepository;
-import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackage;
-import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackageOfQuestions;
-import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackageOfTasks;
+import com.na7ki.backend.exercise_management.dto.response.AssignmentPackage;
+import com.na7ki.backend.exercise_management.dto.response.specialist_exercises_list_response.AssignmentPackageOfQuestions;
+import com.na7ki.backend.exercise_management.dto.response.specialist_exercises_list_response.AssignmentPackageOfTasks;
 import com.na7ki.backend.exercise_management.assignment.entity.AssignedExercise;
 import com.na7ki.backend.exercise_management.assignment.entity.Assignment;
 import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
@@ -160,12 +161,11 @@ public class ExerciseManagementService {
         notificationService.notifyTaskAssigned(patient, supervisor, assignment.getId(), details);
     }
 
-    public List<AssignmentPackage> getExercisesOfPatient (Patient patient) {
+    public List<AssignedPackage> getExercisesOfPatient (Patient patient) {
 
         List<Assignment> assignments = assignmentRepository.findByPatient(patient);
 
-        List<AssignmentPackageOfQuestions> packagesOfQuestionsOfPatient = new ArrayList<>();
-        List<AssignmentPackageOfTasks> packagesOfTasksOfPatient = new ArrayList<>();
+        List<AssignedPackage> assignedPackages = new ArrayList<>();
 
         for (Assignment assignment : assignments)
         {
@@ -178,53 +178,48 @@ public class ExerciseManagementService {
                     Long pkgId = pkg.getId();
 
                     // Check if the Package to which the extracted question already exists in the list that will be returned
-                    AssignmentPackageOfQuestions potentialExistingPkg = packagesOfQuestionsOfPatient.stream()
+                    AssignedPackage potentialExistingPkg = assignedPackages.stream()
                             .filter(p -> p.getId().equals(pkgId))
                             .findFirst()
                             .orElse(null);
 
                     //if the package to which the question belongs already is in the list
                     if (potentialExistingPkg != null) {
-                        potentialExistingPkg.getAssignmentQuestions().add(mapper.toAssignmentQuestion(question));
+                        potentialExistingPkg.getAssignedExercises().add(mapper.toAssignedQuestion(exercise));
                     //if it's not in the list
                     } else {
-                        AssignmentPackageOfQuestions newPkg = new AssignmentPackageOfQuestions();
+                        AssignedPackage newPkg = new AssignedPackage();
                         AssignmentPackage.copyBase(mapper.toAssignmentPackage(pkg), newPkg);
-                        newPkg.setAssignmentQuestions(new ArrayList<>(List.of(mapper.toAssignmentQuestion(question))));
-                        packagesOfQuestionsOfPatient.add(newPkg);
+                        newPkg.setAssignedExercises(new ArrayList<>(List.of(mapper.toAssignedQuestion(exercise))));
+                        assignedPackages.add(newPkg);
                     }
 
                 } else if (exercise.getType().equals(ExerciseType.TASK)) {
-                    //get the question
+                    //get the task
                     Task task = exercise.getTask();
                     Packages pkg = task.getPkg();
                     Long pkgId = pkg.getId();
 
                     // Check if the Package to which the extracted task already exists in the list that will be returned
-                    AssignmentPackageOfTasks potentialExistingPkg = packagesOfTasksOfPatient.stream()
+                    AssignedPackage potentialExistingPkg = assignedPackages.stream()
                             .filter(p -> p.getId().equals(pkgId))
                             .findFirst()
                             .orElse(null);
 
                     //if the package to which the question belongs already is in the list
                     if (potentialExistingPkg != null) {
-                        potentialExistingPkg.getAssignmentTasks().add(mapper.toAssignmentTask(task));
+                        potentialExistingPkg.getAssignedExercises().add(mapper.toAssignedTask(exercise));
                     //if it's not in the list
                     } else {
-                        AssignmentPackageOfTasks newPkg = new AssignmentPackageOfTasks();
+                        AssignedPackage newPkg = new AssignedPackage();
                         AssignmentPackage.copyBase(mapper.toAssignmentPackage(pkg), newPkg);
-                        newPkg.setAssignmentTasks(new ArrayList<>(List.of(mapper.toAssignmentTask(task))));
-                        packagesOfTasksOfPatient.add(newPkg);
+                        newPkg.setAssignedExercises(new ArrayList<>(List.of(mapper.toAssignedTask(exercise))));
+                        assignedPackages.add(newPkg);
                     }
                 }
             }
         }
 
-        // Combine both lists into the final return list
-        List<AssignmentPackage> exercisesOfPatient = new ArrayList<>();
-        exercisesOfPatient.addAll(packagesOfQuestionsOfPatient);
-        exercisesOfPatient.addAll(packagesOfTasksOfPatient);
-
-        return exercisesOfPatient;
+        return assignedPackages;
     }
 }

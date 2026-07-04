@@ -4,7 +4,8 @@ import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.User;
 import com.na7ki.backend.exercise_management.dto.request.AssignExerciseRequest;
-import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackage;
+import com.na7ki.backend.exercise_management.dto.response.AssignmentPackage;
+import com.na7ki.backend.exercise_management.dto.response.patient_assigned_exercises_list_response.AssignedPackage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class ExerciseManagementController {
     }
 
     @GetMapping("/patient")
-    public ResponseEntity<List<AssignmentPackage>> getExercisesOfPatient (@AuthenticationPrincipal User patient) {
+    public ResponseEntity<List<AssignedPackage>> getExercisesOfPatient (@AuthenticationPrincipal User patient) {
         return ResponseEntity.status(HttpStatus.OK).body(exerciseManagementService.getExercisesOfPatient(((Patient) patient)));
     }
 

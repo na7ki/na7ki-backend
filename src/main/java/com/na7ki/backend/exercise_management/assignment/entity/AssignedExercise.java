@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Entity
 @Data
 @Builder
@@ -23,6 +25,12 @@ public class AssignedExercise {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExerciseType type; // QUESTION or TASK
+
+    @Column(nullable = false)
+    private Boolean isSolved = false;
+
+    @Column
+    private Date solutionTimestamp = null;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
