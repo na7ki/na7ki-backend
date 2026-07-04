@@ -125,17 +125,17 @@ public class WeeklyReportService {
                 .filter(ex -> !attemptedIds.contains(ex.getTask().getId().intValue()))
                 .map(ex -> ex.getTask().getTitle()).distinct().collect(Collectors.toList());
 
-        String diagnosis = null; LocalDate tStart = null; LocalDate tEnd = null;
+        String diagnosis = null; LocalDate tStart = null;
         if (patient.getMedicalDetails() != null
                 && patient.getMedicalDetails().additionalInfoData() != null
                 && patient.getMedicalDetails().additionalInfoData().caseInfoData() != null) {
             CaseInfoData ci = patient.getMedicalDetails().additionalInfoData().caseInfoData();
-            diagnosis = ci.primaryDiagnosis(); tStart = ci.startDate(); tEnd = ci.endDate();
+            diagnosis = ci.primaryDiagnosis(); tStart = ci.startDate();
         }
 
         return PatientWeeklyReport.builder()
                 .patientName(patient.getName()).patientSpecificId(patient.getPatientID())
-                .diagnosis(diagnosis).treatmentStart(tStart).treatmentEnd(tEnd)
+                .diagnosis(diagnosis).treatmentStart(tStart)
                 .totalSessions(thisWeek.size()).activeDays(activeDays).streak(streak)
                 .tasks(taskStatsList).bestTask(bestTask).worstTask(worstTask)
                 .notableErrors(notableErrors).skippedTasks(skipped).build();

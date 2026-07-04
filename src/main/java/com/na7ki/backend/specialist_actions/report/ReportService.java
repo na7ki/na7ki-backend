@@ -80,17 +80,17 @@ public class ReportService {
             taskStatsList.add(buildTaskStats(e.getKey(), e.getValue()));
         }
 
-        String diagnosis = null; LocalDate tStart = null; LocalDate tEnd = null;
+        String diagnosis = null; LocalDate tStart = null;
         if (patient.getMedicalDetails() != null
                 && patient.getMedicalDetails().additionalInfoData() != null
                 && patient.getMedicalDetails().additionalInfoData().caseInfoData() != null) {
             CaseInfoData ci = patient.getMedicalDetails().additionalInfoData().caseInfoData();
-            diagnosis = ci.primaryDiagnosis(); tStart = ci.startDate(); tEnd = ci.endDate();
+            diagnosis = ci.primaryDiagnosis(); tStart = ci.startDate();
         }
 
         return PatientMonthlyReport.builder()
                 .patientName(patient.getName()).patientSpecificId(patient.getPatientID())
-                .diagnosis(diagnosis).treatmentStart(tStart).treatmentEnd(tEnd)
+                .diagnosis(diagnosis).treatmentStart(tStart)
                 .tasks(taskStatsList).build();
     }
 
@@ -122,7 +122,7 @@ public class ReportService {
             sb.append("=== Patient: ").append(p.getPatientName()).append(" ===\n");
             if (p.getDiagnosis() != null) sb.append("  Diagnosis: ").append(p.getDiagnosis()).append("\n");
             if (p.getTreatmentStart() != null)
-                sb.append("  Treatment: ").append(p.getTreatmentStart()).append(" → ").append(p.getTreatmentEnd()).append("\n");
+                sb.append("  Treatment: ").append(p.getTreatmentStart()).append(" → ").append("\n");
             sb.append("\n  Task Results:\n");
             for (TaskStats t : p.getTasks()) {
                 sb.append("  • ").append(t.getTaskName()).append(":\n");
