@@ -1,5 +1,6 @@
 package com.na7ki.backend.specialist_actions.report.dto;
 
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import java.util.Map;
 @Builder
 public class TaskWeeklyStats {
     private String taskName;
+    private ExerciseType exerciseType;  // TASK = cognitive, QUESTION = non-cognitive practice package
     private int sessions;
     private Integer sessionsDiff;       // vs previous week, null if no previous data
     private long completedCount;

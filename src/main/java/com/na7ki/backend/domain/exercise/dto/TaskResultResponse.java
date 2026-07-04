@@ -1,5 +1,6 @@
 package com.na7ki.backend.domain.exercise.dto;
 
+import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,8 @@ public class TaskResultResponse {
 
     private Long id;
     private Long patientId;
-    private Integer taskId;
+    private Long taskId;
+    private ExerciseType exerciseType;
     private String taskName;
     private OffsetDateTime startedAt;
     private OffsetDateTime completedAt;
