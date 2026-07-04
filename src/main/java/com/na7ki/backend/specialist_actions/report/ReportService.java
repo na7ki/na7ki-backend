@@ -9,9 +9,12 @@ import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_info_data.CaseInfoData;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.specialist_actions.report.dto.*;
+import com.na7ki.backend.task_management.assignment.AssignmentRepository;
+import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -25,9 +28,12 @@ public class ReportService {
 
     private final SpecialistRepository specialistRepository;
     private final TaskResultRepository taskResultRepository;
+    private final AssignmentRepository assignmentRepository;
     private final EmailService emailService;
+    private final ReportStatsSupport stats;
 
     // Scheduled job
+    @Transactional(readOnly = true)
     public void sendMonthlyReports() {
         MonthWindow w = monthWindow();
         for (Specialist specialist : specialistRepository.findAll()) {
@@ -45,9 +51,12 @@ public class ReportService {
         }
     }
 
-    // On-demand for authenticated specialist
+    // On-demand for authenticated specialist. Re-fetched by id since the principal attached by the
+    // JWT filter may be detached by the time this runs, and `patients` is a lazy collection.
+    @Transactional(readOnly = true)
     public MonthlyReportResponse getReportForSpecialist(Specialist specialist) {
-        return buildReport(specialist, monthWindow());
+        Specialist fresh = specialistRepository.findById(specialist.getUserId()).orElseThrow();
+        return buildReport(fresh, monthWindow());
     }
 
     // Core builder
@@ -68,17 +77,70 @@ public class ReportService {
     }
 
     private PatientMonthlyReport buildPatientReport(Patient patient, MonthWindow w) {
-        List<TaskResult> results = taskResultRepository
+        List<TaskResult> thisMonth = taskResultRepository
                 .findByPatientIdAndStartedAtBetweenOrderByStartedAt(patient.getUserId(), w.from(), w.to());
-        if (results.isEmpty()) return null;
+        List<TaskResult> lastMonth = taskResultRepository
+                .findByPatientIdAndStartedAtBetweenOrderByStartedAt(patient.getUserId(), w.prevFrom(), w.prevTo());
 
-        Map<String, List<TaskResult>> byTask = results.stream()
-                .collect(Collectors.groupingBy(TaskResult::getTaskName));
+        if (thisMonth.isEmpty() && lastMonth.isEmpty()) return null;
+
+        Map<ReportStatsSupport.TaskGroupKey, List<TaskResult>> thisMonthByTask = thisMonth.stream()
+                .collect(Collectors.groupingBy(r -> new ReportStatsSupport.TaskGroupKey(r.getExerciseType(), r.getTaskId())));
+        Map<ReportStatsSupport.TaskGroupKey, List<TaskResult>> lastMonthByTask = lastMonth.stream()
+                .collect(Collectors.groupingBy(r -> new ReportStatsSupport.TaskGroupKey(r.getExerciseType(), r.getTaskId())));
 
         List<TaskStats> taskStatsList = new ArrayList<>();
-        for (Map.Entry<String, List<TaskResult>> e : byTask.entrySet()) {
-            taskStatsList.add(buildTaskStats(e.getKey(), e.getValue()));
+        Map<String, Double> accByCognitiveTask = new LinkedHashMap<>();
+        Map<String, Double> accByPracticePackage = new LinkedHashMap<>();
+        for (Map.Entry<ReportStatsSupport.TaskGroupKey, List<TaskResult>> e : thisMonthByTask.entrySet()) {
+            ReportStatsSupport.TaskGroupKey key = e.getKey();
+            String name = e.getValue().get(0).getTaskName();
+            TaskStats ts = buildTaskStats(name, key.exerciseType(), e.getValue(),
+                    lastMonthByTask.getOrDefault(key, List.of()));
+            taskStatsList.add(ts);
+            if (ts.getAvgAccuracy() != null) {
+                if (key.exerciseType() == ExerciseType.TASK) accByCognitiveTask.put(name, ts.getAvgAccuracy());
+                else accByPracticePackage.put(name, ts.getAvgAccuracy());
+            }
         }
+
+        String bestCognitiveTask    = stats.bestOf(accByCognitiveTask);
+        String worstCognitiveTask   = stats.worstOf(accByCognitiveTask);
+        String bestPracticePackage  = stats.bestOf(accByPracticePackage);
+        String worstPracticePackage = stats.worstOf(accByPracticePackage);
+
+        // Error taxonomies differ between cognitive tasks and practice packages, so errors are
+        // tallied per category rather than merged into one leaderboard.
+        Map<String, Integer> cognitiveErrors = new LinkedHashMap<>();
+        Map<String, Integer> practiceErrors = new LinkedHashMap<>();
+        thisMonth.forEach(r -> {
+            if (r.getErrorBreakdown() == null) return;
+            Map<String, Integer> target = r.getExerciseType() == ExerciseType.TASK ? cognitiveErrors : practiceErrors;
+            r.getErrorBreakdown().forEach((k, v) -> target.merge(k, v, Integer::sum));
+        });
+        Map<String, Integer> notableCognitiveErrors = stats.topN(cognitiveErrors, 3);
+        Map<String, Integer> notablePracticeErrors = stats.topN(practiceErrors, 3);
+
+        // Keyed by (exerciseType, id) since Task ids and Package ids are independent sequences and can collide.
+        Set<String> attemptedKeys = thisMonth.stream()
+                .map(r -> r.getExerciseType() + ":" + r.getTaskId())
+                .collect(Collectors.toSet());
+        List<String> skipped = assignmentRepository.findByPatient(patient).stream()
+                .flatMap(a -> a.getAssignedExercises().stream())
+                .filter(ex -> (ex.getType() == ExerciseType.TASK && ex.getTask() != null)
+                        || (ex.getType() == ExerciseType.QUESTION && ex.getQuestion() != null))
+                .filter(ex -> {
+                    Long id = ex.getType() == ExerciseType.TASK
+                            ? ex.getTask().getId()
+                            : ex.getQuestion().getPkg().getId();
+                    return !attemptedKeys.contains(ex.getType() + ":" + id);
+                })
+                .map(ex -> ex.getType() == ExerciseType.TASK
+                        ? ex.getTask().getTitle()
+                        : ex.getQuestion().getPkg().getTitle())
+                .distinct().collect(Collectors.toList());
+
+        List<String> attentionReasons = attentionReasons(thisMonth, taskStatsList, skipped);
 
         String diagnosis = null; LocalDate tStart = null; LocalDate tEnd = null;
         if (patient.getMedicalDetails() != null
@@ -91,93 +153,117 @@ public class ReportService {
         return PatientMonthlyReport.builder()
                 .patientName(patient.getName()).patientSpecificId(patient.getPatientID())
                 .diagnosis(diagnosis).treatmentStart(tStart).treatmentEnd(tEnd)
-                .tasks(taskStatsList).build();
+                .totalSessions(thisMonth.size())
+                .tasks(taskStatsList)
+                .bestCognitiveTask(bestCognitiveTask).worstCognitiveTask(worstCognitiveTask)
+                .notableCognitiveErrors(notableCognitiveErrors)
+                .bestPracticePackage(bestPracticePackage).worstPracticePackage(worstPracticePackage)
+                .notablePracticeErrors(notablePracticeErrors)
+                .skippedTasks(skipped).attentionReasons(attentionReasons).build();
     }
 
-    private TaskStats buildTaskStats(String name, List<TaskResult> sessions) {
-        int n = sessions.size();
-        long completed = sessions.stream().filter(TaskResult::isCompleted).count();
+    private static final double ACCURACY_DROP_THRESHOLD = 0.15;   // 15 percentage points vs previous month
+    private static final double LOW_COMPLETION_THRESHOLD = 50.0;  // percent
 
-        Double avgAcc   = nullableDouble(sessions, r -> r.getAccuracy() != null, r -> r.getAccuracy().doubleValue());
-        Double avgAtt   = nullableInt(sessions, r -> r.getAttemptsCount() != null, TaskResult::getAttemptsCount);
-        Double avgDur   = nullableInt(sessions, r -> r.getDurationSeconds() != null, TaskResult::getDurationSeconds);
-        Double avgReact = nullableInt(sessions, r -> r.getAvgReactionTimeMs() != null, TaskResult::getAvgReactionTimeMs);
+    private List<String> attentionReasons(List<TaskResult> thisMonth, List<TaskStats> taskStatsList,
+                                           List<String> skipped) {
+        List<String> reasons = new ArrayList<>();
+        if (thisMonth.isEmpty()) {
+            reasons.add("No sessions this month");
+        }
+        if (!skipped.isEmpty()) {
+            reasons.add(skipped.size() + " task(s)/package(s) not attempted");
+        }
+        for (TaskStats t : taskStatsList) {
+            if (t.getAccuracyDiff() != null && t.getAccuracyDiff() <= -ACCURACY_DROP_THRESHOLD) {
+                reasons.add("Accuracy dropped in " + t.getTaskName());
+            }
+            if (t.getSessions() > 0 && t.getCompletionPct() < LOW_COMPLETION_THRESHOLD) {
+                reasons.add("Low completion in " + t.getTaskName());
+            }
+        }
+        return reasons;
+    }
+
+    private TaskStats buildTaskStats(String name, ExerciseType exerciseType, List<TaskResult> cur, List<TaskResult> prev) {
+        int n = cur.size(), pn = prev.size();
+        long completed = cur.stream().filter(TaskResult::isCompleted).count();
+
+        Double avgAcc      = stats.nullableDouble(cur, r -> r.getAccuracy() != null, r -> r.getAccuracy().doubleValue());
+        Double prevAvgAcc  = stats.nullableDouble(prev, r -> r.getAccuracy() != null, r -> r.getAccuracy().doubleValue());
+        Double avgAtt      = stats.nullableInt(cur, r -> r.getAttemptsCount() != null, TaskResult::getAttemptsCount);
+        Double prevAvgAtt  = stats.nullableInt(prev, r -> r.getAttemptsCount() != null, TaskResult::getAttemptsCount);
+        Double avgDur      = stats.nullableInt(cur, r -> r.getDurationSeconds() != null, TaskResult::getDurationSeconds);
+        Double prevAvgDur  = stats.nullableInt(prev, r -> r.getDurationSeconds() != null, TaskResult::getDurationSeconds);
+        Double avgReact    = stats.nullableInt(cur, r -> r.getAvgReactionTimeMs() != null, TaskResult::getAvgReactionTimeMs);
+        Double prevAvgReact= stats.nullableInt(prev, r -> r.getAvgReactionTimeMs() != null, TaskResult::getAvgReactionTimeMs);
 
         Map<String, Integer> errors = new LinkedHashMap<>();
-        sessions.forEach(r -> { if (r.getErrorBreakdown() != null)
+        cur.forEach(r -> { if (r.getErrorBreakdown() != null)
             r.getErrorBreakdown().forEach((k, v) -> errors.merge(k, v, Integer::sum)); });
+        Map<String, Integer> topErrors = stats.topN(errors, 3);
 
         return TaskStats.builder()
-                .taskName(name).sessions(n).completedCount(completed)
-                .completionPct(completed * 100.0 / n)
-                .avgAccuracy(avgAcc).avgAttempts(avgAtt)
-                .avgDurationSeconds(avgDur).avgReactionTimeMs(avgReact)
-                .topErrors(errors).extraMetrics(mergeExtra(sessions)).build();
+                .taskName(name).exerciseType(exerciseType).sessions(n).sessionsDiff(pn > 0 ? n - pn : null)
+                .completedCount(completed).completionPct(completed * 100.0 / n)
+                .avgAccuracy(avgAcc).accuracyDiff(stats.diff(avgAcc, prevAvgAcc))
+                .avgAttempts(avgAtt).attemptsDiff(stats.diff(avgAtt, prevAvgAtt))
+                .avgDurationSeconds(avgDur).durationDiff(stats.diff(avgDur, prevAvgDur))
+                .avgReactionTimeMs(avgReact).reactionDiff(stats.diff(avgReact, prevAvgReact))
+                .topErrors(topErrors).extraMetrics(stats.mergeExtra(cur)).build();
     }
 
-    // Email formatter
-    private String toEmailBody(MonthlyReportResponse report) {
+    // Email formatter — digest only, mirroring the weekly report: no task-level breakdown ever goes
+    // in the email. Every detail (per-task stats, best/worst, errors, skipped list) is only ever
+    // available via the app/API (MonthlyReportResponse).
+    String toEmailBody(MonthlyReportResponse report) {
+        List<PatientMonthlyReport> flagged = report.getPatients().stream()
+                .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
+        List<PatientMonthlyReport> onTrack = report.getPatients().stream()
+                .filter(p -> p.getAttentionReasons().isEmpty()).toList();
+
         StringBuilder sb = new StringBuilder();
-        for (PatientMonthlyReport p : report.getPatients()) {
-            sb.append("=== Patient: ").append(p.getPatientName()).append(" ===\n");
-            if (p.getDiagnosis() != null) sb.append("  Diagnosis: ").append(p.getDiagnosis()).append("\n");
-            if (p.getTreatmentStart() != null)
-                sb.append("  Treatment: ").append(p.getTreatmentStart()).append(" → ").append(p.getTreatmentEnd()).append("\n");
-            sb.append("\n  Task Results:\n");
-            for (TaskStats t : p.getTasks()) {
-                sb.append("  • ").append(t.getTaskName()).append(":\n");
-                sb.append(String.format("      Sessions: %d | Completed: %d/%d (%.0f%%)\n",
-                        t.getSessions(), t.getCompletedCount(), t.getSessions(), t.getCompletionPct()));
-                if (t.getAvgAccuracy() != null) sb.append(String.format("      Avg accuracy: %.0f%%\n", t.getAvgAccuracy()*100));
-                if (t.getAvgAttempts() != null) sb.append(String.format("      Avg attempts: %.1f\n", t.getAvgAttempts()));
-                if (t.getAvgDurationSeconds() != null) sb.append(String.format("      Avg duration: %.0fs\n", t.getAvgDurationSeconds()));
-                if (t.getAvgReactionTimeMs() != null) sb.append(String.format("      Avg reaction: %.0fms\n", t.getAvgReactionTimeMs()));
-                if (!t.getTopErrors().isEmpty()) {
-                    sb.append("      Error breakdown:\n");
-                    t.getTopErrors().entrySet().stream()
-                            .sorted(Map.Entry.<String,Integer>comparingByValue().reversed())
-                            .forEach(e -> sb.append("        - ").append(e.getKey()).append(": ").append(e.getValue()).append("\n"));
-                }
-                if (!t.getExtraMetrics().isEmpty()) {
-                    sb.append("      Additional metrics:\n");
-                    t.getExtraMetrics().forEach((k,v) -> {
-                        if (v instanceof Double d) sb.append(String.format("        - %s: %.2f\n",k,d));
-                        else sb.append("        - ").append(k).append(": ").append(v).append("\n");
-                    });
-                }
+
+        if (!flagged.isEmpty()) {
+            sb.append("NEEDS ATTENTION (").append(flagged.size()).append("):\n\n");
+            for (PatientMonthlyReport p : flagged) {
+                appendPatientSummary(sb, p);
+                p.getAttentionReasons().forEach(r -> sb.append("  ⚠ ").append(r).append("\n"));
                 sb.append("\n");
+            }
+        }
+
+        if (!onTrack.isEmpty()) {
+            sb.append("ON TRACK (").append(onTrack.size()).append("):\n\n");
+            for (PatientMonthlyReport p : onTrack) {
+                appendPatientSummary(sb, p);
             }
             sb.append("\n");
         }
+
+        sb.append("Open the Na7ki app to see full task-by-task details for every patient.\n");
         return sb.toString().trim();
+    }
+
+    private void appendPatientSummary(StringBuilder sb, PatientMonthlyReport p) {
+        sb.append("=== ").append(p.getPatientName()).append(" ===\n");
+        if (p.getDiagnosis() != null) sb.append("  Diagnosis: ").append(p.getDiagnosis()).append("\n");
+        sb.append(String.format("  Activity: %d sessions this month\n", p.getTotalSessions()));
     }
 
     // Helpers
     private MonthWindow monthWindow() {
         YearMonth last = YearMonth.now().minusMonths(1);
+        YearMonth prev = last.minusMonths(1);
         String label = last.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH));
         return new MonthWindow(
                 last.atDay(1).atStartOfDay().atOffset(ZoneOffset.UTC),
                 last.atEndOfMonth().atTime(23,59,59).atOffset(ZoneOffset.UTC),
+                prev.atDay(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                prev.atEndOfMonth().atTime(23,59,59).atOffset(ZoneOffset.UTC),
                 label);
     }
 
-    private Double nullableDouble(List<TaskResult> s, java.util.function.Predicate<TaskResult> f, java.util.function.ToDoubleFunction<TaskResult> m) {
-        OptionalDouble o = s.stream().filter(f).mapToDouble(m).average(); return o.isPresent() ? o.getAsDouble() : null;
-    }
-    private Double nullableInt(List<TaskResult> s, java.util.function.Predicate<TaskResult> f, java.util.function.ToIntFunction<TaskResult> m) {
-        OptionalDouble o = s.stream().filter(f).mapToInt(m).average(); return o.isPresent() ? o.getAsDouble() : null;
-    }
-
-    private Map<String, Object> mergeExtra(List<TaskResult> sessions) {
-        Map<String, List<Double>> num = new LinkedHashMap<>();
-        Map<String, Object> other = new LinkedHashMap<>();
-        sessions.forEach(r -> { if (r.getExtra() == null) return;
-            r.getExtra().forEach((k,v) -> { if (v instanceof Number n) num.computeIfAbsent(k, x -> new ArrayList<>()).add(n.doubleValue()); else other.put(k,v); }); });
-        Map<String, Object> merged = new LinkedHashMap<>(other);
-        num.forEach((k,vals) -> merged.put(k, vals.stream().mapToDouble(Double::doubleValue).average().orElse(0)));
-        return merged;
-    }
-
-    private record MonthWindow(OffsetDateTime from, OffsetDateTime to, String label) {}
+    private record MonthWindow(OffsetDateTime from, OffsetDateTime to,
+                                OffsetDateTime prevFrom, OffsetDateTime prevTo, String label) {}
 }
