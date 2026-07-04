@@ -11,6 +11,7 @@ import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.exercise_management.assignment.AssignmentService;
 import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import com.na7ki.backend.exercise_management.assignment.repository.AssignmentRepository;
+import com.na7ki.backend.notification.NotificationService;
 import com.na7ki.backend.specialist_actions.report.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class WeeklyReportService {
 
     private final AssignmentService assignmentService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     private final ReportStatsSupport stats;
 
@@ -52,11 +54,18 @@ public class WeeklyReportService {
             try {
                 WeeklyReportResponse report = buildReport(specialist, w);
                 if (report.getPatients().isEmpty()) continue;
-                emailService.sendWeeklyReport(
-                        specialist.getEmail(),
-                        new WeeklyReportEmail(specialist.getName(), report.getWeekLabel(), toEmailBody(report))
-                );
-                log.info("Weekly report sent to: {}", specialist.getEmail());
+
+                List<PatientWeeklyReport> flagged = report.getPatients().stream()
+                        .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
+                if (!flagged.isEmpty()) {
+                    emailService.sendWeeklyReport(
+                            specialist.getEmail(),
+                            new WeeklyReportEmail(specialist.getName(), report.getWeekLabel(), toEmailBody(flagged))
+                    );
+                    log.info("Weekly report sent to: {}", specialist.getEmail());
+                }
+
+                notificationService.notifyReportReady(specialist, "Weekly", report.getWeekLabel());
             } catch (Exception e) {
                 log.error("Failed to send weekly report to {}: {}", specialist.getEmail(), e.getMessage());
             }
@@ -232,34 +241,16 @@ public class WeeklyReportService {
                 .topErrors(topErrors).extraMetrics(stats.mergeExtra(cur)).build();
     }
 
-    // Email formatter — digest only. No task-level breakdown ever goes in the email; it's a
-    // notification telling the specialist who needs a look and why. Every detail (per-task stats,
-    // best/worst, errors, skipped list) is only ever available via the app/API (WeeklyReportResponse).
-    String toEmailBody(WeeklyReportResponse report) {
-        List<PatientWeeklyReport> flagged = report.getPatients().stream()
-                .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
-        List<PatientWeeklyReport> onTrack = report.getPatients().stream()
-                .filter(p -> p.getAttentionReasons().isEmpty()).toList();
-
+    // Email formatter — flagged patients only. On-track patients aren't mentioned at all here; the
+    // full picture (everyone, full task-level detail) lives in the app via the API (WeeklyReportResponse).
+    String toEmailBody(List<PatientWeeklyReport> flagged) {
         StringBuilder sb = new StringBuilder();
-
-        if (!flagged.isEmpty()) {
-            sb.append("NEEDS ATTENTION (").append(flagged.size()).append("):\n\n");
-            for (PatientWeeklyReport p : flagged) {
-                appendPatientSummary(sb, p);
-                p.getAttentionReasons().forEach(r -> sb.append("  ⚠ ").append(r).append("\n"));
-                sb.append("\n");
-            }
-        }
-
-        if (!onTrack.isEmpty()) {
-            sb.append("ON TRACK (").append(onTrack.size()).append("):\n\n");
-            for (PatientWeeklyReport p : onTrack) {
-                appendPatientSummary(sb, p);
-            }
+        sb.append("NEEDS ATTENTION (").append(flagged.size()).append("):\n\n");
+        for (PatientWeeklyReport p : flagged) {
+            appendPatientSummary(sb, p);
+            p.getAttentionReasons().forEach(r -> sb.append("  ⚠ ").append(r).append("\n"));
             sb.append("\n");
         }
-
         sb.append("Open the Na7ki app to see full task-by-task details for every patient.\n");
         return sb.toString().trim();
     }

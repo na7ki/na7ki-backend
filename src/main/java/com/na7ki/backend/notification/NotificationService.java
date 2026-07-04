@@ -85,6 +85,20 @@ public class NotificationService {
         );
     }
 
+    // One plain "new report available" ping per specialist per scheduled run — just tells them to
+    // check the app; the email carries the flagged-patient detail, the app carries the full report.
+    // No persisted report entity exists (reports are computed on demand), so there's no referenceId.
+    public void notifyReportReady(Specialist specialist, String reportType, String periodLabel) {
+        createNotification(
+                specialist,
+                NotificationType.REPORT_READY,
+                "New " + reportType + " report",
+                "Your " + reportType.toLowerCase() + " report for " + periodLabel + " is ready to view in the app.",
+                null,
+                Map.of("reportType", reportType, "periodLabel", periodLabel)
+        );
+    }
+
     public List<NotificationResponse> getNotificationsForUser(User user) {
         return notificationMapper.toResponseList(
                 notificationRepository.findByRecipientOrderByCreatedAtDesc(user)

@@ -10,6 +10,7 @@ import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_i
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
 import com.na7ki.backend.exercise_management.assignment.AssignmentService;
 import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
+import com.na7ki.backend.notification.NotificationService;
 import com.na7ki.backend.specialist_actions.report.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class ReportService {
 
     private final EmailService emailService;
     private final AssignmentService assignmentService;
+    private final NotificationService notificationService;
 
     private final ReportStatsSupport stats;
 
@@ -42,10 +44,19 @@ public class ReportService {
             try {
                 MonthlyReportResponse report = buildReport(specialist, w);
                 if (report.getPatients().isEmpty()) continue;
-                emailService.sendMonthlyReport(
-                        specialist.getEmail(),
-                        new MonthlyReportEmail(specialist.getName(), report.getMonthLabel(), toEmailBody(report))
-                );
+
+                List<PatientMonthlyReport> flagged = report.getPatients().stream()
+                        .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
+                if (!flagged.isEmpty()) {
+                    emailService.sendMonthlyReport(
+                            specialist.getEmail(),
+                            new MonthlyReportEmail(specialist.getName(), report.getMonthLabel(), toEmailBody(flagged))
+                    );
+                    log.info("Monthly report sent to: {}", specialist.getEmail());
+                }
+
+                notificationService.notifyReportReady(specialist, "Monthly", report.getMonthLabel());
+
                 log.info("Monthly report sent to: {}", specialist.getEmail());
             } catch (Exception e) {
                 log.error("Failed to send monthly report to {}: {}", specialist.getEmail(), e.getMessage());
@@ -216,34 +227,16 @@ public class ReportService {
                 .topErrors(topErrors).extraMetrics(stats.mergeExtra(cur)).build();
     }
 
-    // Email formatter — digest only, mirroring the weekly report: no task-level breakdown ever goes
-    // in the email. Every detail (per-task stats, best/worst, errors, skipped list) is only ever
-    // available via the app/API (MonthlyReportResponse).
-    String toEmailBody(MonthlyReportResponse report) {
-        List<PatientMonthlyReport> flagged = report.getPatients().stream()
-                .filter(p -> !p.getAttentionReasons().isEmpty()).toList();
-        List<PatientMonthlyReport> onTrack = report.getPatients().stream()
-                .filter(p -> p.getAttentionReasons().isEmpty()).toList();
-
+    // Email formatter — flagged patients only, mirroring the weekly report. On-track patients aren't
+    // mentioned at all; the full picture lives in the app via the API (MonthlyReportResponse).
+    String toEmailBody(List<PatientMonthlyReport> flagged) {
         StringBuilder sb = new StringBuilder();
-
-        if (!flagged.isEmpty()) {
-            sb.append("NEEDS ATTENTION (").append(flagged.size()).append("):\n\n");
-            for (PatientMonthlyReport p : flagged) {
-                appendPatientSummary(sb, p);
-                p.getAttentionReasons().forEach(r -> sb.append("  ⚠ ").append(r).append("\n"));
-                sb.append("\n");
-            }
-        }
-
-        if (!onTrack.isEmpty()) {
-            sb.append("ON TRACK (").append(onTrack.size()).append("):\n\n");
-            for (PatientMonthlyReport p : onTrack) {
-                appendPatientSummary(sb, p);
-            }
+        sb.append("NEEDS ATTENTION (").append(flagged.size()).append("):\n\n");
+        for (PatientMonthlyReport p : flagged) {
+            appendPatientSummary(sb, p);
+            p.getAttentionReasons().forEach(r -> sb.append("  ⚠ ").append(r).append("\n"));
             sb.append("\n");
         }
-
         sb.append("Open the Na7ki app to see full task-by-task details for every patient.\n");
         return sb.toString().trim();
     }
