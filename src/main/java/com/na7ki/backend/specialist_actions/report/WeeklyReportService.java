@@ -6,10 +6,10 @@ import com.na7ki.backend.domain.exercise.Entity.TaskResult;
 import com.na7ki.backend.domain.exercise.Repository.TaskResultRepository;
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
+import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_info_data.CaseInfoData;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
+import com.na7ki.backend.specialist_actions.report.dto.*;
 import com.na7ki.backend.task_management.assignment.AssignmentRepository;
-import com.na7ki.backend.task_management.assignment.entity.AssignedExercise;
-import com.na7ki.backend.task_management.assignment.entity.Assignment;
 import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +21,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,291 +41,235 @@ public class WeeklyReportService {
     private static final DateTimeFormatter WEEK_YEAR_FMT =
             DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH);
 
-    /**
-     * Builds and sends weekly reports for all specialists.
-     * Called by the scheduler every Monday — covers the previous Mon–Sun week.
-     */
+    // Scheduled job
     public void sendWeeklyReports() {
-        // Last week: Mon to Sun
-        LocalDate today = LocalDate.now();
-        LocalDate weekStart = today.with(DayOfWeek.MONDAY).minusWeeks(1);
-        LocalDate weekEnd   = weekStart.plusDays(6); // Sunday
-
-        OffsetDateTime from = weekStart.atStartOfDay().atOffset(ZoneOffset.UTC);
-        OffsetDateTime to   = weekEnd.atTime(23, 59, 59).atOffset(ZoneOffset.UTC);
-
-        // Two weeks ago — for comparison
-        OffsetDateTime prevFrom = from.minusWeeks(1);
-        OffsetDateTime prevTo   = to.minusWeeks(1);
-
-        String weekLabel = weekStart.format(WEEK_DATE_FMT) + " – " + weekEnd.format(WEEK_YEAR_FMT);
-
-        List<Specialist> allSpecialists = specialistRepository.findAll();
-
-        for (Specialist specialist : allSpecialists) {
+        WeekWindow w = weekWindow();
+        for (Specialist specialist : specialistRepository.findAll()) {
             try {
-                String reportBody = buildReportBody(specialist, from, to, prevFrom, prevTo);
-
-                if (reportBody.isBlank()) {
-                    log.info("No patient data for specialist {} in week {}, skipping email.", specialist.getEmail(), weekLabel);
-                    continue;
-                }
-
+                WeeklyReportResponse report = buildReport(specialist, w);
+                if (report.getPatients().isEmpty()) continue;
                 emailService.sendWeeklyReport(
                         specialist.getEmail(),
-                        new WeeklyReportEmail(specialist.getName(), weekLabel, reportBody)
+                        new WeeklyReportEmail(specialist.getName(), report.getWeekLabel(), toEmailBody(report))
                 );
-
-                log.info("Weekly report sent to specialist: {}", specialist.getEmail());
-
+                log.info("Weekly report sent to: {}", specialist.getEmail());
             } catch (Exception e) {
-                log.error("Failed to send weekly report to specialist {}: {}", specialist.getEmail(), e.getMessage());
+                log.error("Failed to send weekly report to {}: {}", specialist.getEmail(), e.getMessage());
             }
         }
     }
 
-    private String buildReportBody(Specialist specialist,
-                                   OffsetDateTime from, OffsetDateTime to,
-                                   OffsetDateTime prevFrom, OffsetDateTime prevTo) {
+    // On-demand for authenticated specialist
+    public WeeklyReportResponse getReportForSpecialist(Specialist specialist) {
+        return buildReport(specialist, weekWindow());
+    }
+
+    // Core builder
+    private WeeklyReportResponse buildReport(Specialist specialist, WeekWindow w) {
         List<Patient> patients = specialist.getPatients();
-        if (patients == null || patients.isEmpty()) return "";
-
-        StringBuilder sb = new StringBuilder();
-
-        for (Patient patient : patients) {
-            List<TaskResult> thisWeek = taskResultRepository
-                    .findByPatientIdAndStartedAtBetweenOrderByStartedAt(patient.getUserId(), from, to);
-            List<TaskResult> lastWeek = taskResultRepository
-                    .findByPatientIdAndStartedAtBetweenOrderByStartedAt(patient.getUserId(), prevFrom, prevTo);
-
-            // Skip patients with no activity in either week
-            if (thisWeek.isEmpty() && lastWeek.isEmpty()) continue;
-
-            sb.append("=== Patient: ").append(patient.getName()).append(" ===\n");
-
-            // ── 1. Activity summary ──────────────────────────────────────────
-            int totalSessions = thisWeek.size();
-            long activeDays = thisWeek.stream()
-                    .map(r -> r.getStartedAt().toLocalDate())
-                    .distinct().count();
-
-            // Streak: consecutive days ending on the last active day
-            List<LocalDate> sortedDays = thisWeek.stream()
-                    .map(r -> r.getStartedAt().toLocalDate())
-                    .distinct()
-                    .sorted()
-                    .toList();
-            int streak = 0;
-            if (!sortedDays.isEmpty()) {
-                streak = 1;
-                for (int i = sortedDays.size() - 1; i > 0; i--) {
-                    if (sortedDays.get(i).minusDays(1).equals(sortedDays.get(i - 1))) streak++;
-                    else break;
-                }
+        List<PatientWeeklyReport> patientReports = new ArrayList<>();
+        if (patients != null) {
+            for (Patient p : patients) {
+                PatientWeeklyReport pr = buildPatientReport(p, w);
+                if (pr != null) patientReports.add(pr);
             }
+        }
+        return WeeklyReportResponse.builder()
+                .weekLabel(w.label())
+                .generatedAt(OffsetDateTime.now())
+                .patients(patientReports)
+                .build();
+    }
 
-            sb.append(String.format("  Activity: %d sessions | %d/7 days active | %d-day streak\n",
-                    totalSessions, activeDays, streak));
+    private PatientWeeklyReport buildPatientReport(Patient patient, WeekWindow w) {
+        List<TaskResult> thisWeek = taskResultRepository
+                .findByPatientIdAndStartedAtBetweenOrderByStartedAt(patient.getUserId(), w.from(), w.to());
+        List<TaskResult> lastWeek = taskResultRepository
+                .findByPatientIdAndStartedAtBetweenOrderByStartedAt(patient.getUserId(), w.prevFrom(), w.prevTo());
 
-            if (thisWeek.isEmpty()) {
-                sb.append("  ⚠ No sessions recorded this week.\n\n");
-                continue;
-            }
+        if (thisWeek.isEmpty() && lastWeek.isEmpty()) return null;
 
-            // ── 2. Per-task breakdown with week-over-week comparison ─────────
-            sb.append("\n  Task breakdown:\n");
+        long activeDays = thisWeek.stream().map(r -> r.getStartedAt().toLocalDate()).distinct().count();
+        int streak = calcStreak(thisWeek);
 
-            Map<String, List<TaskResult>> thisWeekByTask = thisWeek.stream()
-                    .collect(Collectors.groupingBy(TaskResult::getTaskName));
-            Map<String, List<TaskResult>> lastWeekByTask = lastWeek.stream()
-                    .collect(Collectors.groupingBy(TaskResult::getTaskName));
+        Map<String, List<TaskResult>> thisWeekByTask = thisWeek.stream()
+                .collect(Collectors.groupingBy(TaskResult::getTaskName));
+        Map<String, List<TaskResult>> lastWeekByTask = lastWeek.stream()
+                .collect(Collectors.groupingBy(TaskResult::getTaskName));
 
-            for (Map.Entry<String, List<TaskResult>> entry : thisWeekByTask.entrySet()) {
-                String taskName = entry.getKey();
-                List<TaskResult> sessions = entry.getValue();
-                List<TaskResult> prevSessions = lastWeekByTask.getOrDefault(taskName, List.of());
-
-                int sessions_n = sessions.size();
-                int prevSessions_n = prevSessions.size();
-                String sessionsDiff = prevSessions_n > 0
-                        ? formatDiff(sessions_n - prevSessions_n, "", " vs last week") : "";
-
-                long completed = sessions.stream().filter(TaskResult::isCompleted).count();
-                double completionPct = completed * 100.0 / sessions_n;
-
-                sb.append("  • ").append(taskName).append(":\n");
-                sb.append(String.format("      Sessions: %d%s\n", sessions_n, sessionsDiff));
-                sb.append(String.format("      Completed: %d/%d (%.0f%%)\n", completed, sessions_n, completionPct));
-
-                // Accuracy with diff
-                double avgAcc = avgDouble(sessions, r -> r.getAccuracy() != null,
-                        r -> r.getAccuracy().doubleValue());
-                double prevAvgAcc = avgDouble(prevSessions, r -> r.getAccuracy() != null,
-                        r -> r.getAccuracy().doubleValue());
-                if (avgAcc >= 0) {
-                    String diff = prevAvgAcc >= 0
-                            ? formatDiff((avgAcc - prevAvgAcc) * 100, "%.0f%%", " vs last week") : "";
-                    sb.append(String.format("      Avg accuracy: %.0f%%%s\n", avgAcc * 100, diff));
-                }
-
-                // Attempts with diff
-                double avgAttempts = avgInt(sessions, r -> r.getAttemptsCount() != null, TaskResult::getAttemptsCount);
-                double prevAvgAttempts = avgInt(prevSessions, r -> r.getAttemptsCount() != null, TaskResult::getAttemptsCount);
-                if (avgAttempts >= 0) {
-                    String diff = prevAvgAttempts >= 0
-                            ? formatDiff(avgAttempts - prevAvgAttempts, "%.1f", " vs last week") : "";
-                    sb.append(String.format("      Avg attempts: %.1f%s\n", avgAttempts, diff));
-                }
-
-                // Duration with diff
-                double avgDur = avgInt(sessions, r -> r.getDurationSeconds() != null, TaskResult::getDurationSeconds);
-                double prevAvgDur = avgInt(prevSessions, r -> r.getDurationSeconds() != null, TaskResult::getDurationSeconds);
-                if (avgDur >= 0) {
-                    String diff = prevAvgDur >= 0
-                            ? formatDiff(avgDur - prevAvgDur, "%.0fs", " vs last week") : "";
-                    sb.append(String.format("      Avg duration: %.0fs%s\n", avgDur, diff));
-                }
-
-                // Reaction time with diff
-                double avgReact = avgInt(sessions, r -> r.getAvgReactionTimeMs() != null, TaskResult::getAvgReactionTimeMs);
-                double prevAvgReact = avgInt(prevSessions, r -> r.getAvgReactionTimeMs() != null, TaskResult::getAvgReactionTimeMs);
-                if (avgReact >= 0) {
-                    String diff = prevAvgReact >= 0
-                            ? formatDiff(avgReact - prevAvgReact, "%.0fms", " vs last week") : "";
-                    sb.append(String.format("      Avg reaction time: %.0fms%s\n", avgReact, diff));
-                }
-
-                // Error breakdown — aggregated this week
-                Map<String, Integer> totalErrors = new HashMap<>();
-                for (TaskResult r : sessions) {
-                    if (r.getErrorBreakdown() != null) {
-                        r.getErrorBreakdown().forEach((k, v) -> totalErrors.merge(k, v, Integer::sum));
-                    }
-                }
-                if (!totalErrors.isEmpty()) {
-                    sb.append("      Top errors this week:\n");
-                    totalErrors.entrySet().stream()
-                            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                            .limit(3)
-                            .forEach(e -> sb.append("        - ").append(e.getKey())
-                                    .append(": ").append(e.getValue()).append(" time(s)\n"));
-                }
-
-                // Extra — numeric fields averaged
-                Map<String, List<Double>> numericAcc = new HashMap<>();
-                Map<String, Object> nonNumeric = new HashMap<>();
-                for (TaskResult r : sessions) {
-                    if (r.getExtra() != null) {
-                        r.getExtra().forEach((k, v) -> {
-                            if (v instanceof Number n) {
-                                numericAcc.computeIfAbsent(k, x -> new ArrayList<>()).add(n.doubleValue());
-                            } else {
-                                nonNumeric.put(k, v);
-                            }
-                        });
-                    }
-                }
-                Map<String, Object> extraMerged = new LinkedHashMap<>(nonNumeric);
-                numericAcc.forEach((k, vals) ->
-                        extraMerged.put(k, vals.stream().mapToDouble(Double::doubleValue).average().orElse(0)));
-                if (!extraMerged.isEmpty()) {
-                    sb.append("      Additional metrics:\n");
-                    extraMerged.forEach((k, v) -> {
-                        if (v instanceof Double d) {
-                            sb.append(String.format("        - %s: %.2f\n", k, d));
-                        } else {
-                            sb.append("        - ").append(k).append(": ").append(v).append("\n");
-                        }
-                    });
-                }
-
-                sb.append("\n");
-            }
-
-            // ── 3. Best and worst tasks ──────────────────────────────────────
-            Map<String, Double> accByTask = new LinkedHashMap<>();
-            thisWeekByTask.forEach((task, sessions) -> {
-                double acc = avgDouble(sessions, r -> r.getAccuracy() != null,
-                        r -> r.getAccuracy().doubleValue());
-                if (acc >= 0) accByTask.put(task, acc);
-            });
-
-            if (accByTask.size() >= 2) {
-                String best  = Collections.max(accByTask.entrySet(), Map.Entry.comparingByValue()).getKey();
-                String worst = Collections.min(accByTask.entrySet(), Map.Entry.comparingByValue()).getKey();
-                sb.append(String.format("  ★ Best task:  %s (%.0f%% accuracy)\n",
-                        best, accByTask.get(best) * 100));
-                sb.append(String.format("  ✗ Worst task: %s (%.0f%% accuracy)\n",
-                        worst, accByTask.get(worst) * 100));
-            }
-
-            // ── 4. Notable errors across all tasks ───────────────────────────
-            Map<String, Integer> allErrors = new HashMap<>();
-            for (TaskResult r : thisWeek) {
-                if (r.getErrorBreakdown() != null) {
-                    r.getErrorBreakdown().forEach((k, v) -> allErrors.merge(k, v, Integer::sum));
-                }
-            }
-            if (!allErrors.isEmpty()) {
-                sb.append("  Notable errors (all tasks):\n");
-                allErrors.entrySet().stream()
-                        .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                        .limit(3)
-                        .forEach(e -> sb.append("    - ").append(e.getKey())
-                                .append(": ").append(e.getValue()).append(" time(s)\n"));
-            }
-
-            // ── 5. Assigned but not attempted ────────────────────────────────
-            Set<Integer> attemptedTaskIds = thisWeek.stream()
-                    .map(TaskResult::getTaskId)
-                    .collect(Collectors.toSet());
-
-            List<Assignment> assignments = assignmentRepository.findByPatient(patient);
-            Set<String> skippedTasks = new LinkedHashSet<>();
-            for (Assignment assignment : assignments) {
-                for (AssignedExercise ex : assignment.getAssignedExercises()) {
-                    if (ex.getType() == ExerciseType.TASK && ex.getTask() != null) {
-                        Long taskId = ex.getTask().getId();
-                        if (!attemptedTaskIds.contains(taskId.intValue())) {
-                            skippedTasks.add(ex.getTask().getTitle());
-                        }
-                    }
-                }
-            }
-            if (!skippedTasks.isEmpty()) {
-                sb.append("  ⚠ Assigned but not attempted this week:\n");
-                skippedTasks.forEach(t -> sb.append("    - ").append(t).append("\n"));
-            }
-
-            sb.append("\n");
+        List<TaskWeeklyStats> taskStatsList = new ArrayList<>();
+        Map<String, Double> accByTask = new LinkedHashMap<>();
+        for (Map.Entry<String, List<TaskResult>> e : thisWeekByTask.entrySet()) {
+            TaskWeeklyStats ts = buildTaskStats(e.getKey(), e.getValue(),
+                    lastWeekByTask.getOrDefault(e.getKey(), List.of()));
+            taskStatsList.add(ts);
+            if (ts.getAvgAccuracy() != null) accByTask.put(ts.getTaskName(), ts.getAvgAccuracy());
         }
 
+        String bestTask  = accByTask.isEmpty() ? null :
+                Collections.max(accByTask.entrySet(), Map.Entry.comparingByValue()).getKey();
+        String worstTask = accByTask.size() < 2 ? null :
+                Collections.min(accByTask.entrySet(), Map.Entry.comparingByValue()).getKey();
+
+        Map<String, Integer> allErrors = new LinkedHashMap<>();
+        thisWeek.forEach(r -> { if (r.getErrorBreakdown() != null)
+            r.getErrorBreakdown().forEach((k, v) -> allErrors.merge(k, v, Integer::sum)); });
+        Map<String, Integer> notableErrors = allErrors.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(3)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+
+        Set<Integer> attemptedIds = thisWeek.stream().map(TaskResult::getTaskId).collect(Collectors.toSet());
+        List<String> skipped = assignmentRepository.findByPatient(patient).stream()
+                .flatMap(a -> a.getAssignedExercises().stream())
+                .filter(ex -> ex.getType() == ExerciseType.TASK && ex.getTask() != null)
+                .filter(ex -> !attemptedIds.contains(ex.getTask().getId().intValue()))
+                .map(ex -> ex.getTask().getTitle()).distinct().collect(Collectors.toList());
+
+        String diagnosis = null; LocalDate tStart = null; LocalDate tEnd = null;
+        if (patient.getMedicalDetails() != null
+                && patient.getMedicalDetails().additionalInfoData() != null
+                && patient.getMedicalDetails().additionalInfoData().caseInfoData() != null) {
+            CaseInfoData ci = patient.getMedicalDetails().additionalInfoData().caseInfoData();
+            diagnosis = ci.primaryDiagnosis(); tStart = ci.startDate(); tEnd = ci.endDate();
+        }
+
+        return PatientWeeklyReport.builder()
+                .patientName(patient.getName()).patientSpecificId(patient.getPatientID())
+                .diagnosis(diagnosis).treatmentStart(tStart).treatmentEnd(tEnd)
+                .totalSessions(thisWeek.size()).activeDays(activeDays).streak(streak)
+                .tasks(taskStatsList).bestTask(bestTask).worstTask(worstTask)
+                .notableErrors(notableErrors).skippedTasks(skipped).build();
+    }
+
+    private TaskWeeklyStats buildTaskStats(String name, List<TaskResult> cur, List<TaskResult> prev) {
+        int n = cur.size(), pn = prev.size();
+        long completed = cur.stream().filter(TaskResult::isCompleted).count();
+
+        Double avgAcc      = nullableDouble(cur, r -> r.getAccuracy() != null, r -> r.getAccuracy().doubleValue());
+        Double prevAvgAcc  = nullableDouble(prev, r -> r.getAccuracy() != null, r -> r.getAccuracy().doubleValue());
+        Double avgAtt      = nullableInt(cur, r -> r.getAttemptsCount() != null, TaskResult::getAttemptsCount);
+        Double prevAvgAtt  = nullableInt(prev, r -> r.getAttemptsCount() != null, TaskResult::getAttemptsCount);
+        Double avgDur      = nullableInt(cur, r -> r.getDurationSeconds() != null, TaskResult::getDurationSeconds);
+        Double prevAvgDur  = nullableInt(prev, r -> r.getDurationSeconds() != null, TaskResult::getDurationSeconds);
+        Double avgReact    = nullableInt(cur, r -> r.getAvgReactionTimeMs() != null, TaskResult::getAvgReactionTimeMs);
+        Double prevAvgReact= nullableInt(prev, r -> r.getAvgReactionTimeMs() != null, TaskResult::getAvgReactionTimeMs);
+
+        Map<String, Integer> errors = new LinkedHashMap<>();
+        cur.forEach(r -> { if (r.getErrorBreakdown() != null)
+            r.getErrorBreakdown().forEach((k, v) -> errors.merge(k, v, Integer::sum)); });
+        Map<String, Integer> topErrors = errors.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).limit(3)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+
+        return TaskWeeklyStats.builder()
+                .taskName(name).sessions(n).sessionsDiff(pn > 0 ? n - pn : null)
+                .completedCount(completed).completionPct(completed * 100.0 / n)
+                .avgAccuracy(avgAcc).accuracyDiff(diff(avgAcc, prevAvgAcc))
+                .avgAttempts(avgAtt).attemptsDiff(diff(avgAtt, prevAvgAtt))
+                .avgDurationSeconds(avgDur).durationDiff(diff(avgDur, prevAvgDur))
+                .avgReactionTimeMs(avgReact).reactionDiff(diff(avgReact, prevAvgReact))
+                .topErrors(topErrors).extraMetrics(mergeExtra(cur)).build();
+    }
+
+    // Email formatter
+    String toEmailBody(WeeklyReportResponse report) {
+        StringBuilder sb = new StringBuilder();
+        for (PatientWeeklyReport p : report.getPatients()) {
+            sb.append("=== Patient: ").append(p.getPatientName()).append(" ===\n");
+            if (p.getDiagnosis() != null) sb.append("  Diagnosis: ").append(p.getDiagnosis()).append("\n");
+            sb.append(String.format("  Activity: %d sessions | %d/7 days | %d-day streak\n",
+                    p.getTotalSessions(), p.getActiveDays(), p.getStreak()));
+            if (p.getTasks().isEmpty()) { sb.append("  No sessions this week.\n\n"); continue; }
+            sb.append("\n  Tasks:\n");
+            for (TaskWeeklyStats t : p.getTasks()) {
+                sb.append("  • ").append(t.getTaskName()).append(":\n");
+                sb.append(String.format("      Sessions: %d%s | Completed: %d/%d (%.0f%%)\n",
+                        t.getSessions(), t.getSessionsDiff() != null ? diffStr(t.getSessionsDiff(),"","") : "",
+                        t.getCompletedCount(), t.getSessions(), t.getCompletionPct()));
+                if (t.getAvgAccuracy() != null) sb.append(String.format(
+                        "      Avg accuracy: %.0f%%%s\n", t.getAvgAccuracy()*100,
+                        t.getAccuracyDiff() != null ? diffStr(t.getAccuracyDiff()*100,"%.0f%%"," vs last week") : ""));
+                if (t.getAvgAttempts() != null) sb.append(String.format(
+                        "      Avg attempts: %.1f%s\n", t.getAvgAttempts(),
+                        t.getAttemptsDiff() != null ? diffStr(t.getAttemptsDiff(),"%.1f"," vs last week") : ""));
+                if (t.getAvgDurationSeconds() != null) sb.append(String.format(
+                        "      Avg duration: %.0fs%s\n", t.getAvgDurationSeconds(),
+                        t.getDurationDiff() != null ? diffStr(t.getDurationDiff(),"%.0fs"," vs last week") : ""));
+                if (t.getAvgReactionTimeMs() != null) sb.append(String.format(
+                        "      Avg reaction: %.0fms%s\n", t.getAvgReactionTimeMs(),
+                        t.getReactionDiff() != null ? diffStr(t.getReactionDiff(),"%.0fms"," vs last week") : ""));
+                if (!t.getTopErrors().isEmpty()) {
+                    sb.append("      Top errors:\n");
+                    t.getTopErrors().forEach((k,v) -> sb.append("        - ").append(k).append(": ").append(v).append("\n"));
+                }
+                if (!t.getExtraMetrics().isEmpty()) {
+                    sb.append("      Extras:\n");
+                    t.getExtraMetrics().forEach((k,v) -> {
+                        if (v instanceof Double d) sb.append(String.format("        - %s: %.2f\n",k,d));
+                        else sb.append("        - ").append(k).append(": ").append(v).append("\n");
+                    });
+                }
+                sb.append("\n");
+            }
+            if (p.getBestTask() != null) sb.append("  ★ Best:  ").append(p.getBestTask()).append("\n");
+            if (p.getWorstTask() != null) sb.append("  ✗ Worst: ").append(p.getWorstTask()).append("\n");
+            if (!p.getNotableErrors().isEmpty()) {
+                sb.append("  Notable errors:\n");
+                p.getNotableErrors().forEach((k,v) -> sb.append("    - ").append(k).append(": ").append(v).append("\n"));
+            }
+            if (!p.getSkippedTasks().isEmpty()) {
+                sb.append("  Not attempted:\n");
+                p.getSkippedTasks().forEach(t -> sb.append("    - ").append(t).append("\n"));
+            }
+            sb.append("\n");
+        }
         return sb.toString().trim();
     }
 
-    // ── helpers ──────────────────────────────────────────────────────────────
-
-    private double avgDouble(List<TaskResult> sessions,
-                             java.util.function.Predicate<TaskResult> filter,
-                             java.util.function.ToDoubleFunction<TaskResult> mapper) {
-        return sessions.stream().filter(filter).mapToDouble(mapper).average().orElse(-1);
+    // Helpers
+    private WeekWindow weekWindow() {
+        LocalDate today = LocalDate.now();
+        LocalDate ws = today.with(DayOfWeek.MONDAY).minusWeeks(1);
+        LocalDate we = ws.plusDays(6);
+        return new WeekWindow(
+                ws.atStartOfDay().atOffset(ZoneOffset.UTC), we.atTime(23,59,59).atOffset(ZoneOffset.UTC),
+                ws.minusWeeks(1).atStartOfDay().atOffset(ZoneOffset.UTC), we.minusWeeks(1).atTime(23,59,59).atOffset(ZoneOffset.UTC),
+                ws.format(WEEK_DATE_FMT) + " – " + we.format(WEEK_YEAR_FMT));
     }
 
-    private double avgInt(List<TaskResult> sessions,
-                          java.util.function.Predicate<TaskResult> filter,
-                          java.util.function.ToIntFunction<TaskResult> mapper) {
-        return sessions.stream().filter(filter).mapToInt(mapper).average().orElse(-1);
+    private int calcStreak(List<TaskResult> sessions) {
+        List<LocalDate> days = sessions.stream().map(r -> r.getStartedAt().toLocalDate()).distinct().sorted().toList();
+        if (days.isEmpty()) return 0;
+        int s = 1;
+        for (int i = days.size()-1; i > 0; i--) { if (days.get(i).minusDays(1).equals(days.get(i-1))) s++; else break; }
+        return s;
     }
 
-    /**
-     * Returns e.g. " (↑6% vs last week)" or " (↓2 vs last week)" or "" if diff == 0.
-     */
-    private String formatDiff(double diff, String fmt, String suffix) {
-        if (diff == 0) return "";
-        String sign = diff > 0 ? "↑" : "↓";
-        if (fmt.isBlank()) {
-            return String.format(" (%s%d%s)", sign, Math.abs((int) diff), suffix);
-        }
-        return String.format(" (%s" + fmt + "%s)", sign, Math.abs(diff), suffix);
+    private Double nullableDouble(List<TaskResult> s, Predicate<TaskResult> f, ToDoubleFunction<TaskResult> m) {
+        OptionalDouble o = s.stream().filter(f).mapToDouble(m).average(); return o.isPresent() ? o.getAsDouble() : null;
     }
+    private Double nullableInt(List<TaskResult> s, Predicate<TaskResult> f, ToIntFunction<TaskResult> m) {
+        OptionalDouble o = s.stream().filter(f).mapToInt(m).average(); return o.isPresent() ? o.getAsDouble() : null;
+    }
+    private Double diff(Double a, Double b) { return (a != null && b != null) ? a - b : null; }
+
+    private Map<String, Object> mergeExtra(List<TaskResult> sessions) {
+        Map<String, List<Double>> num = new LinkedHashMap<>();
+        Map<String, Object> other = new LinkedHashMap<>();
+        sessions.forEach(r -> { if (r.getExtra() == null) return;
+            r.getExtra().forEach((k,v) -> { if (v instanceof Number n) num.computeIfAbsent(k, x -> new ArrayList<>()).add(n.doubleValue()); else other.put(k,v); }); });
+        Map<String, Object> merged = new LinkedHashMap<>(other);
+        num.forEach((k,vals) -> merged.put(k, vals.stream().mapToDouble(Double::doubleValue).average().orElse(0)));
+        return merged;
+    }
+
+    private String diffStr(double d, String fmt, String suffix) {
+        if (d == 0) return "";
+        String sign = d > 0 ? "↑" : "↓";
+        if (fmt.isBlank()) return String.format(" (%s%d%s)", sign, (int)Math.abs(d), suffix);
+        return String.format(" (%s"+fmt+"%s)", sign, Math.abs(d), suffix);
+    }
+
+    private record WeekWindow(OffsetDateTime from, OffsetDateTime to,
+                               OffsetDateTime prevFrom, OffsetDateTime prevTo, String label) {}
 }
