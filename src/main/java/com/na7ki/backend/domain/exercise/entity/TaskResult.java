@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.exercise.Entity;
+package com.na7ki.backend.domain.exercise.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,19 +48,19 @@ public class TaskResult {
     @Column(nullable = false)
     private boolean completed;
 
-    @Column(name = "duration_seconds", nullable = false)
+    @Column(name = "duration_seconds")
     private Integer durationSeconds;
 
-    @Column(name = "total_rounds", nullable = false)
+    @Column(name = "total_rounds")
     private Integer totalRounds;
 
-    @Column(name = "correct_rounds", nullable = false)
+    @Column(name = "correct_rounds")
     private Integer correctRounds;
 
     @Column(precision = 5, scale = 4)
     private BigDecimal accuracy;
 
-    @Column(name = "attempts_count", nullable = false)
+    @Column(name = "attempts_count")
     private Integer attemptsCount;
 
     @Column(name = "avg_reaction_ms")

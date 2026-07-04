@@ -41,7 +41,7 @@ public class ExerciseManagementController {
 
             @RequestBody @Valid AssignExerciseRequest request
     ) {
-        exerciseManagementService.assignTask(((Specialist) specialist), patientSpecificId, request);
+        exerciseManagementService.assignExercise(((Specialist) specialist), patientSpecificId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

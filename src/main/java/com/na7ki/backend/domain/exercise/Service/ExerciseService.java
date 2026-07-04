@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.exercise.Service;
 
-import com.na7ki.backend.domain.exercise.Entity.*;
+import com.na7ki.backend.domain.exercise.entity.*;
 import com.na7ki.backend.domain.exercise.Repository.*;
 import com.na7ki.backend.domain.exercise.dto.*;
 import com.na7ki.backend.domain.exercise.exception.PackageNotFoundException;

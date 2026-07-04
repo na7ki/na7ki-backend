@@ -1,11 +1,11 @@
 package com.na7ki.backend.exercise_management.mapper;
 
-import com.na7ki.backend.domain.exercise.Entity.Packages;
-import com.na7ki.backend.domain.exercise.Entity.Task;
 import com.na7ki.backend.domain.exercise.dto.PackageDTO;
 import com.na7ki.backend.domain.exercise.dto.QuestionDTO;
 import com.na7ki.backend.domain.exercise.dto.TaskResponse;
-import com.na7ki.backend.domain.exercise.Entity.Question;
+import com.na7ki.backend.domain.exercise.entity.Packages;
+import com.na7ki.backend.domain.exercise.entity.Question;
+import com.na7ki.backend.domain.exercise.entity.Task;
 import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackage;
 import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentQuestion;
 import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentTask;

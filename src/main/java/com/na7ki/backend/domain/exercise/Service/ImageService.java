@@ -2,7 +2,7 @@ package com.na7ki.backend.domain.exercise.Service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.na7ki.backend.domain.exercise.Entity.Image;
+import com.na7ki.backend.domain.exercise.entity.Image;
 import com.na7ki.backend.domain.exercise.Repository.ImageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

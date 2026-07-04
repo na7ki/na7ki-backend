@@ -1,10 +1,11 @@
 package com.na7ki.backend.exercise_management;
 
+import com.na7ki.backend.domain.exercise.entity.Packages;
+import com.na7ki.backend.domain.exercise.entity.Question;
+import com.na7ki.backend.domain.exercise.entity.Task;
+import com.na7ki.backend.exercise_management.dto.request.AssignExerciseRequest;
 import com.na7ki.backend.notification.NotificationService;
 
-import com.na7ki.backend.domain.exercise.Entity.Packages;
-import com.na7ki.backend.domain.exercise.Entity.Question;
-import com.na7ki.backend.domain.exercise.Entity.Task;
 import com.na7ki.backend.domain.exercise.Service.ExerciseService;
 import com.na7ki.backend.domain.exercise.Service.TaskService;
 import com.na7ki.backend.domain.exercise.dto.PackageDTO;
@@ -13,7 +14,6 @@ import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.manage_patients.exception.SpecialistRequestingNonAssociatedPatientDataException;
 import com.na7ki.backend.exercise_management.assignment.AssignmentRepository;
-import com.na7ki.backend.exercise_management.dto.request.AssignExerciseRequest;
 import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackage;
 import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackageOfQuestions;
 import com.na7ki.backend.exercise_management.dto.response.exercises_list_response.AssignmentPackageOfTasks;
@@ -70,7 +70,7 @@ public class ExerciseManagementService {
         }
     }
 
-    public void assignTask(Specialist supervisor, String patientSpecificId, AssignExerciseRequest request) {
+    public void assignExercise(Specialist supervisor, String patientSpecificId, AssignExerciseRequest request) {
 
     Patient associatedPatient = userService.findByPatientId(patientSpecificId);
 
@@ -123,7 +123,7 @@ public class ExerciseManagementService {
     notifyPatientOfNewAssignment(associatedPatient, supervisor, assignment);
 }
 
-   private void notifyPatientOfNewAssignment (Patient patient, Specialist supervisor, Assignment assignment) {
+   private void notifyPatientOfNewAssignment(Patient patient, Specialist supervisor, Assignment assignment) {
 
     List<Map<String, Object>> assignedItems = new ArrayList<>();
 

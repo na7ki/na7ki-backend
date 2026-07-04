@@ -2,8 +2,8 @@ package com.na7ki.backend.domain.exercise.Service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.na7ki.backend.domain.exercise.Entity.Image;
-import com.na7ki.backend.domain.exercise.Entity.Sound;
+import com.na7ki.backend.domain.exercise.entity.Image;
+import com.na7ki.backend.domain.exercise.entity.Sound;
 import com.na7ki.backend.domain.exercise.Repository.ImageRepository;
 import com.na7ki.backend.domain.exercise.Repository.SoundRepository;
 import org.springframework.stereotype.Service;

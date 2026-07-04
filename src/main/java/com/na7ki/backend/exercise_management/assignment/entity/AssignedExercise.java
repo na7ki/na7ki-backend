@@ -1,7 +1,7 @@
 package com.na7ki.backend.exercise_management.assignment.entity;
 
-import com.na7ki.backend.domain.exercise.Entity.Question;
-import com.na7ki.backend.domain.exercise.Entity.Task;
+import com.na7ki.backend.domain.exercise.entity.Question;
+import com.na7ki.backend.domain.exercise.entity.Task;
 import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
