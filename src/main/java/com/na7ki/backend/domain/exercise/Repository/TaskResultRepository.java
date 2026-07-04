@@ -12,7 +12,7 @@ public interface TaskResultRepository extends JpaRepository<TaskResult, Long> {
     List<TaskResult> findByPatientIdOrderByStartedAtDesc(Long patientId);
 
     Optional<TaskResult> findByPatientIdAndTaskIdAndStartedAt(
-            Long patientId, Integer taskId, OffsetDateTime startedAt);
+            Long patientId, Long taskId, OffsetDateTime startedAt);
 
     List<TaskResult> findByPatientIdAndStartedAtBetweenOrderByStartedAt(
             Long patientId, OffsetDateTime from, OffsetDateTime to);

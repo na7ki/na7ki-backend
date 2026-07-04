@@ -12,6 +12,7 @@ public class TaskResultMapper {
         TaskResult entity = new TaskResult();
         entity.setPatientId(patientId);
         entity.setTaskId(req.getTaskId());
+        entity.setExerciseType(req.getExerciseType());
         entity.setTaskName(req.getTaskName());
         entity.setStartedAt(req.getStartedAt());
         entity.setCompletedAt(req.getCompletedAt());
@@ -32,6 +33,7 @@ public class TaskResultMapper {
                 .id(entity.getId())
                 .patientId(entity.getPatientId())
                 .taskId(entity.getTaskId())
+                .exerciseType(entity.getExerciseType())
                 .taskName(entity.getTaskName())
                 .startedAt(entity.getStartedAt())
                 .completedAt(entity.getCompletedAt())

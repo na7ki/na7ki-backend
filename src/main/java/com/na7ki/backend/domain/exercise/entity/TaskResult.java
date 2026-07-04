@@ -1,5 +1,6 @@
 package com.na7ki.backend.domain.exercise.entity;
 
+import com.na7ki.backend.task_management.assignment.entity.enums.ExerciseType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,10 +35,16 @@ public class TaskResult {
     private Long patientId;
 
     @Column(name = "task_id", nullable = false)
-    private Integer taskId;
+    private Long taskId;
 
     @Column(name = "task_name", nullable = false)
     private String taskName;
+
+    // TASK = cognitive task (task_id references tasks.id); QUESTION = non-cognitive package (task_id references packages.id)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exercise_type", nullable = false, length = 20,
+            columnDefinition = "VARCHAR(20) DEFAULT 'TASK'")
+    private ExerciseType exerciseType;
 
     @Column(name = "started_at", nullable = false)
     private OffsetDateTime startedAt;
