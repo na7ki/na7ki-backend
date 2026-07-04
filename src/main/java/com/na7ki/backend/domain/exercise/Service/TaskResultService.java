@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.exercise.Service;
 
-import com.na7ki.backend.domain.exercise.Entity.TaskResult;
+import com.na7ki.backend.domain.exercise.entity.TaskResult;
 import com.na7ki.backend.domain.exercise.Repository.TaskResultRepository;
 import com.na7ki.backend.domain.exercise.dto.TaskResultMapper;
 import com.na7ki.backend.domain.exercise.dto.TaskResultRequest;

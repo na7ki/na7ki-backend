@@ -2,7 +2,7 @@ package com.na7ki.backend.domain.exercise.controller;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.na7ki.backend.domain.exercise.Entity.Image;
+import com.na7ki.backend.domain.exercise.entity.Image;
 import com.na7ki.backend.domain.exercise.Repository.ImageRepository;
 import com.na7ki.backend.domain.exercise.Service.CloudinaryFolderUploadService;
 import org.springframework.http.ResponseEntity;

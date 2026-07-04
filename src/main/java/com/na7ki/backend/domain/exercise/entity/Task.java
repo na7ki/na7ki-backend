@@ -1,4 +1,4 @@
-package com.na7ki.backend.domain.exercise.Entity;
+package com.na7ki.backend.domain.exercise.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

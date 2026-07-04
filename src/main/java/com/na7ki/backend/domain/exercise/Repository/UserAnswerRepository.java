@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.exercise.Repository;
 
-import com.na7ki.backend.domain.exercise.Entity.UserAnswer;
+import com.na7ki.backend.domain.exercise.entity.UserAnswer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

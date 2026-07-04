@@ -1,7 +1,7 @@
 package com.na7ki.backend.domain.exercise.Service;
 
 import com.na7ki.backend.domain.exercise.dto.ExerciseItemResponse;
-import com.na7ki.backend.domain.exercise.Entity.ExerciseItem;
+import com.na7ki.backend.domain.exercise.entity.ExerciseItem;
 import com.na7ki.backend.domain.exercise.Repository.ExerciseItemRepository;
 import org.springframework.stereotype.Service;
 

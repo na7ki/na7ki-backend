@@ -2,9 +2,9 @@ package com.na7ki.backend.task_management;
 
 import com.na7ki.backend.notification.NotificationService;
 
-import com.na7ki.backend.domain.exercise.Entity.Packages;
-import com.na7ki.backend.domain.exercise.Entity.Question;
-import com.na7ki.backend.domain.exercise.Entity.Task;
+import com.na7ki.backend.domain.exercise.entity.Packages;
+import com.na7ki.backend.domain.exercise.entity.Question;
+import com.na7ki.backend.domain.exercise.entity.Task;
 import com.na7ki.backend.domain.exercise.Service.ExerciseService;
 import com.na7ki.backend.domain.exercise.Service.TaskService;
 import com.na7ki.backend.domain.exercise.dto.PackageDTO;

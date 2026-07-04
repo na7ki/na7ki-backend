@@ -1,6 +1,6 @@
 package com.na7ki.backend.domain.exercise.dto;
 
-import com.na7ki.backend.domain.exercise.Entity.TaskResult;
+import com.na7ki.backend.domain.exercise.entity.TaskResult;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
