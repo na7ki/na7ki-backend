@@ -8,8 +8,9 @@ import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.entity.patient_medical_details.additional_info_data.CaseInfoData;
 import com.na7ki.backend.domain.user.repository.SpecialistRepository;
+import com.na7ki.backend.exercise_management.assignment.AssignmentService;
 import com.na7ki.backend.specialist_actions.report.dto.*;
-import com.na7ki.backend.exercise_management.assignment.AssignmentRepository;
+import com.na7ki.backend.exercise_management.assignment.repository.AssignmentRepository;
 import com.na7ki.backend.exercise_management.assignment.entity.enums.ExerciseType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ public class WeeklyReportService {
     private final SpecialistRepository specialistRepository;
     private final TaskResultRepository taskResultRepository;
     private final AssignmentRepository assignmentRepository;
+
+    private final AssignmentService assignmentService;
     private final EmailService emailService;
 
     private static final DateTimeFormatter WEEK_DATE_FMT =
@@ -119,7 +122,7 @@ public class WeeklyReportService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 
         Set<Integer> attemptedIds = thisWeek.stream().map(TaskResult::getTaskId).collect(Collectors.toSet());
-        List<String> skipped = assignmentRepository.findByPatient(patient).stream()
+        List<String> skipped = assignmentService.getAssignmentsByPatient(patient).stream()
                 .flatMap(a -> a.getAssignedExercises().stream())
                 .filter(ex -> ex.getType() == ExerciseType.TASK && ex.getTask() != null)
                 .filter(ex -> !attemptedIds.contains(ex.getTask().getId().intValue()))

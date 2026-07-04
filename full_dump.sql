@@ -22,7 +22,7 @@
 --
 LOCK TABLES `assigned_exercise` WRITE;
 /*!40000 ALTER TABLE `assigned_exercise` DISABLE KEYS */;
-INSERT INTO `assigned_exercise` VALUES (1, 'QUESTION', 1, 1, NULL), (2, 'QUESTION', 2, 2, NULL), (3, 'TASK', 1, NULL, 1), (4, 'TASK', 2, NULL, 2);
+INSERT INTO `assigned_exercise` VALUES (1, false, null, 'QUESTION', 1, 1, NULL), (2, false, null, 'QUESTION', 2, 2, NULL), (3, false, null, 'TASK', 1, NULL, 1), (4, false, null, 'TASK', 2, NULL, 2);
 /*!40000 ALTER TABLE `assigned_exercise` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -26,6 +26,7 @@ public class AssignedExercise {
     @Column(nullable = false)
     private ExerciseType type; // QUESTION or TASK
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isSolved = false;
 

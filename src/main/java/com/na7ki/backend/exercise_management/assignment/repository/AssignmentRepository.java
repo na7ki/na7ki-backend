@@ -1,4 +1,4 @@
-package com.na7ki.backend.exercise_management.assignment;
+package com.na7ki.backend.exercise_management.assignment.repository;
 
 import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.exercise_management.assignment.entity.Assignment;

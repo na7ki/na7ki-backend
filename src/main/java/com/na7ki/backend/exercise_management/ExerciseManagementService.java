@@ -1,5 +1,6 @@
 package com.na7ki.backend.exercise_management;
 
+import com.na7ki.backend.exercise_management.assignment.AssignmentService;
 import com.na7ki.backend.exercise_management.dto.response.patient_assigned_exercises_list_response.AssignedPackage;
 import com.na7ki.backend.exercise_management.exception.NothingChosenToBeAssignedException;
 import com.na7ki.backend.domain.exercise.entity.Packages;
@@ -15,7 +16,7 @@ import com.na7ki.backend.domain.user.entity.Patient;
 import com.na7ki.backend.domain.user.entity.Specialist;
 import com.na7ki.backend.domain.user.service.UserService;
 import com.na7ki.backend.specialist_actions.manage_patients.exception.SpecialistRequestingNonAssociatedPatientDataException;
-import com.na7ki.backend.exercise_management.assignment.AssignmentRepository;
+import com.na7ki.backend.exercise_management.assignment.repository.AssignmentRepository;
 import com.na7ki.backend.exercise_management.dto.response.AssignmentPackage;
 import com.na7ki.backend.exercise_management.dto.response.specialist_exercises_list_response.AssignmentPackageOfQuestions;
 import com.na7ki.backend.exercise_management.dto.response.specialist_exercises_list_response.AssignmentPackageOfTasks;
@@ -38,6 +39,7 @@ public class ExerciseManagementService {
     private final ExerciseService exerciseService;
     private final TaskService taskService;
     private final UserService userService;
+    private final AssignmentService assignmentService;
 
     private final ExercisesDataMapper mapper;
 
@@ -163,7 +165,7 @@ public class ExerciseManagementService {
 
     public List<AssignedPackage> getExercisesOfPatient (Patient patient) {
 
-        List<Assignment> assignments = assignmentRepository.findByPatient(patient);
+        List<Assignment> assignments = assignmentService.getAssignmentsByPatient(patient);
 
         List<AssignedPackage> assignedPackages = new ArrayList<>();
 
