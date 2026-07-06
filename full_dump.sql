@@ -21,7 +21,7 @@
 
 LOCK TABLES `assigned_exercise` WRITE;
 /*!40000 ALTER TABLE `assigned_exercise` DISABLE KEYS */;
-INSERT INTO `assigned_exercise` (`id`, `type`, `assignment_id`, `question_id`, `task_id`, `is_solved`, `solution_timestamp`) VALUES (1,'TASK',1,NULL,1,_binary '','2026-07-05 00:00:05.593000'),(2,'TASK',1,NULL,3,_binary '\0',NULL),(3,'QUESTION',1,1,NULL,_binary '\0',NULL),(4,'TASK',2,NULL,4,_binary '\0',NULL),(5,'QUESTION',2,5,NULL,_binary '\0',NULL),(6,'TASK',3,NULL,6,_binary '\0',NULL),(7,'QUESTION',3,6,NULL,_binary '\0',NULL),(8,'TASK',4,NULL,5,_binary '\0',NULL),(9,'TASK',4,NULL,7,_binary '\0',NULL),(10,'QUESTION',4,1,NULL,_binary '\0',NULL),(11,'TASK',5,NULL,10,_binary '\0',NULL);
+INSERT INTO `assigned_exercise` (`id`, `type`, `assignment_id`, `question_id`, `task_id`, `is_solved`, `solution_timestamp`) VALUES (1,'TASK',1,NULL,1,_binary '','2026-07-05 00:00:05.593000'),(2,'TASK',1,NULL,3,_binary '\0',NULL),(3,'QUESTION',1,1,NULL,_binary '\0',NULL),(4,'TASK',2,NULL,4,_binary '\0',NULL),(5,'QUESTION',2,5,NULL,_binary '\0',NULL),(6,'TASK',3,NULL,6,_binary '\0',NULL),(7,'QUESTION',3,6,NULL,_binary '\0',NULL),(8,'TASK',4,NULL,5,_binary '\0',NULL),(9,'TASK',4,NULL,7,_binary '\0',NULL),(10,'QUESTION',4,1,NULL,_binary '\0',NULL),(11,'TASK',5,NULL,10,_binary '\0',NULL),(12,'TASK',6,NULL,10,_binary '\0',NULL),(13,'TASK',7,NULL,10,_binary '\0',NULL),(14,'TASK',8,NULL,10,_binary '\0',NULL),(15,'TASK',9,NULL,10,_binary '\0',NULL);
 /*!40000 ALTER TABLE `assigned_exercise` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -31,7 +31,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `assignment` WRITE;
 /*!40000 ALTER TABLE `assignment` DISABLE KEYS */;
-INSERT INTO `assignment` (`id`, `assigned_at`, `patient_id`, `specialist_id`) VALUES (1,'2026-06-01 00:00:00.000000',8,5),(2,'2026-06-01 00:00:00.000000',9,5),(3,'2026-06-01 00:00:00.000000',10,5),(4,'2026-06-01 00:00:00.000000',11,5),(5,'2026-07-07 00:35:49.000000',7,5);
+INSERT INTO `assignment` (`id`, `assigned_at`, `patient_id`, `specialist_id`) VALUES (1,'2026-06-01 00:00:00.000000',8,5),(2,'2026-06-01 00:00:00.000000',9,5),(3,'2026-06-01 00:00:00.000000',10,5),(4,'2026-06-01 00:00:00.000000',11,5),(5,'2026-07-07 00:35:49.000000',7,5),(6,'2026-07-07 01:01:31.000000',8,5),(7,'2026-07-07 01:01:31.000000',9,5),(8,'2026-07-07 01:01:31.000000',10,5),(9,'2026-07-07 01:01:31.000000',11,5);
 /*!40000 ALTER TABLE `assignment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -247,4 +247,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-07  0:44:15
+-- Dump completed on 2026-07-07  1:01:50
