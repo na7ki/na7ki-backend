@@ -25,6 +25,11 @@ public class Question {
     private String correctAnswer;  // "SINGULAR" or "PLURAL"
     private Integer orderIndex;
 
+    // Used by single-image naming exercises (e.g. package 4); NULL for choice-based packages
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
+    private Image image;
+
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Choice> choices;
 }
