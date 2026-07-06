@@ -4,6 +4,8 @@ application-local.properties
 
 ### other ###
 venv
+na7ki-ai/.venv
+__pycache__/
 singular
 plural
 HELP.md

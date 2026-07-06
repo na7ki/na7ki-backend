@@ -3,7 +3,7 @@ import torch
 
 from app.model import ArabicPronunciationVerifier
 from app.dsp import preprocess_audio_bytes
-from app.config import CHECKPOINT_PATH, WORDS_JSON_PATH
+from app.config import CHECKPOINT_PATH, WORDS_JSON_PATH, VOCAB_SIZE
 
 _model: ArabicPronunciationVerifier | None = None
 _calib_a: float = 1.0
@@ -16,7 +16,7 @@ def is_ready() -> bool:
     return _model is not None
 
 
-def load_model(checkpoint_path: str = CHECKPOINT_PATH, vocab_size: int = 200) -> None:
+def load_model(checkpoint_path: str = CHECKPOINT_PATH, vocab_size: int = VOCAB_SIZE) -> None:
     """
     Loads the trained checkpoint once at process startup.
     vocab_size must be >= (max word_id seen in training) + 1 — same value

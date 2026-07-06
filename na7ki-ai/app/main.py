@@ -3,12 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 
 from app import inference
-from app.config import STRICT_CONFIDENCE_THRESHOLD, MODEL_VERSION
+from app.config import STRICT_CONFIDENCE_THRESHOLD, MODEL_VERSION, VOCAB_SIZE
 from app.schemas import VerifyResponse, HealthResponse
-
-# Set this to the same vocab_size used in training:
-# int(df_clean["word_id"].max() + 1)
-VOCAB_SIZE = 200
 
 
 @asynccontextmanager

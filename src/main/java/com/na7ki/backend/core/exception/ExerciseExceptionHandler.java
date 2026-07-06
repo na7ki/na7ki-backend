@@ -4,6 +4,8 @@ import com.na7ki.backend.domain.exercise.exception.PackageNotFoundException;
 import com.na7ki.backend.domain.exercise.exception.QuestionNotFoundException;
 import com.na7ki.backend.domain.exercise.exception.TaskNotFoundException;
 import com.na7ki.backend.domain.exercise.exception.TaskResultValidationException;
+import com.na7ki.backend.domain.exercise.pronunciation.exception.AiServiceUnavailableException;
+import com.na7ki.backend.domain.exercise.pronunciation.exception.PronunciationValidationException;
 import com.na7ki.backend.domain.user.exception.SpecificIdNotAssociatedWithAnyUserException;
 import com.na7ki.backend.exercise_management.exception.NothingChosenToBeAssignedException;
 import org.springframework.core.Ordered;
@@ -47,6 +49,16 @@ public class ExerciseExceptionHandler {
     @ExceptionHandler(TaskResultValidationException.class)
     public ResponseEntity<List<String>> handleTaskResultValidationException(TaskResultValidationException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+    }
+
+    @ExceptionHandler(PronunciationValidationException.class)
+    public ResponseEntity<List<String>> handlePronunciationValidationException(PronunciationValidationException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+    }
+
+    @ExceptionHandler(AiServiceUnavailableException.class)
+    public ResponseEntity<String> handleAiServiceUnavailableException(AiServiceUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ex.getMessage());
     }
 
 }
